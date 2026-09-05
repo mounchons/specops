@@ -1,0 +1,29 @@
+# DoD — phase 2 (design)
+
+Run 2026-09-05 on Windows 11 · Node v22.19.0 · state dir `test/rentpoint/.sdlc` on top of the phase-1 req records. Everything under `design/` was written by the design scripts in this run; the payloads are the AI's reading of testproject §4/§5, the screens took no payload at all.
+Every output cell is pasted from the command in its row. Rows that did not produce real output do not pass, by rule.
+
+| DoD item | result | proof command | output |
+|---|---|---|---|
+| ENT kinds equal testproject §4 (10 entities, 1 state machine, every state has a way out) | PASS | `node plugins/design/scripts/domain.mjs rental --state-dir test/rentpoint/.sdlc --records work/domain.json` | DOMAIN rental  ENT 10  STM 1 · Booking=aggregate RentalLine=entity Bill=aggregate Payment=entity DamageCharge=entity Customer=reference Equipment=reference EquipmentCategory=lookup:master Money=vo DateRange=vo |
+| lookup EquipmentCategory decided by the owner, not guessed | PASS | `node plugins/design/scripts/domain.mjs rental --state-dir test/rentpoint/.sdlc --lookup ENT-008=master` | LOOKUP ENT-008 (EquipmentCategory) -> master  — screens will generate a master screen for it |
+| 9 use cases · every live BR enforced by ≥1 step | PASS | `node plugins/design/scripts/usecase.mjs rental --state-dir test/rentpoint/.sdlc --records work/usecases.json` | USECASE rental  9 use case(s) · every live rule of rental is enforced by at least one step |
+| screen matrix ⊇ testproject §5 without a single screen being asked for (login/profile/home both apps · users/roles/permission/settings backoffice · 3 master · UC-001..009 · audit-log from NFR) | PASS | `node plugins/design/scripts/screens.mjs rental --state-dir test/rentpoint/.sdlc` | SCREENS rental  created 28  already there 0  skipped 1 · 28 screens · §5 cells present 28/28 · none where §5 has – ✓ |
+| the one deliberate difference is printed, not silent: customer (auth line) gets no forgot-password | PASS | `node plugins/design/scripts/screens.mjs rental --state-dir test/rentpoint/.sdlc` | baseline forgot-password customer     app customer is auth=line owns=[] — {"auth":"username"} does not hold |
+| screens is idempotent | PASS | `node plugins/design/scripts/screens.mjs rental --state-dir test/rentpoint/.sdlc` | SCREENS rental  created 0  already there 28  skipped 1 |
+| every write action has an API · LINE login declared with a failure mode | PASS | `node plugins/design/scripts/api.mjs rental --state-dir test/rentpoint/.sdlc` | API rental  generated 32 endpoint(s) · every write action on a screen has an endpoint |
+| 3 roles from STK-001..003 · every screen has an ACL row · customer dataScope own because BR-009 | PASS | `node plugins/design/scripts/rbac.mjs --state-dir test/rentpoint/.sdlc --records work/rbac.json` | RBAC  3 role(s) · ROLE-001  21 row(s), 0 still deny everything · ROLE-002  21 row(s), 4 still deny everything · ROLE-003  7 row(s), 0 still deny everything |
+| every UC flow and every NFR has an SCN with an observable expected result | PASS | `node plugins/design/scripts/scenario.mjs rental --state-dir test/rentpoint/.sdlc` | SCENARIO rental  generated 0  total 17  without an expected result 0 · EXPORT export/design-rental.md  239 lines |
+| V-checks green: every app with auth has login (G-008) · every reference ENT has an owner UI (G-009) · every ROLE managed (G-010) · every BR enforced (G-004) | PASS | `node plugins/core/scripts/gates.mjs --state-dir test/rentpoint/.sdlc` | gates=35  error=0  warn=1  limit=0 |
+| gates.mjs exit 0 on test/rentpoint | PASS | `node plugins/core/scripts/gates.mjs --state-dir test/rentpoint/.sdlc` | gates=35  error=0  warn=1  limit=0 · WARN  G-req-010  req questions: 2 open: DQ-rental-002, DQ-rental-001 |
+| no artifact file > 300 lines | PASS | `find test/rentpoint/.sdlc -type f \| xargs wc -l` | largest: gates.json 252 lines · 82 files |
+| Cold Start 1: "ทำไม app customer มีหน้า login" — from /core:query only | PASS | `node plugins/core/scripts/query.mjs UI-rental-025 --state-dir test/rentpoint/.sdlc` | ## UI-rental-025  [draft]  owner=design  file=design/rental/screens/customer-baseline.json · body: {"id":"UI-rental-025","title":"เข้าสู่ระบบ","status":"draft","app":"customer","origin":"baseline","kind":"login","generatorKey":"login",…"derivedFrom":[],"generatedAt":"2026-09-05T08:40:12.569Z"} |
+| Cold Start 2: "UI รายการจองบังคับ BR อะไร" — from /core:query only | PASS | `node plugins/core/scripts/query.mjs UI-rental-004 --state-dir test/rentpoint/.sdlc --no-body` | ## UI-rental-004  [draft]  owner=design  file=design/rental/screens/customer-usecase.json · displays UC-rental-002 [draft] · enforces BR-rental-009@v1 [draft] · enforces BR-rental-004@v1 [draft] · enforces BR-rental-010@v1 [draft] |
+| core:next reads the state, not the chat | PASS | `node plugins/core/scripts/next.mjs --state-dir test/rentpoint/.sdlc` | 1. install plugin "change" and run /change:init · 2. /req:ask rental · 3. /req:calc BR-rental-005@v1 |
+| design selftest (fixtures + live refusals + frozen-by-CR) | PASS | `node plugins/design/scripts/selftest.mjs` | design selftest PASSED (29) |
+
+Deliberate differences from a literal reading of testproject §5, both visible in the `screens` output rather than silent:
+- customer (auth `line`) gets login · profile · home but no forgot-password — there is no password to forget; the baseline entry requires `auth: username` and the skip is printed with its reason.
+- customer's copy of `ออกบิล` (UC-007) is what §5 calls "ดูบิล": the same use case seen from the customer app. G1 makes one screen per (use case, app) with the use case's title.
+
+Not designed on purpose: REQ-rental-009 (รายงานรายได้รายเดือน) has no use case — §5 has no report row and CR-003 in phase 3 is exactly that request. Nothing in design mints an RPT until a use case is marked `report: true`.

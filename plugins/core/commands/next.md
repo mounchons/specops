@@ -1,6 +1,6 @@
 ---
 description: The callsheet — name the next allowed action(s) from disk state. Never runs them.
-argument-hint: [--all]
+argument-hint: "[--all]"
 allowed-tools: Bash
 ---
 

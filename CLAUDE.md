@@ -68,6 +68,8 @@ State dir override: `--state-dir <path>` or `$SPECOPS_STATE_DIR`.
 `/phase` shows the build-state table and asks which step · `/phase 1` runs the next undone step of phase 1 ·
 `/phase 1 spec|approve|build|dod` runs one step · plain text works too: "ทำต่อ" = `/phase`, "อนุมัติ" = `/phase <current> approve`.
 State is computed by `node scripts/build-state.mjs` from files on disk (SPEC.md · checks.mjs · docs/dod/phase-n.md), never from chat.
+Model per step — the owner switches with `/model`, the AI never routes: spec · dod → **Fable** (writes, verifies) · build → **Opus**.
+`build-state.mjs` prints it; the running model self-checks and refuses a mismatched step (LIMIT: no script can see the model).
 
 ## Running core by hand
 

@@ -1,6 +1,6 @@
 ---
 description: Run every gate in .sdlc/gates.json. Exit 1 on errors. LIMIT lines are rules no script can check yet.
-argument-hint: [--plugin <name>] [--json]
+argument-hint: "[--plugin <name>] [--json]"
 allowed-tools: Bash
 ---
 

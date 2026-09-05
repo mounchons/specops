@@ -1,6 +1,6 @@
 ---
 description: One-screen status of the project from disk — artifacts by plugin and status, gate counts, open change requests.
-argument-hint: [--json]
+argument-hint: "[--json]"
 allowed-tools: Bash
 ---
 

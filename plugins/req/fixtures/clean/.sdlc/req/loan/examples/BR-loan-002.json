@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "EX-loan-002",
+      "title": "ปัดขึ้นหลักร้อย",
+      "status": "draft",
+      "given": "ค่าเช่ารวม 2,400",
+      "when": "คิดมัดจำ",
+      "then": "720 ปัดเป็น 800",
+      "derivedFrom": [
+        "BR-loan-002@v1"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "CALC-loan-001@v1",
+      "title": "การคำนวณมัดจำ",
+      "status": "draft",
+      "formula": "deposit = ceil(fee * 0.30 / 100) * 100",
+      "numberType": "integer",
+      "rounding": {
+        "mode": "ceil",
+        "unit": 100,
+        "at": "ปัดขึ้นหลังคูณ 30% แล้ว"
+      },
+      "boundary": [
+        "fee 3000 -> 900 พอดี ไม่ปัดเพิ่ม"
+      ],
+      "derivedFrom": [
+        "BR-loan-002@v1"
+      ]
+    }
+  ]
+}

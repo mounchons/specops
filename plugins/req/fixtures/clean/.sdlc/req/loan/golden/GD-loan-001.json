@@ -1,0 +1,28 @@
+{
+  "id": "GD-loan-001",
+  "title": "answer key ของ CALC-loan-001@v1",
+  "status": "approved",
+  "derivedFrom": [
+    "CALC-loan-001@v1"
+  ],
+  "rows": [
+    {
+      "label": "ปัดขึ้น",
+      "input": {
+        "fee": 2400
+      },
+      "expected": 800
+    },
+    {
+      "label": "ขอบเขตพอดี",
+      "input": {
+        "fee": 3000
+      },
+      "expected": 900
+    }
+  ],
+  "ranAt": "2026-09-05T00:00:00Z",
+  "signedBy": "STK-001",
+  "signedAt": "2026-09-05T00:00:00Z",
+  "evidence": "docs/evidence/approval.pdf"
+}

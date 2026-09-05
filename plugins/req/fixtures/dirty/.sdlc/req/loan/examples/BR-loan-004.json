@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "EX-loan-001",
+      "title": "ตัวอย่างที่ 1",
+      "status": "draft",
+      "given": "g",
+      "when": "w",
+      "then": "t",
+      "derivedFrom": [
+        "BR-loan-004@v1"
+      ]
+    },
+    {
+      "id": "EX-loan-002",
+      "title": "ตัวอย่างที่ 2",
+      "status": "draft",
+      "given": "g",
+      "when": "w",
+      "then": "t",
+      "derivedFrom": [
+        "BR-loan-004@v1"
+      ]
+    },
+    {
+      "id": "EX-loan-003",
+      "title": "ตัวอย่างที่ 3",
+      "status": "draft",
+      "given": "g",
+      "when": "w",
+      "then": "t",
+      "derivedFrom": [
+        "BR-loan-004@v1"
+      ]
+    },
+    {
+      "id": "EX-loan-004",
+      "title": "ตัวอย่างที่ 4",
+      "status": "draft",
+      "given": "g",
+      "when": "w",
+      "then": "t",
+      "derivedFrom": [
+        "BR-loan-004@v1"
+      ]
+    },
+    {
+      "id": "EX-loan-005",
+      "title": "ตัวอย่างที่ 5",
+      "status": "draft",
+      "given": "g",
+      "when": "w",
+      "then": "t",
+      "derivedFrom": [
+        "BR-loan-004@v1"
+      ]
+    },
+    {
+      "id": "EX-loan-006",
+      "title": "ตัวอย่างที่ 6",
+      "status": "draft",
+      "given": "g",
+      "when": "w",
+      "then": "t",
+      "derivedFrom": [
+        "BR-loan-004@v1"
+      ]
+    }
+  ]
+}

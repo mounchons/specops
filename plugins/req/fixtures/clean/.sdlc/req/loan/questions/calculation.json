@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "Q-loan-001",
+      "title": "ปัดเศษเงินอย่างไร",
+      "status": "reviewed",
+      "category": "calculation",
+      "bankKey": "calc-rounding",
+      "answer": {
+        "option": "a",
+        "text": "ปัดครึ่งขึ้น (0.5 ขึ้น)",
+        "at": "2026-09-05T00:00:00Z"
+      },
+      "mints": null
+    }
+  ]
+}

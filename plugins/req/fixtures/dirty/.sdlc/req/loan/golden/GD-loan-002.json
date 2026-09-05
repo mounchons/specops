@@ -1,0 +1,25 @@
+{
+  "id": "GD-loan-002",
+  "title": "answer key ที่ถูกแก้ด้วยมือ",
+  "status": "approved",
+  "derivedFrom": [
+    "CALC-loan-002@v1"
+  ],
+  "rows": [
+    {
+      "label": "ค่าที่พิมพ์เอง",
+      "input": {
+        "fee": 3000
+      },
+      "expected": 1000
+    },
+    {
+      "label": "ค่าที่ถูก",
+      "input": {
+        "fee": 2400
+      },
+      "expected": 800
+    }
+  ],
+  "ranAt": "2026-09-05T00:00:00Z"
+}

@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "1.0",
+  "owner": "req",
+  "edges": [
+    {
+      "from": "EX-loan-001",
+      "rel": "verifies",
+      "to": "BR-loan-004@v1"
+    },
+    {
+      "from": "EX-loan-002",
+      "rel": "verifies",
+      "to": "BR-loan-004@v1"
+    },
+    {
+      "from": "EX-loan-003",
+      "rel": "verifies",
+      "to": "BR-loan-004@v1"
+    },
+    {
+      "from": "EX-loan-004",
+      "rel": "verifies",
+      "to": "BR-loan-004@v1"
+    },
+    {
+      "from": "EX-loan-005",
+      "rel": "verifies",
+      "to": "BR-loan-004@v1"
+    },
+    {
+      "from": "EX-loan-006",
+      "rel": "verifies",
+      "to": "BR-loan-004@v1"
+    }
+  ]
+}

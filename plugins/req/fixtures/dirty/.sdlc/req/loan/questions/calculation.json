@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "Q-loan-001",
+      "title": "คำถามที่ยังไม่มีคำตอบ",
+      "status": "draft",
+      "category": "calculation",
+      "bankKey": "calc-rounding"
+    }
+  ]
+}

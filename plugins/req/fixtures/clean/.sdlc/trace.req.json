@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0",
+  "owner": "req",
+  "edges": [
+    {
+      "from": "EX-loan-001",
+      "rel": "verifies",
+      "to": "BR-loan-001@v2"
+    },
+    {
+      "from": "EX-loan-002",
+      "rel": "verifies",
+      "to": "BR-loan-002@v1"
+    },
+    {
+      "from": "CALC-loan-001@v1",
+      "rel": "calculates",
+      "to": "BR-loan-002@v1"
+    },
+    {
+      "from": "GD-loan-001",
+      "rel": "verifies",
+      "to": "CALC-loan-001@v1"
+    }
+  ]
+}

@@ -14,6 +14,12 @@
       "source": "./plugins/core",
       "description": "State dir, id registry, gates, status/next/query. Every other specops plugin depends on this one.",
       "version": "0.1.0"
+    },
+    {
+      "name": "req",
+      "source": "./plugins/req",
+      "description": "Requirements per module: capture what the client said, ask the question bank, map rules to examples, pin calculations to signed golden datasets, export the Thai document. Needs core.",
+      "version": "0.1.0"
     }
   ]
 }

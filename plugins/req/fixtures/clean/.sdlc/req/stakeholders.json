@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "STK-001",
+      "title": "เจ้าของร้าน",
+      "status": "reviewed",
+      "role": "manager"
+    },
+    {
+      "id": "STK-002",
+      "title": "ลูกค้าผู้เช่า",
+      "status": "reviewed",
+      "role": "customer"
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "schemaVersion": "1.0",
+  "gates": [
+    {
+      "id": "G-core-001",
+      "plugin": "core",
+      "check": "core:id-shape",
+      "severity": "error",
+      "rule": "every artifact id matches the ids registry (ids.mjs)"
+    },
+    {
+      "id": "G-core-005",
+      "plugin": "core",
+      "check": "core:file-lines",
+      "severity": "error",
+      "rule": "no artifact file the AI reads exceeds 300 lines"
+    },
+    {
+      "id": "G-core-006",
+      "plugin": "core",
+      "check": "core:dangling-ref",
+      "severity": "error",
+      "rule": "every referenced id exists"
+    },
+    {
+      "id": "G-req-001",
+      "plugin": "req",
+      "check": "req:req-actor-goal",
+      "severity": "error",
+      "rule": "every REQ has a non-empty actor and goal"
+    },
+    {
+      "id": "G-req-002",
+      "plugin": "req",
+      "check": "req:actor-is-stk",
+      "severity": "error",
+      "rule": "every REQ.actor is an existing STK"
+    },
+    {
+      "id": "G-req-003",
+      "plugin": "req",
+      "check": "req:br-has-example",
+      "severity": "error",
+      "rule": "every BR@v that is not retired has at least one EX"
+    },
+    {
+      "id": "G-req-004",
+      "plugin": "req",
+      "check": "req:ex-cap",
+      "severity": "error",
+      "rule": "no BR@v has more than 5 EX"
+    },
+    {
+      "id": "G-req-005",
+      "plugin": "req",
+      "check": "req:calc-pins-one-br",
+      "severity": "error",
+      "rule": "a CALC pins exactly one BR version"
+    },
+    {
+      "id": "G-req-006",
+      "plugin": "req",
+      "check": "req:golden-match",
+      "severity": "error",
+      "rule": "re-running the golden script reproduces every expected value in the GD"
+    },
+    {
+      "id": "G-req-007",
+      "plugin": "req",
+      "check": "req:golden-signed",
+      "severity": "error",
+      "rule": "a GD with status approved carries signedBy and evidence"
+    },
+    {
+      "id": "G-req-008",
+      "plugin": "req",
+      "check": "req:br-one-active",
+      "severity": "error",
+      "rule": "a BR or CALC lineage has at most one version that is not retired"
+    },
+    {
+      "id": "G-req-009",
+      "plugin": "req",
+      "check": "req:br-version-needs-cr",
+      "severity": "error",
+      "rule": "a new version of an approved BR or CALC names the CR that asked for it"
+    },
+    {
+      "id": "G-req-010",
+      "plugin": "req",
+      "check": "req:open-question",
+      "severity": "warn",
+      "rule": "open questions block CP1"
+    }
+  ]
+}

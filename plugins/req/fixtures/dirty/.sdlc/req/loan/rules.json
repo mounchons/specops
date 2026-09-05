@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "BR-loan-003@v1",
+      "title": "กฎที่ไม่มีตัวอย่าง",
+      "status": "draft"
+    },
+    {
+      "id": "BR-loan-004@v1",
+      "title": "กฎที่มีตัวอย่างเกินเพดาน",
+      "status": "draft"
+    },
+    {
+      "id": "BR-loan-005@v1",
+      "title": "เวอร์ชันเก่าที่ลืม retire",
+      "status": "draft"
+    },
+    {
+      "id": "BR-loan-005@v2",
+      "title": "เวอร์ชันใหม่",
+      "status": "draft",
+      "derivedFrom": [
+        "BR-loan-005@v1"
+      ]
+    },
+    {
+      "id": "BR-loan-006@v1",
+      "title": "กฎที่ลูกค้าเซ็นแล้ว",
+      "status": "approved",
+      "approval": {
+        "by": "STK-001",
+        "at": "2026-09-01T00:00:00Z",
+        "evidence": "docs/evidence/approval.pdf",
+        "docHash": "0000000000000000"
+      }
+    },
+    {
+      "id": "BR-loan-006@v2",
+      "title": "เวอร์ชันใหม่ที่ไม่มี CR",
+      "status": "draft",
+      "derivedFrom": [
+        "BR-loan-006@v1"
+      ]
+    }
+  ]
+}

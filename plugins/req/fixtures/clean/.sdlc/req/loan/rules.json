@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "BR-loan-001@v1",
+      "title": "ค่าเช่า = จำนวนวัน × อัตราต่อวัน ขั้นต่ำ 1 วัน",
+      "status": "retired",
+      "retiredReason": "เจ้าของถอนในรอบที่ 2",
+      "supersededBy": "BR-loan-001@v2"
+    },
+    {
+      "id": "BR-loan-001@v2",
+      "title": "ค่าเช่า = จำนวนวัน × อัตราต่อวัน นับวันรับเป็นวันที่ 1",
+      "status": "draft",
+      "supersedes": "BR-loan-001@v1",
+      "derivedFrom": [
+        "BR-loan-001@v1"
+      ]
+    },
+    {
+      "id": "BR-loan-002@v1",
+      "title": "มัดจำ = 30% ของค่าเช่ารวม ปัดขึ้นเป็นหลักร้อย",
+      "status": "draft",
+      "derivedFrom": [
+        "REQ-loan-001"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "REQ-loan-001",
+      "title": "ไม่มี goal",
+      "status": "draft",
+      "actor": "STK-001",
+      "goal": ""
+    },
+    {
+      "id": "REQ-loan-002",
+      "title": "actor ไม่ใช่ STK",
+      "status": "draft",
+      "actor": "ผู้จัดการสาขา",
+      "goal": "อนุมัติส่วนลด"
+    }
+  ]
+}

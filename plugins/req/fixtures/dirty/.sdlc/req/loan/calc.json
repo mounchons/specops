@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "CALC-loan-002@v1",
+      "title": "การคำนวณที่ผูกสองกฎ",
+      "status": "draft",
+      "formula": "x",
+      "numberType": "integer",
+      "rounding": {
+        "mode": "none",
+        "unit": null,
+        "at": null
+      },
+      "boundary": [],
+      "derivedFrom": [
+        "BR-loan-003@v1",
+        "BR-loan-004@v1"
+      ]
+    }
+  ]
+}

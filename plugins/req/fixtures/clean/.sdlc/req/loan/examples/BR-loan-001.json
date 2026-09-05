@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "EX-loan-001",
+      "title": "3 วัน",
+      "status": "draft",
+      "given": "rate 800 · รับ 2026-09-03 · คืน 2026-09-05",
+      "when": "คิดค่าเช่า",
+      "then": "3 วัน = 2,400",
+      "derivedFrom": [
+        "BR-loan-001@v2"
+      ]
+    }
+  ]
+}

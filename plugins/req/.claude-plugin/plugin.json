@@ -1,0 +1,9 @@
+{
+  "name": "req",
+  "version": "0.1.0",
+  "description": "specops req: capture requirements, ask the question bank, map rules to examples, pin calculations to golden datasets, export the Thai requirement document.",
+  "author": {
+    "name": "Mounchons"
+  },
+  "keywords": ["sdlc", "specops", "requirements", "business-rules", "example-mapping"]
+}

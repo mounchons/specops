@@ -1,0 +1,9 @@
+{
+  "name": "core",
+  "version": "0.1.0",
+  "description": "specops core: .sdlc state dir, one id registry for the whole marketplace, gates.json, registry cache, status / next / query / check.",
+  "author": {
+    "name": "Mounchons"
+  },
+  "keywords": ["sdlc", "specops", "traceability", "gates"]
+}

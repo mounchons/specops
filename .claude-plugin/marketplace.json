@@ -1,0 +1,19 @@
+{
+  "name": "specops",
+  "owner": {
+    "name": "Mounchons",
+    "url": "https://github.com/mounchons"
+  },
+  "metadata": {
+    "description": "Human-driven SDLC marketplace: requirement -> design -> mock -> dev -> qa, with change control and traceability enforced by scripts, not prose.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "core",
+      "source": "./plugins/core",
+      "description": "State dir, id registry, gates, status/next/query. Every other specops plugin depends on this one.",
+      "version": "0.1.0"
+    }
+  ]
+}

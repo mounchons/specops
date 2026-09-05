@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "1.0",
+  "owner": "design",
+  "edges": [
+    { "from": "UC-loan-001", "rel": "satisfies", "to": "REQ-loan-001" },
+    { "from": "UI-loan-001", "rel": "displays", "to": "UC-loan-001" }
+  ]
+}

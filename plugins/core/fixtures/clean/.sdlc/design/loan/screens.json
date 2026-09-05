@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    { "id": "UI-loan-001", "title": "ยื่นใบสมัครใหม่", "app": "customer", "origin": "usecase", "status": "approved", "derivedFrom": ["UC-loan-001"] },
+    { "id": "UI-loan-002", "title": "Login", "app": "customer", "origin": "baseline", "status": "approved" }
+  ]
+}

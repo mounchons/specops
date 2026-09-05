@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "1.0",
+  "name": "rentpoint-fixture",
+  "createdAt": "2026-09-05T00:00:00Z",
+  "language": { "content": "th", "ids": "en" },
+  "apps": [
+    { "name": "backoffice", "type": "backoffice-web", "auth": "username", "owns": ["master", "roles", "users"] },
+    { "name": "customer", "type": "customer-web", "auth": "line", "owns": [] }
+  ],
+  "modules": ["loan"],
+  "plugins": { "core": { "root": "../../..", "version": "0.1.0" } },
+  "phase": { "current": 0 }
+}

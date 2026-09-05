@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "UC-loan-001",
+      "title": "ยื่นใบสมัครกู้",
+      "status": "approved",
+      "satisfies": ["REQ-loan-001"],
+      "actor": "STK-001",
+      "main": [
+        { "step": 1, "do": "กรอกวงเงินและรายได้", "enforces": ["BR-loan-001@v1"] },
+        { "step": 2, "do": "กรอกวันเกิด", "enforces": ["BR-loan-002@v1"] },
+        { "step": 3, "do": "ยืนยัน" }
+      ],
+      "exception": [ { "step": "E1", "when": "วงเงินเกิน", "then": "แสดงข้อความ 'วงเงินเกิน 5 เท่าของรายได้'" } ]
+    }
+  ]
+}

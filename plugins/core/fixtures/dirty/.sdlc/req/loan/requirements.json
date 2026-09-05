@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    { "id": "REQ-loan-001", "title": "ลูกค้ายื่นขอสินเชื่อออนไลน์ได้", "actor": "STK-001", "status": "approved" },
+    { "id": "NFR-loan-001", "title": "ผลอนุมัติเบื้องต้นแสดงภายใน 3 วินาที", "status": "approved", "derivedFrom": ["REQ-loan-001"] }
+  ]
+}

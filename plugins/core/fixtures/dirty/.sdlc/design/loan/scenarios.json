@@ -1,0 +1,1 @@
+{ "items": [ { "id": "SCN-loan-001", "title": "happy path", "status": "draft", "derivedFrom": ["UC-loan-999"] } ] }

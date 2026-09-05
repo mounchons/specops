@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    { "id": "BR-loan-001@v1", "title": "วงเงินต้องไม่เกิน 5 เท่าของรายได้", "status": "approved", "derivedFrom": ["REQ-loan-001"] },
+    { "id": "BR-loan-002@v1", "title": "อายุผู้กู้ 20-60 ปี", "status": "approved", "derivedFrom": ["REQ-loan-001"] }
+  ]
+}

@@ -11,8 +11,19 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 export const STATE_DIR_NAME = ".sdlc";
+
+/**
+ * True when this module is the process entry point — the guard around every CLI block.
+ * Never compare `import.meta.url` with `"file://" + process.argv[1]`: on Windows argv[1] is
+ * `C:\path\x.mjs` while the url is `file:///C:/path/x.mjs`, so the guard is always false and
+ * the script exits 0 printing nothing. pathToFileURL normalises both sides on every platform.
+ */
+export function isMain(importMetaUrl) {
+  return Boolean(process.argv[1]) && importMetaUrl === pathToFileURL(process.argv[1]).href;
+}
 
 /** Minimal argv parser: --key value | --flag | positional. No dependency. */
 export function parseArgs(argv = process.argv.slice(2)) {

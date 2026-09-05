@@ -10,7 +10,7 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { parseArgs, resolveStateDir, stateExists, CORE_FILES, readJson, writeJson, walk, rel, orExit2 } from "./paths.mjs";
+import { parseArgs, resolveStateDir, stateExists, CORE_FILES, readJson, writeJson, walk, rel, orExit2, isMain } from "./paths.mjs";
 import { loadState } from "./artifacts.mjs";
 
 export function inputHash(stateDir) {
@@ -69,7 +69,7 @@ export function isStale(stateDir) {
   return reg.inputHash !== inputHash(stateDir);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMain(import.meta.url)) {
   const { flags } = parseArgs();
   const stateDir = resolveStateDir(flags);
   orExit2(stateExists(stateDir), `no state dir at ${stateDir} — run core/scripts/init.mjs first`);

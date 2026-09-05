@@ -4,7 +4,7 @@
  *
  *   node status.mjs [--json] [--state-dir X]
  */
-import { parseArgs, resolveStateDir, stateExists, CORE_FILES, readJson, orExit2 } from "./paths.mjs";
+import { parseArgs, resolveStateDir, stateExists, CORE_FILES, readJson, orExit2, isMain } from "./paths.mjs";
 import { buildRegistry } from "./registry.mjs";
 import { runGates } from "./gates.mjs";
 import { PLUGINS, STATUSES, prefixOf } from "./ids.mjs";
@@ -41,7 +41,7 @@ function print(s) {
   console.log(`open CR: ${s.openCR.join(", ") || "none"}`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMain(import.meta.url)) {
   const { flags } = parseArgs();
   const stateDir = resolveStateDir(flags);
   orExit2(stateExists(stateDir), `no state dir at ${stateDir} — run init.mjs`);

@@ -8,7 +8,7 @@
  * open CRs that touch it, and a status summary. Rebuilds registry.json if stale.
  * Accepts a lineage id too (BR-loan-001 matches every @vN).
  */
-import { parseArgs, resolveStateDir, stateExists, CORE_FILES, writeJson, orExit2 } from "./paths.mjs";
+import { parseArgs, resolveStateDir, stateExists, CORE_FILES, writeJson, orExit2, isMain } from "./paths.mjs";
 import { buildRegistry, loadRegistry, isStale } from "./registry.mjs";
 import { loadState } from "./artifacts.mjs";
 import { lineageOf, prefixOf } from "./ids.mjs";
@@ -95,7 +95,7 @@ function print(s) {
   console.log(s.openChanges.length ? `OPEN CR touching: ${s.openChanges.join(", ")}` : "OPEN CR touching: none");
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMain(import.meta.url)) {
   const { _, flags } = parseArgs();
   const stateDir = resolveStateDir(flags);
   orExit2(stateExists(stateDir), `no state dir at ${stateDir}`);

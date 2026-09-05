@@ -4,11 +4,21 @@
  *   node selftest.mjs        exit 0 pass | 1 fail
  */
 import path from "node:path";
+import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { runGates } from "./gates.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const fx = (n) => path.resolve(here, "..", "fixtures", n, ".sdlc");
+
+/** Run a core script the way a user does — through node — and capture output + exit code. */
+function cli(script, args) {
+  try {
+    return { out: execFileSync("node", [path.join(here, script), ...args], { encoding: "utf8" }), code: 0 };
+  } catch (e) {
+    return { out: (e.stdout ?? "") + (e.stderr ?? ""), code: e.status ?? 1 };
+  }
+}
 
 const clean = await runGates(fx("clean"));
 const dirty = await runGates(fx("dirty"));
@@ -21,6 +31,7 @@ const checks = [
   ["dirty: 8 errors", dirty.counts.error === 8],
   ["dirty: every core gate fires", expectDirty.every((g) => firedDirty.has(g))],
   ["dirty: 1 LIMIT for a check no script implements", dirty.counts.limit === 1],
+  ["cli: gates.mjs prints and exits 1 on dirty", (() => { const r = cli("gates.mjs", ["--state-dir", fx("dirty")]); return r.code === 1 && r.out.includes("error=8") && r.out.includes("limit=1"); })()],
 ];
 let fail = 0;
 for (const [name, ok] of checks) {

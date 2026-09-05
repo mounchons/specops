@@ -12,7 +12,7 @@
 import path from "node:path";
 import fs from "node:fs";
 import { pathToFileURL } from "node:url";
-import { parseArgs, resolveStateDir, stateExists, CORE_FILES, readJson, orExit2, rel, walk } from "./paths.mjs";
+import { parseArgs, resolveStateDir, stateExists, CORE_FILES, readJson, orExit2, rel, walk, isMain } from "./paths.mjs";
 import { loadState } from "./artifacts.mjs";
 import { validate, STATUSES, PREFIXES, prefixOf } from "./ids.mjs";
 import { isStale, buildRegistry } from "./registry.mjs";
@@ -116,7 +116,7 @@ export async function runGates(stateDir, { plugin = null } = {}) {
   return { results, counts, gatesRun: (gatesFile.gates ?? []).length };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMain(import.meta.url)) {
   const { flags } = parseArgs();
   const stateDir = resolveStateDir(flags);
   orExit2(stateExists(stateDir), `no state dir at ${stateDir}`);

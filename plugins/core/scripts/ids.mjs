@@ -22,7 +22,7 @@
  *   node ids.mjs <id> [...]         validate; exit 1 if any id is malformed or unknown
  *   node ids.mjs --owner <plugin>   print prefixes that plugin may mint
  */
-import { parseArgs } from "./paths.mjs";
+import { parseArgs, isMain } from "./paths.mjs";
 
 const MODULE = "[a-z0-9-]+";
 const NNN = "[0-9]{3}";
@@ -116,7 +116,7 @@ export function lineageOf(id) {
 }
 
 // ---- CLI -------------------------------------------------------------------
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMain(import.meta.url)) {
   const { _, flags } = parseArgs();
   if (flags.owner) {
     console.log(mintableBy(flags.owner).join(" "));

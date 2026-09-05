@@ -11,7 +11,7 @@
 import path from "node:path";
 import fs from "node:fs";
 import { pathToFileURL } from "node:url";
-import { parseArgs, resolveStateDir, stateExists, CORE_FILES, readJson } from "./paths.mjs";
+import { parseArgs, resolveStateDir, stateExists, CORE_FILES, readJson, isMain } from "./paths.mjs";
 import { runGates } from "./gates.mjs";
 import { buildRegistry } from "./registry.mjs";
 import { PLUGINS, prefixOf } from "./ids.mjs";
@@ -71,7 +71,7 @@ export async function computeNext(stateDir, { all = false } = {}) {
   return out.length ? out : [{ action: "nothing blocked — pick the next module or unit of work", reason: "all installed plugins report clean" }];
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMain(import.meta.url)) {
   const { flags } = parseArgs();
   const stateDir = resolveStateDir(flags);
   const actions = await computeNext(stateDir, { all: Boolean(flags.all) });

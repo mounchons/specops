@@ -10,7 +10,7 @@
 import path from "node:path";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
-import { parseArgs, resolveStateDir, stateExists, CORE_FILES, writeJson, orExit2 } from "./paths.mjs";
+import { parseArgs, resolveStateDir, stateExists, CORE_FILES, writeJson, orExit2, isMain } from "./paths.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 export const CORE_ROOT = process.env.CLAUDE_PLUGIN_ROOT ?? path.resolve(here, "..");
@@ -64,7 +64,7 @@ export function initState(stateDir, { name, apps = [] }) {
   return project;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMain(import.meta.url)) {
   const { flags } = parseArgs();
   orExit2(typeof flags.name === "string", "usage: init.mjs --name <project> [--apps name:type,...]");
   const stateDir = resolveStateDir(flags);

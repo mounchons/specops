@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "1.0",
+  "note": "G4 — cross-cutting screens that exist because of a non-functional requirement, not because a use case asked. `match` is tested against the NFR goal in Thai and English; `app` says where it lands: owner:<what> means the app that owns that in project.json, any means every app.",
+  "rules": [
+    {
+      "key": "audit-log",
+      "kind": "list",
+      "title": "บันทึกร่องรอยการใช้งาน",
+      "match": "audit|ร่องรอย|ตรวจสอบย้อนหลัง|who did what",
+      "app": "owner:roles",
+      "fields": ["at", "actor", "entity", "action", "from", "to"],
+      "actions": [{ "name": "filter", "writes": false }, { "name": "export", "writes": false }]
+    },
+    {
+      "key": "import-export",
+      "kind": "form",
+      "title": "นำเข้า/ส่งออกข้อมูล",
+      "match": "import|export|นำเข้า|ส่งออก",
+      "app": "owner:master",
+      "fields": ["file", "mapping", "result"],
+      "actions": [{ "name": "import", "writes": true }, { "name": "export", "writes": false }]
+    },
+    {
+      "key": "job-monitor",
+      "kind": "list",
+      "title": "งานเบื้องหลังและคิว",
+      "match": "queue|background|คิว|งานเบื้องหลัง|retry",
+      "app": "owner:roles",
+      "fields": ["job", "queuedAt", "status", "error"],
+      "actions": [{ "name": "retry", "writes": true }]
+    },
+    {
+      "key": "tenant-switch",
+      "kind": "form",
+      "title": "เลือกสาขา/องค์กร",
+      "match": "tenant|multi-tenant|สาขา|หลายองค์กร",
+      "app": "any",
+      "fields": ["tenant"],
+      "actions": [{ "name": "switch", "writes": false }]
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "UI-loan-015",
+      "title": "บันทึกร่องรอยการใช้งาน",
+      "status": "draft",
+      "app": "backoffice",
+      "origin": "nfr",
+      "kind": "list",
+      "generatorKey": "audit-log",
+      "fields": ["at","actor","entity","action","from","to"],
+      "actions": [
+        {"name":"filter","writes":false,"api":null},
+        {"name":"export","writes":false,"api":null}
+      ],
+      "zones": ["header","body","actions"],
+      "states": ["empty","loaded","error"],
+      "roles": [],
+      "derivedFrom": ["NFR-loan-001"],
+      "generatedAt": "2026-09-05T06:21:48.921Z"
+    }
+  ]
+}

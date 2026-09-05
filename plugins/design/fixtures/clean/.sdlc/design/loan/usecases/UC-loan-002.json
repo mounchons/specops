@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "UC-loan-002",
+      "title": "จัดการข้อมูลผู้กู้",
+      "status": "draft",
+      "actor": "STK-001",
+      "apps": ["backoffice"],
+      "crud": "ENT-002",
+      "readOnly": false,
+      "precondition": null,
+      "flows": [
+        {
+          "name": "main",
+          "steps": [
+            {
+              "step": "เพิ่ม แก้ไข ค้นหาผู้กู้",
+              "enforces": ["BR-loan-002@v1"]
+            }
+          ]
+        }
+      ],
+      "enforces": ["BR-loan-002@v1"],
+      "derivedFrom": ["REQ-loan-002"],
+      "writtenAt": "2026-09-05T06:21:48.562Z"
+    },
+    {
+      "id": "AC-loan-002",
+      "title": "main: เปิดรายการคำขอ",
+      "status": "draft",
+      "usecase": "UC-loan-002",
+      "flow": "main",
+      "given": "ลูกค้า A เข้าสู่ระบบ",
+      "when": "เปิดรายการคำขอ",
+      "then": "เห็นเฉพาะคำขอของ A",
+      "derivedFrom": ["UC-loan-002","EX-loan-002"]
+    }
+  ]
+}

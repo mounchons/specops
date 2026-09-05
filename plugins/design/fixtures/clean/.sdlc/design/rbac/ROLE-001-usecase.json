@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "ACL-011",
+      "title": "เจ้าหน้าที่สินเชื่อ → จัดการข้อมูลผู้กู้",
+      "status": "draft",
+      "role": "ROLE-001",
+      "ui": "UI-loan-002",
+      "allow": ["view","create","edit"],
+      "dataScope": "all",
+      "derivedFrom": ["ROLE-001","UI-loan-002"],
+      "decidedAt": "2026-09-05T06:21:49.653Z"
+    }
+  ]
+}

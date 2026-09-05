@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "API-010",
+      "title": "create — ข้อมูลหลัก: Borrower",
+      "status": "draft",
+      "method": "POST",
+      "path": "/api/borrower",
+      "forUi": "UI-loan-003",
+      "action": "create",
+      "request": null,
+      "response": null,
+      "auth": "required",
+      "derivedFrom": ["UI-loan-003"],
+      "generatedAt": "2026-09-05T06:21:49.322Z"
+    },
+    {
+      "id": "API-011",
+      "title": "edit — ข้อมูลหลัก: Borrower",
+      "status": "draft",
+      "method": "PUT",
+      "path": "/api/borrower/{id}",
+      "forUi": "UI-loan-003",
+      "action": "edit",
+      "request": null,
+      "response": null,
+      "auth": "required",
+      "derivedFrom": ["UI-loan-003"],
+      "generatedAt": "2026-09-05T06:21:49.330Z"
+    },
+    {
+      "id": "API-012",
+      "title": "delete — ข้อมูลหลัก: Borrower",
+      "status": "draft",
+      "method": "DELETE",
+      "path": "/api/borrower/{id}",
+      "forUi": "UI-loan-003",
+      "action": "delete",
+      "request": null,
+      "response": null,
+      "auth": "required",
+      "derivedFrom": ["UI-loan-003"],
+      "generatedAt": "2026-09-05T06:21:49.338Z"
+    }
+  ]
+}

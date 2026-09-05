@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "1.0",
+  "name": "design-fixture-clean",
+  "createdAt": "2026-09-05T00:00:00Z",
+  "language": {
+    "content": "th",
+    "ids": "en"
+  },
+  "apps": [
+    {
+      "name": "backoffice",
+      "type": "backoffice-web",
+      "auth": "username",
+      "owns": [
+        "master",
+        "roles",
+        "users"
+      ]
+    },
+    {
+      "name": "customer",
+      "type": "customer-web",
+      "auth": "line",
+      "owns": []
+    }
+  ],
+  "modules": [
+    "loan"
+  ],
+  "plugins": {
+    "core": {
+      "root": "../../../core",
+      "version": "0.1.0"
+    },
+    "req": {
+      "root": "../../../req",
+      "version": "0.1.0"
+    },
+    "design": {
+      "root": "../..",
+      "version": "0.1.0"
+    }
+  },
+  "phase": {
+    "current": 0,
+    "note": "0 core · 1 req · 2 design · 3 change · 4 mock · 5 dev · 6 qa"
+  }
+}

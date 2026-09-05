@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "1.0",
+  "appType": "customer-web",
+  "note": "A customer-facing web app owns no master data and no roles: it gets the account screens and a home, nothing else. Master screens reach it read-only through G2 only when the client asks for them.",
+  "screens": [
+    {
+      "key": "login",
+      "kind": "login",
+      "title": "เข้าสู่ระบบ",
+      "requires": { "authNot": "none" },
+      "fields": ["identity"],
+      "actions": [{ "name": "sign-in", "writes": false }]
+    },
+    {
+      "key": "forgot-password",
+      "kind": "form",
+      "title": "ลืมรหัสผ่าน",
+      "requires": { "auth": "username" },
+      "fields": ["email"],
+      "actions": [{ "name": "send-reset-link", "writes": true }]
+    },
+    {
+      "key": "profile",
+      "kind": "form",
+      "title": "ข้อมูลของฉัน",
+      "requires": { "authNot": "none" },
+      "fields": ["displayName", "phone", "email"],
+      "actions": [{ "name": "save", "writes": true }]
+    },
+    {
+      "key": "home",
+      "kind": "dashboard",
+      "title": "หน้าแรก",
+      "fields": [],
+      "actions": []
+    }
+  ]
+}

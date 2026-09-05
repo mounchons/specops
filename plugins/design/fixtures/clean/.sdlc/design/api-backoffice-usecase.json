@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "API-013",
+      "title": "create — จัดการข้อมูลผู้กู้",
+      "status": "draft",
+      "method": "POST",
+      "path": "/api/",
+      "forUi": "UI-loan-002",
+      "action": "create",
+      "request": null,
+      "response": null,
+      "auth": "required",
+      "derivedFrom": ["UI-loan-002"],
+      "generatedAt": "2026-09-05T06:21:49.346Z"
+    },
+    {
+      "id": "API-014",
+      "title": "edit — จัดการข้อมูลผู้กู้",
+      "status": "draft",
+      "method": "PUT",
+      "path": "/api//{id}",
+      "forUi": "UI-loan-002",
+      "action": "edit",
+      "request": null,
+      "response": null,
+      "auth": "required",
+      "derivedFrom": ["UI-loan-002"],
+      "generatedAt": "2026-09-05T06:21:49.358Z"
+    },
+    {
+      "id": "API-015",
+      "title": "delete — จัดการข้อมูลผู้กู้",
+      "status": "draft",
+      "method": "DELETE",
+      "path": "/api//{id}",
+      "forUi": "UI-loan-002",
+      "action": "delete",
+      "request": null,
+      "response": null,
+      "auth": "required",
+      "derivedFrom": ["UI-loan-002"],
+      "generatedAt": "2026-09-05T06:21:49.366Z"
+    }
+  ]
+}

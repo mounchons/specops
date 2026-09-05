@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "status": "draft",
+      "fields": [],
+      "actions": [
+        {
+          "name": "submit",
+          "writes": true,
+          "api": null
+        }
+      ],
+      "zones": [
+        "header",
+        "body"
+      ],
+      "states": [
+        "loaded"
+      ],
+      "roles": [],
+      "derivedFrom": [],
+      "id": "UI-loan-001",
+      "title": "หน้ายื่นคำขอ",
+      "app": "customer",
+      "origin": "usecase",
+      "kind": "form",
+      "generatorKey": "UC-loan-001"
+    }
+  ]
+}

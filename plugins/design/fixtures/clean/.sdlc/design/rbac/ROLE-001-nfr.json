@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "ACL-010",
+      "title": "เจ้าหน้าที่สินเชื่อ → บันทึกร่องรอยการใช้งาน",
+      "status": "draft",
+      "role": "ROLE-001",
+      "ui": "UI-loan-015",
+      "allow": ["view","create","edit"],
+      "dataScope": "all",
+      "derivedFrom": ["ROLE-001","UI-loan-015"],
+      "decidedAt": "2026-09-05T06:21:49.653Z"
+    }
+  ]
+}

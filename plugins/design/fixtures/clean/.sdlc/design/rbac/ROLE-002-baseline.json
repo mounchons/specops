@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "ACL-012",
+      "title": "ลูกค้าผู้กู้ → เข้าสู่ระบบ",
+      "status": "draft",
+      "role": "ROLE-002",
+      "ui": "UI-loan-012",
+      "allow": ["view","create"],
+      "dataScope": "own",
+      "derivedFrom": ["ROLE-002","UI-loan-012","BR-loan-002@v1"],
+      "decidedAt": "2026-09-05T06:21:49.654Z"
+    },
+    {
+      "id": "ACL-013",
+      "title": "ลูกค้าผู้กู้ → ข้อมูลของฉัน",
+      "status": "draft",
+      "role": "ROLE-002",
+      "ui": "UI-loan-013",
+      "allow": ["view","create"],
+      "dataScope": "own",
+      "derivedFrom": ["ROLE-002","UI-loan-013","BR-loan-002@v1"],
+      "decidedAt": "2026-09-05T06:21:49.654Z"
+    },
+    {
+      "id": "ACL-014",
+      "title": "ลูกค้าผู้กู้ → หน้าแรก",
+      "status": "draft",
+      "role": "ROLE-002",
+      "ui": "UI-loan-014",
+      "allow": ["view","create"],
+      "dataScope": "own",
+      "derivedFrom": ["ROLE-002","UI-loan-014","BR-loan-002@v1"],
+      "decidedAt": "2026-09-05T06:21:49.654Z"
+    }
+  ]
+}

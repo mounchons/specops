@@ -1,0 +1,93 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "ACL-001",
+      "title": "เจ้าหน้าที่สินเชื่อ → เข้าสู่ระบบ",
+      "status": "draft",
+      "role": "ROLE-001",
+      "ui": "UI-loan-004",
+      "allow": ["view","create","edit"],
+      "dataScope": "all",
+      "derivedFrom": ["ROLE-001","UI-loan-004"],
+      "decidedAt": "2026-09-05T06:21:49.652Z"
+    },
+    {
+      "id": "ACL-002",
+      "title": "เจ้าหน้าที่สินเชื่อ → ลืมรหัสผ่าน",
+      "status": "draft",
+      "role": "ROLE-001",
+      "ui": "UI-loan-005",
+      "allow": ["view","create","edit"],
+      "dataScope": "all",
+      "derivedFrom": ["ROLE-001","UI-loan-005"],
+      "decidedAt": "2026-09-05T06:21:49.653Z"
+    },
+    {
+      "id": "ACL-003",
+      "title": "เจ้าหน้าที่สินเชื่อ → ข้อมูลผู้ใช้ของฉัน",
+      "status": "draft",
+      "role": "ROLE-001",
+      "ui": "UI-loan-006",
+      "allow": ["view","create","edit"],
+      "dataScope": "all",
+      "derivedFrom": ["ROLE-001","UI-loan-006"],
+      "decidedAt": "2026-09-05T06:21:49.653Z"
+    },
+    {
+      "id": "ACL-004",
+      "title": "เจ้าหน้าที่สินเชื่อ → หน้าแรก",
+      "status": "draft",
+      "role": "ROLE-001",
+      "ui": "UI-loan-007",
+      "allow": ["view","create","edit"],
+      "dataScope": "all",
+      "derivedFrom": ["ROLE-001","UI-loan-007"],
+      "decidedAt": "2026-09-05T06:21:49.653Z"
+    },
+    {
+      "id": "ACL-005",
+      "title": "เจ้าหน้าที่สินเชื่อ → ผู้ใช้ระบบ",
+      "status": "draft",
+      "role": "ROLE-001",
+      "ui": "UI-loan-008",
+      "allow": ["view","create","edit"],
+      "dataScope": "all",
+      "derivedFrom": ["ROLE-001","UI-loan-008"],
+      "decidedAt": "2026-09-05T06:21:49.653Z"
+    },
+    {
+      "id": "ACL-006",
+      "title": "เจ้าหน้าที่สินเชื่อ → บทบาทผู้ใช้",
+      "status": "draft",
+      "role": "ROLE-001",
+      "ui": "UI-loan-009",
+      "allow": ["view","create","edit"],
+      "dataScope": "all",
+      "derivedFrom": ["ROLE-001","UI-loan-009"],
+      "decidedAt": "2026-09-05T06:21:49.653Z"
+    },
+    {
+      "id": "ACL-007",
+      "title": "เจ้าหน้าที่สินเชื่อ → กำหนดสิทธิ์",
+      "status": "draft",
+      "role": "ROLE-001",
+      "ui": "UI-loan-010",
+      "allow": ["view","create","edit"],
+      "dataScope": "all",
+      "derivedFrom": ["ROLE-001","UI-loan-010"],
+      "decidedAt": "2026-09-05T06:21:49.653Z"
+    },
+    {
+      "id": "ACL-008",
+      "title": "เจ้าหน้าที่สินเชื่อ → ตั้งค่าระบบ",
+      "status": "draft",
+      "role": "ROLE-001",
+      "ui": "UI-loan-011",
+      "allow": ["view","create","edit"],
+      "dataScope": "all",
+      "derivedFrom": ["ROLE-001","UI-loan-011"],
+      "decidedAt": "2026-09-05T06:21:49.653Z"
+    }
+  ]
+}

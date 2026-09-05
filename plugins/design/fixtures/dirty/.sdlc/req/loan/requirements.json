@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "REQ-loan-001",
+      "title": "ยื่นคำขอ",
+      "status": "draft",
+      "actor": "STK-001",
+      "goal": "ยื่นคำขอสินเชื่อ"
+    },
+    {
+      "id": "NFR-loan-001",
+      "title": "audit 2 ปี",
+      "status": "draft",
+      "actor": "STK-001",
+      "goal": "audit ต้องอ่านย้อนหลังได้ 2 ปี"
+    }
+  ]
+}

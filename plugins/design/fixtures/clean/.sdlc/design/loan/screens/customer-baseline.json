@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "UI-loan-012",
+      "title": "เข้าสู่ระบบ",
+      "status": "draft",
+      "app": "customer",
+      "origin": "baseline",
+      "kind": "login",
+      "generatorKey": "login",
+      "fields": ["identity"],
+      "actions": [
+        {"name":"sign-in","writes":false,"api":null}
+      ],
+      "zones": ["header","body","actions"],
+      "states": ["empty","loaded","error"],
+      "roles": [],
+      "baseline": "customer-web/login",
+      "derivedFrom": [],
+      "generatedAt": "2026-09-05T06:21:48.919Z"
+    },
+    {
+      "id": "UI-loan-013",
+      "title": "ข้อมูลของฉัน",
+      "status": "draft",
+      "app": "customer",
+      "origin": "baseline",
+      "kind": "form",
+      "generatorKey": "profile",
+      "fields": ["displayName","phone","email"],
+      "actions": [
+        {"name":"save","writes":true,"api":"API-016"}
+      ],
+      "zones": ["header","body","actions"],
+      "states": ["empty","loaded","error"],
+      "roles": [],
+      "baseline": "customer-web/profile",
+      "derivedFrom": [],
+      "generatedAt": "2026-09-05T06:21:48.919Z"
+    },
+    {
+      "id": "UI-loan-014",
+      "title": "หน้าแรก",
+      "status": "draft",
+      "app": "customer",
+      "origin": "baseline",
+      "kind": "dashboard",
+      "generatorKey": "home",
+      "fields": [],
+      "actions": [],
+      "zones": ["header","body","actions"],
+      "states": ["empty","loaded","error"],
+      "roles": [],
+      "baseline": "customer-web/home",
+      "derivedFrom": [],
+      "generatedAt": "2026-09-05T06:21:48.920Z"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "1.0",
+  "owner": "design",
+  "edges": [
+    {
+      "from": "UC-loan-001",
+      "rel": "enforces",
+      "to": "BR-loan-001@v1"
+    }
+  ]
+}

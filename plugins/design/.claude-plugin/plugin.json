@@ -1,0 +1,9 @@
+{
+  "name": "design",
+  "version": "0.1.0",
+  "description": "specops design: domain entities with kinds and state machines, use cases whose steps enforce rule versions, screens from four generators with the entity x app matrix, api, rbac and scenarios.",
+  "author": {
+    "name": "Mounchons"
+  },
+  "keywords": ["sdlc", "specops", "ddd", "use-cases", "screen-matrix", "rbac"]
+}

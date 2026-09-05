@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "REQ-loan-001",
+      "title": "ยื่นขอสินเชื่อผ่านเว็บ",
+      "status": "draft",
+      "actor": "STK-002",
+      "goal": "ยื่นขอสินเชื่อผ่านเว็บ",
+      "provenance": {
+        "src": "SRC-001",
+        "loc": null
+      },
+      "derivedFrom": [
+        "SRC-001"
+      ]
+    },
+    {
+      "id": "REQ-loan-002",
+      "title": "จัดการข้อมูลผู้กู้",
+      "status": "draft",
+      "actor": "STK-001",
+      "goal": "จัดการข้อมูลผู้กู้",
+      "provenance": {
+        "src": "SRC-001",
+        "loc": null
+      },
+      "derivedFrom": [
+        "SRC-001"
+      ]
+    },
+    {
+      "id": "NFR-loan-001",
+      "title": "audit ต้องอ่านย้อนหลังได้ 2 ปี",
+      "status": "draft",
+      "actor": "STK-001",
+      "goal": "audit ต้องอ่านย้อนหลังได้ 2 ปี",
+      "provenance": {
+        "src": "SRC-001",
+        "loc": null
+      },
+      "derivedFrom": [
+        "SRC-001"
+      ]
+    }
+  ]
+}

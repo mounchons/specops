@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "SCN-loan-002",
+      "title": "จัดการข้อมูลผู้กู้ — main",
+      "status": "reviewed",
+      "usecase": "UC-loan-002",
+      "flow": "main",
+      "given": "ลูกค้า A เข้าสู่ระบบ",
+      "when": "เปิดรายการคำขอ",
+      "expected": "ผลลัพธ์ที่สังเกตได้ของ SCN-loan-002",
+      "enforces": ["BR-loan-002@v1"],
+      "derivedFrom": ["UC-loan-002","AC-loan-002"],
+      "generatedAt": "2026-09-05T06:21:49.732Z",
+      "decidedAt": "2026-09-05T06:21:50.775Z"
+    }
+  ]
+}

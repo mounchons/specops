@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "STM-001",
+      "title": "วงจรของคำขอ",
+      "status": "draft",
+      "entity": "ENT-001",
+      "states": [
+        {
+          "name": "draft"
+        },
+        {
+          "name": "stuck"
+        }
+      ],
+      "transitions": [
+        {
+          "from": "draft",
+          "to": "stuck",
+          "by": null,
+          "enforces": []
+        }
+      ],
+      "derivedFrom": [
+        "ENT-001"
+      ]
+    }
+  ]
+}

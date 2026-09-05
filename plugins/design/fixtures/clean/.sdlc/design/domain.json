@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "ENT-001",
+      "title": "LoanApplication",
+      "status": "draft",
+      "kind": "aggregate",
+      "attributes": ["code","amount","income","status"],
+      "invariants": ["BR-loan-001@v1"],
+      "note": null,
+      "derivedFrom": ["BR-loan-001@v1"]
+    },
+    {
+      "id": "ENT-002",
+      "title": "Borrower",
+      "status": "draft",
+      "kind": "reference",
+      "attributes": ["name","income"],
+      "invariants": ["BR-loan-002@v1"],
+      "note": null,
+      "derivedFrom": ["BR-loan-002@v1"]
+    },
+    {
+      "id": "ENT-003",
+      "title": "Money",
+      "status": "draft",
+      "kind": "vo",
+      "attributes": ["amount","currency"],
+      "invariants": [],
+      "note": null,
+      "derivedFrom": []
+    }
+  ]
+}

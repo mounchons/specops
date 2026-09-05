@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "ROLE-001",
+      "title": "เจ้าหน้าที่สินเชื่อ",
+      "status": "draft",
+      "key": "officer",
+      "apps": ["backoffice"],
+      "derivedFrom": ["STK-001"]
+    },
+    {
+      "id": "ROLE-002",
+      "title": "ลูกค้าผู้กู้",
+      "status": "draft",
+      "key": "customer",
+      "apps": ["customer"],
+      "derivedFrom": ["STK-002"]
+    }
+  ]
+}

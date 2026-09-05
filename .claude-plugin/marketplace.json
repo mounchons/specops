@@ -20,6 +20,12 @@
       "source": "./plugins/req",
       "description": "Requirements per module: capture what the client said, ask the question bank, map rules to examples, pin calculations to signed golden datasets, export the Thai document. Needs core.",
       "version": "0.1.0"
+    },
+    {
+      "name": "design",
+      "source": "./plugins/design",
+      "description": "Design per module: entities with kinds and state machines, use cases whose steps enforce rule versions, screens from four generators (use case, master, app-type baseline, NFR) with the screen x app matrix, api, rbac and scenarios. Needs core and req.",
+      "version": "0.1.0"
     }
   ]
 }

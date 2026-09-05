@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "BR-loan-001@v1",
+      "title": "วงเงินต้องไม่เกิน 5 เท่าของรายได้ต่อเดือน",
+      "status": "draft",
+      "origin": "example-mapping",
+      "derivedFrom": [
+        "REQ-loan-001"
+      ],
+      "foundAt": "2026-09-05T06:21:47.820Z"
+    },
+    {
+      "id": "BR-loan-002@v1",
+      "title": "ลูกค้าเห็นเฉพาะคำขอของตัวเอง",
+      "status": "draft",
+      "origin": "example-mapping",
+      "derivedFrom": [
+        "REQ-loan-001"
+      ],
+      "foundAt": "2026-09-05T06:21:48.082Z"
+    }
+  ]
+}

@@ -1,0 +1,180 @@
+{
+  "schemaVersion": "1.0",
+  "gates": [
+    {
+      "id": "G-core-001",
+      "plugin": "core",
+      "check": "core:id-shape",
+      "severity": "error",
+      "rule": "every artifact id matches the ids registry (ids.mjs)"
+    },
+    {
+      "id": "G-core-002",
+      "plugin": "core",
+      "check": "core:id-owner",
+      "severity": "error",
+      "rule": "an artifact lives under the plugin that owns its prefix (W1)"
+    },
+    {
+      "id": "G-core-003",
+      "plugin": "core",
+      "check": "core:unique-id",
+      "severity": "error",
+      "rule": "an id is defined exactly once"
+    },
+    {
+      "id": "G-core-004",
+      "plugin": "core",
+      "check": "core:status-value",
+      "severity": "error",
+      "rule": "status is one of draft|reviewed|approved|implemented|verified|retired"
+    },
+    {
+      "id": "G-core-005",
+      "plugin": "core",
+      "check": "core:file-lines",
+      "severity": "error",
+      "rule": "no artifact file the AI reads exceeds 300 lines"
+    },
+    {
+      "id": "G-core-006",
+      "plugin": "core",
+      "check": "core:dangling-ref",
+      "severity": "error",
+      "rule": "every referenced id exists"
+    },
+    {
+      "id": "G-core-007",
+      "plugin": "core",
+      "check": "core:trace-owner",
+      "severity": "error",
+      "rule": "a trace edge is written only by the plugin that owns its `from` id"
+    },
+    {
+      "id": "G-core-008",
+      "plugin": "core",
+      "check": "core:parse-problems",
+      "severity": "error",
+      "rule": "every artifact file parses and holds records with ids"
+    },
+    {
+      "id": "G-core-009",
+      "plugin": "core",
+      "check": "core:project-apps",
+      "severity": "error",
+      "rule": "project.json declares at least one app with a known type"
+    },
+    {
+      "id": "G-core-010",
+      "plugin": "core",
+      "check": "core:registry-fresh",
+      "severity": "warn",
+      "rule": "registry.json matches the artifacts on disk"
+    },
+    {
+      "id": "G-design-001",
+      "plugin": "design",
+      "check": "design:ent-kind",
+      "severity": "error",
+      "rule": "every ENT has kind aggregate|entity|reference|lookup|vo"
+    },
+    {
+      "id": "G-design-002",
+      "plugin": "design",
+      "check": "design:stm-exit",
+      "severity": "error",
+      "rule": "every state machine state that is not final has a transition out"
+    },
+    {
+      "id": "G-design-003",
+      "plugin": "design",
+      "check": "design:uc-satisfies-req",
+      "severity": "error",
+      "rule": "every UC satisfies at least one REQ"
+    },
+    {
+      "id": "G-design-004",
+      "plugin": "design",
+      "check": "design:br-enforced",
+      "severity": "error",
+      "rule": "every live BR of a module with use cases is enforced by at least one step"
+    },
+    {
+      "id": "G-design-005",
+      "plugin": "design",
+      "check": "design:ac-then-verbatim",
+      "severity": "error",
+      "rule": "every AC.then is copied verbatim from an EX of a rule the use case enforces"
+    },
+    {
+      "id": "G-design-006",
+      "plugin": "design",
+      "check": "design:ui-app-origin",
+      "severity": "error",
+      "rule": "every UI names a declared app and an origin usecase|master|baseline|nfr"
+    },
+    {
+      "id": "G-design-007",
+      "plugin": "design",
+      "check": "design:ui-usecase-traces-uc",
+      "severity": "error",
+      "rule": "a UI with origin usecase displays a UC — otherwise it is scope creep"
+    },
+    {
+      "id": "G-design-008",
+      "plugin": "design",
+      "check": "design:login-per-app",
+      "severity": "error",
+      "rule": "every app whose auth is not none has a login screen"
+    },
+    {
+      "id": "G-design-009",
+      "plugin": "design",
+      "check": "design:master-owner-ui",
+      "severity": "error",
+      "rule": "every reference entity has a master screen in the app that owns master data"
+    },
+    {
+      "id": "G-design-010",
+      "plugin": "design",
+      "check": "design:role-management-ui",
+      "severity": "error",
+      "rule": "the app that owns roles has users, roles and permission-matrix screens"
+    },
+    {
+      "id": "G-design-011",
+      "plugin": "design",
+      "check": "design:role-traces-stk",
+      "severity": "error",
+      "rule": "every ROLE derives from a stakeholder"
+    },
+    {
+      "id": "G-design-012",
+      "plugin": "design",
+      "check": "design:ui-has-acl",
+      "severity": "error",
+      "rule": "every UI has at least one ACL row — default deny means an unlisted screen is unreachable"
+    },
+    {
+      "id": "G-design-013",
+      "plugin": "design",
+      "check": "design:write-action-has-api",
+      "severity": "error",
+      "rule": "every UI action that writes across an app boundary names an API"
+    },
+    {
+      "id": "G-design-014",
+      "plugin": "design",
+      "check": "design:flow-has-scn",
+      "severity": "error",
+      "rule": "every use case flow and every NFR has a scenario"
+    },
+    {
+      "id": "G-design-015",
+      "plugin": "design",
+      "check": "design:lookup-undecided",
+      "severity": "warn",
+      "rule": "a lookup entity has no decision yet: master screen or seed data"
+    }
+  ]
+}

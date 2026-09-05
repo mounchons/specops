@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "STK-001",
+      "title": "เจ้าหน้าที่",
+      "status": "reviewed",
+      "role": "officer"
+    }
+  ]
+}

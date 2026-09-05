@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "UI-loan-003",
+      "title": "ข้อมูลหลัก: Borrower",
+      "status": "draft",
+      "app": "backoffice",
+      "origin": "master",
+      "kind": "list",
+      "generatorKey": "ENT-002",
+      "fields": ["name","income"],
+      "actions": [
+        {"name":"view","writes":false,"api":null},
+        {"name":"create","writes":true,"api":"API-010"},
+        {"name":"edit","writes":true,"api":"API-011"},
+        {"name":"delete","writes":true,"api":"API-012"}
+      ],
+      "zones": ["header","body","actions"],
+      "states": ["empty","loaded","error"],
+      "roles": [],
+      "readOnlyElsewhere": true,
+      "derivedFrom": ["ENT-002"],
+      "generatedAt": "2026-09-05T06:21:48.911Z"
+    }
+  ]
+}

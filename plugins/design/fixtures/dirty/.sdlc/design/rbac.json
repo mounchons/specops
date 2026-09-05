@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "ROLE-001",
+      "title": "เจ้าหน้าที่",
+      "status": "draft",
+      "key": "officer",
+      "apps": [
+        "backoffice"
+      ],
+      "derivedFrom": []
+    }
+  ]
+}

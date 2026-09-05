@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "EX-loan-001",
+      "title": "เกินวงเงิน",
+      "status": "draft",
+      "given": "รายได้ 30,000",
+      "when": "ขอ 200,000",
+      "then": "ระบบปฏิเสธ วงเงินสูงสุด 150,000",
+      "derivedFrom": [
+        "BR-loan-001@v1"
+      ]
+    }
+  ]
+}

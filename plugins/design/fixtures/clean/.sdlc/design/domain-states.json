@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "STM-001",
+      "title": "วงจรสถานะของ LoanApplication",
+      "status": "draft",
+      "entity": "ENT-001",
+      "states": [
+        {"name":"draft"},
+        {"name":"submitted"},
+        {"name":"approved","final":true},
+        {"name":"rejected","final":true}
+      ],
+      "transitions": [
+        {
+          "from": "draft",
+          "to": "submitted",
+          "by": "customer",
+          "enforces": ["BR-loan-001@v1"]
+        },
+        {
+          "from": "submitted",
+          "to": "approved",
+          "by": "officer",
+          "enforces": ["BR-loan-001@v1"]
+        },
+        {
+          "from": "submitted",
+          "to": "rejected",
+          "by": "officer",
+          "enforces": ["BR-loan-001@v1"]
+        }
+      ],
+      "derivedFrom": ["ENT-001","BR-loan-001@v1"]
+    }
+  ]
+}

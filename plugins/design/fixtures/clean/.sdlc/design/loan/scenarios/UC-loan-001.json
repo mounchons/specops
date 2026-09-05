@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "SCN-loan-001",
+      "title": "ลูกค้ายื่นขอสินเชื่อ — main",
+      "status": "reviewed",
+      "usecase": "UC-loan-001",
+      "flow": "main",
+      "given": "รายได้ 30,000",
+      "when": "ขอวงเงิน 200,000",
+      "expected": "ผลลัพธ์ที่สังเกตได้ของ SCN-loan-001",
+      "enforces": ["BR-loan-001@v1","BR-loan-002@v1"],
+      "derivedFrom": ["UC-loan-001","AC-loan-001"],
+      "generatedAt": "2026-09-05T06:21:49.730Z",
+      "decidedAt": "2026-09-05T06:21:50.588Z"
+    }
+  ]
+}

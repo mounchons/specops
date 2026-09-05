@@ -1,0 +1,6 @@
+{
+  "schemaVersion": "1.0",
+  "appType": "api",
+  "note": "An api app has no screens, so this list is empty on purpose — an empty baseline is a decision, not an omission. What an api owes the rest of the system lives in design/api.json as API and INT records, and its health and docs endpoints belong there too.",
+  "screens": []
+}

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "ACL-015",
+      "title": "ลูกค้าผู้กู้ → ลูกค้ายื่นขอสินเชื่อ",
+      "status": "draft",
+      "role": "ROLE-002",
+      "ui": "UI-loan-001",
+      "allow": ["view","create"],
+      "dataScope": "own",
+      "derivedFrom": ["ROLE-002","UI-loan-001","BR-loan-002@v1"],
+      "decidedAt": "2026-09-05T06:21:49.654Z"
+    }
+  ]
+}

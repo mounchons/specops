@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "1.0",
+  "appType": "desktop",
+  "note": "A desktop app is a back-office app that runs on one machine: it keeps the account screens and settings, and adds the two things only a desktop has — where its data lives, and which version is installed.",
+  "screens": [
+    {
+      "key": "login",
+      "kind": "login",
+      "title": "เข้าสู่ระบบ",
+      "requires": { "authNot": "none" },
+      "fields": ["username", "password"],
+      "actions": [{ "name": "sign-in", "writes": false }]
+    },
+    {
+      "key": "profile",
+      "kind": "form",
+      "title": "ข้อมูลผู้ใช้ของฉัน",
+      "requires": { "authNot": "none" },
+      "fields": ["displayName", "password"],
+      "actions": [{ "name": "save", "writes": true }]
+    },
+    {
+      "key": "home",
+      "kind": "dashboard",
+      "title": "หน้าแรก",
+      "fields": [],
+      "actions": []
+    },
+    {
+      "key": "settings",
+      "kind": "form",
+      "title": "ตั้งค่าโปรแกรม",
+      "fields": ["dataLocation", "printer", "version"],
+      "actions": [{ "name": "save", "writes": true }]
+    }
+  ]
+}

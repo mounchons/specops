@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "1.0",
+  "appType": "mobile",
+  "note": "A mobile app is a customer-facing app with a smaller shell: sign-in, the user's own profile, a home, and — because phones lose connectivity — a place to see what has not synced yet.",
+  "screens": [
+    {
+      "key": "login",
+      "kind": "login",
+      "title": "เข้าสู่ระบบ",
+      "requires": { "authNot": "none" },
+      "fields": ["identity"],
+      "actions": [{ "name": "sign-in", "writes": false }]
+    },
+    {
+      "key": "profile",
+      "kind": "form",
+      "title": "ข้อมูลของฉัน",
+      "requires": { "authNot": "none" },
+      "fields": ["displayName", "phone"],
+      "actions": [{ "name": "save", "writes": true }]
+    },
+    {
+      "key": "home",
+      "kind": "dashboard",
+      "title": "หน้าแรก",
+      "fields": [],
+      "actions": []
+    },
+    {
+      "key": "sync-status",
+      "kind": "list",
+      "title": "รายการที่ยังไม่ส่งขึ้นระบบ",
+      "fields": ["item", "queuedAt", "error"],
+      "actions": [{ "name": "retry", "writes": true }]
+    }
+  ]
+}

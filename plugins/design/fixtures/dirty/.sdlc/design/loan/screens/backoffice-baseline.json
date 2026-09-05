@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "status": "draft",
+      "fields": [],
+      "actions": [],
+      "zones": [
+        "header",
+        "body"
+      ],
+      "states": [
+        "loaded"
+      ],
+      "roles": [],
+      "derivedFrom": [],
+      "id": "UI-loan-002",
+      "title": "หน้าแรก",
+      "app": "warehouse",
+      "origin": "guesswork",
+      "kind": "dashboard",
+      "generatorKey": "home"
+    }
+  ]
+}

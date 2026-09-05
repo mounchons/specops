@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "SRC-001",
+      "title": "pasted text",
+      "status": "reviewed",
+      "kind": "text",
+      "capturedAt": "2026-09-05T06:21:47.562Z",
+      "bytes": 218,
+      "raw": "req/sources/SRC-001.txt"
+    }
+  ]
+}

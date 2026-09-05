@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "UI-loan-001",
+      "title": "ลูกค้ายื่นขอสินเชื่อ",
+      "status": "draft",
+      "app": "customer",
+      "origin": "usecase",
+      "kind": "form",
+      "generatorKey": "UC-loan-001",
+      "fields": [],
+      "actions": [
+        {"name":"submit","writes":true,"api":"API-017"}
+      ],
+      "zones": ["header","body","actions"],
+      "states": ["empty","loaded","error"],
+      "roles": [],
+      "derivedFrom": ["UC-loan-001"],
+      "generatedAt": "2026-09-05T06:21:48.909Z"
+    }
+  ]
+}

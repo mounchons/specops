@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "UC-loan-001",
+      "title": "ลูกค้ายื่นขอสินเชื่อ",
+      "status": "draft",
+      "actor": "STK-002",
+      "apps": ["customer"],
+      "crud": null,
+      "readOnly": false,
+      "precondition": "ลูกค้าเข้าสู่ระบบแล้ว",
+      "flows": [
+        {
+          "name": "main",
+          "steps": [
+            {
+              "step": "กรอกวงเงินและรายได้",
+              "enforces": ["BR-loan-001@v1"]
+            },
+            {
+              "step": "ส่งคำขอ",
+              "enforces": ["BR-loan-002@v1"]
+            }
+          ]
+        }
+      ],
+      "enforces": ["BR-loan-001@v1","BR-loan-002@v1"],
+      "derivedFrom": ["REQ-loan-001"],
+      "writtenAt": "2026-09-05T06:21:48.559Z"
+    },
+    {
+      "id": "AC-loan-001",
+      "title": "main: ขอวงเงิน 200,000",
+      "status": "draft",
+      "usecase": "UC-loan-001",
+      "flow": "main",
+      "given": "รายได้ 30,000",
+      "when": "ขอวงเงิน 200,000",
+      "then": "ระบบปฏิเสธ วงเงินสูงสุด 150,000",
+      "derivedFrom": ["UC-loan-001","EX-loan-001"]
+    }
+  ]
+}

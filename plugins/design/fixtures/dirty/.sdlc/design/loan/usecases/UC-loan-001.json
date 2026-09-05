@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "UC-loan-001",
+      "title": "ยื่นคำขอ",
+      "status": "draft",
+      "actor": "STK-001",
+      "apps": [
+        "customer"
+      ],
+      "crud": null,
+      "readOnly": false,
+      "precondition": null,
+      "flows": [
+        {
+          "name": "main",
+          "steps": [
+            {
+              "step": "กรอกแบบฟอร์ม",
+              "enforces": [
+                "BR-loan-001@v1"
+              ]
+            }
+          ]
+        }
+      ],
+      "enforces": [
+        "BR-loan-001@v1"
+      ],
+      "derivedFrom": []
+    },
+    {
+      "id": "AC-loan-001",
+      "title": "main",
+      "status": "draft",
+      "usecase": "UC-loan-001",
+      "flow": "main",
+      "given": "รายได้ 30,000",
+      "when": "ขอ 200,000",
+      "then": "ระบบปฏิเสธ",
+      "derivedFrom": [
+        "UC-loan-001",
+        "EX-loan-001"
+      ]
+    }
+  ]
+}

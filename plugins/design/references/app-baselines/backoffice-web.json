@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "1.0",
+  "appType": "backoffice-web",
+  "note": "What a back-office web app has whether or not the client asks. Nobody writes 'ต้องมีหน้า login' in a requirement, and nobody accepts a system without one — so these come from the app type, not from the wish list. `requires` gates an entry on the app's own declaration in project.json.",
+  "screens": [
+    {
+      "key": "login",
+      "kind": "login",
+      "title": "เข้าสู่ระบบ",
+      "requires": { "authNot": "none" },
+      "fields": ["username", "password"],
+      "actions": [{ "name": "sign-in", "writes": false }]
+    },
+    {
+      "key": "forgot-password",
+      "kind": "form",
+      "title": "ลืมรหัสผ่าน",
+      "requires": { "authNot": "none" },
+      "fields": ["email"],
+      "actions": [{ "name": "send-reset-link", "writes": true }]
+    },
+    {
+      "key": "profile",
+      "kind": "form",
+      "title": "ข้อมูลผู้ใช้ของฉัน",
+      "requires": { "authNot": "none" },
+      "fields": ["displayName", "email", "password"],
+      "actions": [{ "name": "save", "writes": true }]
+    },
+    {
+      "key": "home",
+      "kind": "dashboard",
+      "title": "หน้าแรก",
+      "fields": [],
+      "actions": []
+    },
+    {
+      "key": "users",
+      "kind": "list",
+      "title": "ผู้ใช้ระบบ",
+      "requires": { "owns": "users" },
+      "fields": ["username", "displayName", "role", "status"],
+      "actions": [
+        { "name": "create", "writes": true },
+        { "name": "edit", "writes": true },
+        { "name": "disable", "writes": true }
+      ]
+    },
+    {
+      "key": "roles",
+      "kind": "list",
+      "title": "บทบาทผู้ใช้",
+      "requires": { "owns": "roles" },
+      "fields": ["name", "description", "userCount"],
+      "actions": [
+        { "name": "create", "writes": true },
+        { "name": "edit", "writes": true }
+      ]
+    },
+    {
+      "key": "permission-matrix",
+      "kind": "matrix",
+      "title": "กำหนดสิทธิ์",
+      "requires": { "owns": "roles" },
+      "fields": ["role", "resource", "action", "dataScope"],
+      "actions": [{ "name": "save", "writes": true }]
+    },
+    {
+      "key": "settings",
+      "kind": "form",
+      "title": "ตั้งค่าระบบ",
+      "fields": ["organisationName", "timezone", "currency"],
+      "actions": [{ "name": "save", "writes": true }]
+    }
+  ]
+}

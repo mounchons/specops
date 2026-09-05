@@ -1,0 +1,158 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "UI-loan-004",
+      "title": "เข้าสู่ระบบ",
+      "status": "draft",
+      "app": "backoffice",
+      "origin": "baseline",
+      "kind": "login",
+      "generatorKey": "login",
+      "fields": ["username","password"],
+      "actions": [
+        {"name":"sign-in","writes":false,"api":null}
+      ],
+      "zones": ["header","body","actions"],
+      "states": ["empty","loaded","error"],
+      "roles": [],
+      "baseline": "backoffice-web/login",
+      "derivedFrom": [],
+      "generatedAt": "2026-09-05T06:21:48.912Z"
+    },
+    {
+      "id": "UI-loan-005",
+      "title": "ลืมรหัสผ่าน",
+      "status": "draft",
+      "app": "backoffice",
+      "origin": "baseline",
+      "kind": "form",
+      "generatorKey": "forgot-password",
+      "fields": ["email"],
+      "actions": [
+        {"name":"send-reset-link","writes":true,"api":"API-001"}
+      ],
+      "zones": ["header","body","actions"],
+      "states": ["empty","loaded","error"],
+      "roles": [],
+      "baseline": "backoffice-web/forgot-password",
+      "derivedFrom": [],
+      "generatedAt": "2026-09-05T06:21:48.913Z"
+    },
+    {
+      "id": "UI-loan-006",
+      "title": "ข้อมูลผู้ใช้ของฉัน",
+      "status": "draft",
+      "app": "backoffice",
+      "origin": "baseline",
+      "kind": "form",
+      "generatorKey": "profile",
+      "fields": ["displayName","email","password"],
+      "actions": [
+        {"name":"save","writes":true,"api":"API-002"}
+      ],
+      "zones": ["header","body","actions"],
+      "states": ["empty","loaded","error"],
+      "roles": [],
+      "baseline": "backoffice-web/profile",
+      "derivedFrom": [],
+      "generatedAt": "2026-09-05T06:21:48.914Z"
+    },
+    {
+      "id": "UI-loan-007",
+      "title": "หน้าแรก",
+      "status": "draft",
+      "app": "backoffice",
+      "origin": "baseline",
+      "kind": "dashboard",
+      "generatorKey": "home",
+      "fields": [],
+      "actions": [],
+      "zones": ["header","body","actions"],
+      "states": ["empty","loaded","error"],
+      "roles": [],
+      "baseline": "backoffice-web/home",
+      "derivedFrom": [],
+      "generatedAt": "2026-09-05T06:21:48.915Z"
+    },
+    {
+      "id": "UI-loan-008",
+      "title": "ผู้ใช้ระบบ",
+      "status": "draft",
+      "app": "backoffice",
+      "origin": "baseline",
+      "kind": "list",
+      "generatorKey": "users",
+      "fields": ["username","displayName","role","status"],
+      "actions": [
+        {"name":"create","writes":true,"api":"API-003"},
+        {"name":"edit","writes":true,"api":"API-004"},
+        {"name":"disable","writes":true,"api":"API-005"}
+      ],
+      "zones": ["header","body","actions"],
+      "states": ["empty","loaded","error"],
+      "roles": [],
+      "baseline": "backoffice-web/users",
+      "derivedFrom": [],
+      "generatedAt": "2026-09-05T06:21:48.915Z"
+    },
+    {
+      "id": "UI-loan-009",
+      "title": "บทบาทผู้ใช้",
+      "status": "draft",
+      "app": "backoffice",
+      "origin": "baseline",
+      "kind": "list",
+      "generatorKey": "roles",
+      "fields": ["name","description","userCount"],
+      "actions": [
+        {"name":"create","writes":true,"api":"API-006"},
+        {"name":"edit","writes":true,"api":"API-007"}
+      ],
+      "zones": ["header","body","actions"],
+      "states": ["empty","loaded","error"],
+      "roles": [],
+      "baseline": "backoffice-web/roles",
+      "derivedFrom": [],
+      "generatedAt": "2026-09-05T06:21:48.916Z"
+    },
+    {
+      "id": "UI-loan-010",
+      "title": "กำหนดสิทธิ์",
+      "status": "draft",
+      "app": "backoffice",
+      "origin": "baseline",
+      "kind": "matrix",
+      "generatorKey": "permission-matrix",
+      "fields": ["role","resource","action","dataScope"],
+      "actions": [
+        {"name":"save","writes":true,"api":"API-008"}
+      ],
+      "zones": ["header","body","actions"],
+      "states": ["empty","loaded","error"],
+      "roles": [],
+      "baseline": "backoffice-web/permission-matrix",
+      "derivedFrom": [],
+      "generatedAt": "2026-09-05T06:21:48.917Z"
+    },
+    {
+      "id": "UI-loan-011",
+      "title": "ตั้งค่าระบบ",
+      "status": "draft",
+      "app": "backoffice",
+      "origin": "baseline",
+      "kind": "form",
+      "generatorKey": "settings",
+      "fields": ["organisationName","timezone","currency"],
+      "actions": [
+        {"name":"save","writes":true,"api":"API-009"}
+      ],
+      "zones": ["header","body","actions"],
+      "states": ["empty","loaded","error"],
+      "roles": [],
+      "baseline": "backoffice-web/settings",
+      "derivedFrom": [],
+      "generatedAt": "2026-09-05T06:21:48.918Z"
+    }
+  ]
+}

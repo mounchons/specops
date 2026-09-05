@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "BR-loan-001@v1",
+      "title": "วงเงินไม่เกิน 5 เท่าของรายได้",
+      "status": "draft"
+    },
+    {
+      "id": "BR-loan-002@v1",
+      "title": "กฎที่ไม่มี step ไหนบังคับ",
+      "status": "draft"
+    }
+  ]
+}

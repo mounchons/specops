@@ -95,7 +95,6 @@ export function impl(stateDir, id, spec, golden, codeRoot) {
   migrateImpl(stateDir, id);
   const existing = allImps(stateDir);
   const ids = existing.map((i) => i.id);
-  const mine = existing.filter((i) => (i.implements ?? []).includes(id));
   const added = [];
   for (const one of list(spec)) {
     const [p, kind = "source"] = one.split("=");
@@ -104,8 +103,13 @@ export function impl(stateDir, id, spec, golden, codeRoot) {
     orExit2(fs.existsSync(path.join(codeRoot, rel)), `${rel} does not exist under ${codeRoot} — an implementation unit names a file that is there`);
     const cmp = componentOf(cmps, rel);
     orExit2(cmp, `${rel} is outside every component root (${cmps.map((c) => c.root).join(", ")}) — either the file is in the wrong place or /dev:stack has the wrong root`);
-    const was = mine.find((i) => i.path === rel);
+    // Looked up by path across every task, not just this one. `implements` is a list because one file
+    // can serve two slices — Program.cs maps the route of each — and a second IMP for the same path is
+    // two owners for one file, which is the thing G-dev-005 exists to prevent. The record stays in the
+    // directory of the task that first claimed it; the new task is appended to `implements`.
+    const was = existing.find((i) => i.path === rel);
     const impId = was?.id ?? mintId(ids, "IMP");
+    const home = (was?.implements ?? [])[0] ?? id;
     if (!was) ids.push(impId);
     const rec = {
       id: impId,
@@ -118,7 +122,7 @@ export function impl(stateDir, id, spec, golden, codeRoot) {
       golden: kind === "test" ? [...new Set([...(was?.golden ?? []), ...list(golden), ...(golden ? [] : tsk.golden ?? [])])] : [],
       addedAt: was?.addedAt ?? now(),
     };
-    upsert(FILES.impl(stateDir, id, impId), rec);
+    upsert(FILES.impl(stateDir, home, impId), rec);
     addEdges(stateDir, [{ from: impId, rel: "implements", to: id }]);
     added.push(rec);
   }

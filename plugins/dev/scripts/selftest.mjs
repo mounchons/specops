@@ -171,6 +171,13 @@ for (const t of rest) {
   git("commit", "-qm", `feat: ${t.title} (${t.id})`);
   step(`close ${t.id}`, dev("task.mjs"), [t.id, "--state-dir", S, "--close"]);
 }
+// One file, one IMP — even across two slices. Program.cs maps the route of every task; before this a
+// second --impl on it minted a second IMP and G-dev-005 had two owners for one path.
+src("src/shared.mjs", `export const shared = () => true;\n`);
+const implShared1 = step("impl shared from TSK-001", dev("task.mjs"), ["TSK-001", "--state-dir", S, "--impl", "src/shared.mjs=source"]);
+const implShared2 = step("impl the same file from another task", dev("task.mjs"), [rest[0].id, "--state-dir", S, "--impl", "src/shared.mjs=source"]);
+git("add", "-A");
+git("commit", "-qm", "chore: a file two slices share");
 const handed = step("handoff", dev("handoff.mjs"), ["loan", "--state-dir", S]);
 
 // Class A / Class B
@@ -253,6 +260,9 @@ assert("live: a gap is answered by the record that declares it, and stops being 
 assert("live: an answer that names a record which does not exist is refused", answerUnknown.code === 2 && /API-999 does not exist/.test(answerUnknown.out), answerUnknown.out.trim().split("\n").pop());
 assert("live: a gap is answered once", answerTwice.code === 2 && /already answered/.test(answerTwice.out), answerTwice.out.trim().split("\n").pop());
 assert("live: the orphan sweep counts the files that decide whether it runs, not only source", /G-dev-005/.test(gates.out) && /src\/package\.json/.test(gates.out), gates.out.split("\n").find((l) => /G-dev-005/.test(l))?.slice(0, 160) ?? "G-dev-005 did not fire");
+const impsNow = () => fs.readdirSync(path.join(S, "dev", "impl")).flatMap((d) => fs.readdirSync(path.join(S, "dev", "impl", d)).map((f) => JSON.parse(fs.readFileSync(path.join(S, "dev", "impl", d, f), "utf8")).items[0]));
+const sharedImps = impsNow().filter((i) => i.path === "src/shared.mjs");
+assert("live: one file is one IMP, however many slices touch it", implShared1.code === 0 && implShared2.code === 0 && sharedImps.length === 1 && sharedImps[0].implements.length === 2, sharedImps.map((i) => `${i.id} -> ${(i.implements ?? []).join(",")}`).join(" | ") || "no IMP for src/shared.mjs");
 assert("live: one file per implementation unit, so a slice of 22 files cannot cross rule 4", fs.readdirSync(path.join(S, "dev", "impl")).every((n) => fs.statSync(path.join(S, "dev", "impl", n)).isDirectory()) && fs.readdirSync(path.join(S, "dev", "impl", "TSK-001")).every((n) => /^IMP-[0-9]{3}\.json$/.test(n)), fs.readdirSync(path.join(S, "dev", "impl")).map((n) => `${n}/${fs.readdirSync(path.join(S, "dev", "impl", n)).join(",")}`).join(" · "));
 assert("live: gates.mjs loads dev's checks through project.json — 10 core + 10 req + 16 design + 6 change + 8 dev", /gates=50/.test(gates.out), gates.out.trim().split("\n").pop());
 assert("live: the skill gate is a LIMIT that prints every run and never blocks", /limit=1/.test(gates.out) && /LIMIT.*G-dev-008/.test(gates.out) && gates.code === 0, gates.out.split("\n").find((l) => /G-dev-008/.test(l)) ?? gates.out.trim().split("\n").pop());

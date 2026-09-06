@@ -237,6 +237,17 @@ server.kill();
 
 const gates = step("gates", core("gates.mjs"), ["--state-dir", S]);
 const callsheet = step("next", core("next.mjs"), ["--state-dir", S, "--all"]);
+// The three states a finding routed to design can be in, and the row the callsheet owes each one.
+// Before this it always asked for the impact, so a DEF kept pointing at a CR that had been walked,
+// applied and closed weeks earlier.
+const designCr = JSON.parse(fs.readFileSync(path.join(S, "change", "open", "CR-001.json"), "utf8"));
+const scnTouched = designCr.touches.find((t) => String(t).startsWith("SCN-"));
+step("impact the CR the finding opened", chg("impact.mjs"), ["CR-001", "--state-dir", S]);
+const afterImpact = step("callsheet once the CR is walked", core("next.mjs"), ["--state-dir", S, "--all"]);
+step("approve the scenario the CR touched", dsn("scenario.mjs"), ["loan", "--state-dir", S, "--approve", scnTouched, "--sign", "STK-001"]);
+step("apply the CR", chg("apply.mjs"), ["CR-001", "--state-dir", S]);
+const crClosed = step("close the CR the finding opened", chg("close.mjs"), ["CR-001", "--state-dir", S, "--sign", "STK-001", "--evidence", path.join(S, "project.json")]);
+const afterClose = step("callsheet once the CR is closed", core("next.mjs"), ["--state-dir", S, "--all"]);
 
 const broke = steps.filter(([, r]) => r.code !== 0);
 assert("live: every command exits 0", broke.length === 0, broke.map(([l, r]) => `${l} -> ${r.code}: ${r.out.trim().split("\n")[0]}`).join(" | "));
@@ -251,6 +262,8 @@ assert("live: with a real endpoint the same command produces runnable cases, one
 assert("live: a screen step is recorded and skipped, never quietly passed", /ui/.test(casesOk.out) || true, "G-qa-007 is a LIMIT");
 assert("live: gates.mjs loads qa's checks through project.json — 10 core + 10 req + 16 design + 6 change + 8 dev + 8 qa", /gates=58/.test(gates.out), gates.out.trim().split("\n").pop());
 assert("live: the callsheet answers on live state — qa's NEXT rules get the ctx they were promised", callsheet.code === 0 && /\/qa:/.test(callsheet.out) && !/TypeError|Cannot read properties/.test(callsheet.out), callsheet.out.split("\n").filter((l) => /\/(qa|change):/.test(l)).slice(0, 3).join(" · ") || callsheet.out.trim().split("\n")[0]);
+assert("live: a finding whose CR is walked stops asking for the walk", /\/change:impact CR-001/.test(callsheet.out) && !/\/change:impact CR-001/.test(afterImpact.out), `before: ${/\/change:impact CR-001/.test(callsheet.out)} · after: ${/\/change:impact CR-001/.test(afterImpact.out)}`);
+assert("live: a finding whose CR is closed asks for a run, because a change that answered it on paper is still a claim", crClosed.code === 0 && /\/qa:run/.test(afterClose.out) && /CR-001 is closed/.test(afterClose.out), afterClose.out.split("\n").find((l) => /CR-001 is closed/.test(l)) ?? afterClose.out.trim().split("\n").pop());
 assert("live: the two qa limits print every run and never block", /limit=3/.test(gates.out) && /LIMIT.*G-qa-007/.test(gates.out) && /LIMIT.*G-qa-008/.test(gates.out), gates.out.split("\n").filter((l) => /LIMIT/.test(l)).join(" · "));
 
 fs.rmSync(tmp, { recursive: true, force: true });

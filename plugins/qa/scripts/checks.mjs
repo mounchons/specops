@@ -11,6 +11,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { allTcs, allRuns, allDefs, verifiedUseCases, defOpen, moduleOf } from "./lib.mjs";
+import { allCrs } from "../../change/scripts/lib.mjs";
 
 const of = (state, prefix) => state.artifacts.filter((a) => a.prefix === prefix);
 const raw = (a) => a.raw ?? {};
@@ -95,10 +96,25 @@ export const NEXT = [
     allDefs(ctx.stateDir)
       .filter((d) => d.status !== "verified" && d.routing === "dev")
       .map((d) => ({ action: `/qa:run ${d.tc}`, reason: `${d.id} is a bug for dev; when it is fixed, only a green run closes it` })),
-  (ctx) =>
-    allDefs(ctx.stateDir)
-      .filter((d) => d.status !== "verified" && d.cr)
-      .map((d) => ({ action: `/change:impact ${d.cr}`, reason: `${d.id} routed to ${d.routing} and opened ${d.cr} — the lane comes from the graph` })),
+  // A finding routed to design waits on its change request, and the callsheet has to say which part
+  // of that wait it is in. Before this it always said "/change:impact", so DEF-rental-003 kept asking
+  // for the impact of CR-004 long after CR-004 was walked, applied and closed.
+  //   open, no impact yet  -> impact it; the lane comes from the graph
+  //   open and impacted    -> nothing from qa; change's own rules own apply and close
+  //   closed               -> a run, like any other finding: a change that answered it on paper is
+  //                           still a claim until something green says so (P6)
+  (ctx) => {
+    const crs = new Map(allCrs(ctx.stateDir).map((c) => [c.id, c]));
+    return allDefs(ctx.stateDir)
+      .filter((d) => defOpen(d) && d.cr)
+      .map((d) => {
+        const cr = crs.get(d.cr);
+        if (!cr) return { action: `/core:query ${d.cr}`, reason: `${d.id} names ${d.cr}, and no change request by that id is on disk — the finding points at nothing` };
+        if (cr.__open) return cr.impact ? null : { action: `/change:impact ${d.cr}`, reason: `${d.id} routed to ${d.routing} and opened ${d.cr} — the lane comes from the graph` };
+        return d.tc ? { action: `/qa:run ${d.tc}`, reason: `${d.id} routed to ${d.routing} and ${d.cr} is closed — the change answered it on paper, and only a green run says it answered it` } : null;
+      })
+      .filter(Boolean);
+  },
   (ctx) => {
     const tcs = allTcs(ctx.stateDir).filter((t) => t.runnable);
     return tcs.length && tcs.every((t) => t.lastVerdict === "pass")

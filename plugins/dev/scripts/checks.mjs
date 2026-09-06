@@ -11,7 +11,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { prefixOf } from "../../core/scripts/ids.mjs";
 import { walk } from "../../core/scripts/paths.mjs";
-import { isFrozen, allCmps, allTsks, allImps, allGaps, componentOf, moduleOf } from "./lib.mjs";
+import { isFrozen, allCmps, allTsks, allImps, allGaps, componentOf, moduleOf, taskModule, originOf, byBuildOrder } from "./lib.mjs";
 
 const of = (state, prefix) => state.artifacts.filter((a) => a.prefix === prefix);
 const raw = (a) => a.raw ?? {};
@@ -96,6 +96,7 @@ export const CHECKS = {
       .filter((t) => STARTED.has(t.status))
       .flatMap((t) =>
         [raw(t).usecase, ...(raw(t).screens ?? []), ...(raw(t).acceptance ?? [])]
+          .filter(Boolean)
           .map((id) => ({ id, f: isFrozen(id, { stateDir }) }))
           .filter((x) => x.f.frozen && x.f.by !== raw(t).cr)
           .slice(0, 1)
@@ -160,14 +161,14 @@ const ucModules = (ctx) => [...new Set(Object.keys(ctx.registry.index).filter((i
 
 export const NEXT = [
   (ctx) => ((ctx.project.apps ?? []).length && allCmps(ctx.stateDir).length === 0 ? [{ action: `/dev:stack`, reason: "there are apps but no component — dev asks the stack once and never guesses it" }] : []),
-  (ctx) => (allCmps(ctx.stateDir).length ? ucModules(ctx).filter((m) => !tsks(ctx).some((t) => moduleOf(t.usecase) === m)).map((m) => ({ action: `/dev:plan ${m}`, reason: `module ${m} has use cases and no tasks — one vertical slice each, in an order the state machine decides` })) : []),
+  (ctx) => (allCmps(ctx.stateDir).length ? ucModules(ctx).filter((m) => !tsks(ctx).some((t) => taskModule(t) === m)).map((m) => ({ action: `/dev:plan ${m}`, reason: `module ${m} has use cases and no tasks — one vertical slice each, in an order the state machine decides` })) : []),
   (ctx) => {
-    const next = tsks(ctx).filter((t) => !t.blocked && t.status === "draft").sort((a, b) => a.order - b.order)[0];
-    return next ? [{ action: `/dev:task ${next.id} --start`, reason: `${next.title} (${next.usecase}) is first in build order and has not started` }] : [];
+    const next = tsks(ctx).filter((t) => !t.blocked && t.status === "draft").sort(byBuildOrder)[0];
+    return next ? [{ action: `/dev:task ${next.id} --start`, reason: `${next.title} (${next.usecase ?? `${originOf(next)}/${next.group}`}) is first in build order and has not started` }] : [];
   },
   (ctx) => tsks(ctx).filter((t) => t.status === "approved" && !t.blocked).map((t) => ({ action: `/dev:task ${t.id} --verify`, reason: `${t.id} started at ${String(t.startedAt).slice(0, 16)} with ${(t.proof ?? []).length} proof(s) — ${t.verify}` })),
   (ctx) => tsks(ctx).filter((t) => t.status === "implemented").map((t) => ({ action: `/dev:task ${t.id} --close`, reason: `${t.id}'s last run exited 0 — commit the diff with ${t.id} in the message, then close` })),
-  (ctx) => tsks(ctx).filter((t) => t.blocked).map((t) => ({ action: `/dev:revise ${t.usecase} --request "…"`, reason: `${t.id} is blocked: ${t.blocked.reason}` })),
+  (ctx) => tsks(ctx).filter((t) => t.blocked).map((t) => ({ action: `/dev:revise ${t.usecase ?? (t.screens ?? [])[0] ?? t.id} --request "…"`, reason: `${t.id} is blocked: ${t.blocked.reason}` })),
   (ctx) => allGaps(ctx.stateDir).filter((g) => !g.cr && !g.answer).map((g) => ({ action: g.openWith, reason: `${g.id} asks for a ${g.asks} that ${g.about} does not declare — upstream decides, dev does not` })),
-  (ctx) => ucModules(ctx).filter((m) => { const ts = tsks(ctx).filter((t) => moduleOf(t.usecase) === m); return ts.length && ts.every((t) => t.status === "verified"); }).map((m) => ({ action: `/dev:handoff ${m}`, reason: `every task of ${m} is verified — qa needs the manifest to write test cases without asking anyone` })),
+  (ctx) => ucModules(ctx).filter((m) => { const ts = tsks(ctx).filter((t) => taskModule(t) === m); return ts.length && ts.every((t) => t.status === "verified"); }).map((m) => ({ action: `/dev:handoff ${m}`, reason: `every task of ${m} is verified — qa needs the manifest to write test cases without asking anyone` })),
 ];

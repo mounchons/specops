@@ -43,3 +43,5 @@ Carried, not fixed here:
 - `dev/impl/TSK-001.json` is 232 lines for 17 IMPs and will cross 300 on a slice with 22+ files. In `docs/backlog.md` (same fix pattern as the tasks split).
 - design's `screens` still uses its own `frozenIds()` rather than change's `isFrozen()`; mock and dev use `isFrozen()`.
 - `revise` Class B prints `--fields <ENT-nnn.attribute>` as a placeholder the owner fills in — it cannot know which entity attribute a new field maps to, which is the point.
+
+> **2026-09-06** — `dev:plan` was extended after this DoD ran (see `plugins/dev/SPEC.md` amended line). Re-running row 3 today prints `created 12 already there 9` and a 21-row table: the 9 use-case tasks above are byte-for-byte the same records, and 12 more cover the screens no use case produced. The row is not re-verified here because it proved what it proved on the day; the new behaviour is proved by the dev selftest rows "plan mints a task for the screens no use case produced", "one task per capability, not per screen" and "build order puts sign-in before every use case".

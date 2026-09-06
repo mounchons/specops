@@ -134,7 +134,7 @@ export function tasks(stateDir) {
   return walk(dir, (p) => p.endsWith(".json")).flatMap((f) => readItems(f).filter((r) => String(r.id).startsWith("TSK-")));
 }
 
-export const verifiedUseCases = (stateDir) => new Set(tasks(stateDir).filter((t) => t.status === "verified").map((t) => t.usecase));
+export const verifiedUseCases = (stateDir) => new Set(tasks(stateDir).filter((t) => t.status === "verified").map((t) => t.usecase).filter(Boolean));
 
 /** The code root dev recorded on its components — the thing whose git HEAD is the version under test. */
 export function codeRoot(stateDir) {

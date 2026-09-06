@@ -12,13 +12,13 @@ import path from "node:path";
 import { parseArgs, resolveStateDir, stateExists, orExit2, isMain } from "../../core/scripts/paths.mjs";
 import { loadState } from "../../core/scripts/artifacts.mjs";
 import { ensureInit } from "./init.mjs";
-import { FILES, allCmps, allTsks, allImps, byId, moduleOf, of } from "./lib.mjs";
+import { FILES, allCmps, allTsks, allImps, byId, taskModule, originOf, byBuildOrder, of } from "./lib.mjs";
 
 const raw = (a) => a?.raw ?? {};
 
 export function handoff(stateDir, module) {
   ensureInit(stateDir);
-  const tsks = allTsks(stateDir).filter((t) => moduleOf(t.usecase) === module).sort((a, b) => a.order - b.order);
+  const tsks = allTsks(stateDir).filter((t) => taskModule(t) === module).sort(byBuildOrder);
   orExit2(tsks.length, `module "${module}" has no task — /dev:plan ${module} first`);
   const notDone = tsks.filter((t) => t.status !== "verified");
   if (notDone.length) return { module, notDone, tsks };
@@ -43,7 +43,7 @@ export function handoff(stateDir, module) {
     lines.push(
       `## ${t.id} — ${t.title}`,
       ``,
-      `${t.usecase} · commit \`${String(t.commit ?? "").slice(0, 8)}\` · proof \`${proof?.cmd ?? "—"}\` exit ${proof?.exitCode ?? "—"} เมื่อ ${proof?.at ?? "—"}`,
+      `${t.usecase ?? `${originOf(t)} · ${t.group}`} · commit \`${String(t.commit ?? "").slice(0, 8)}\` · proof \`${proof?.cmd ?? "—"}\` exit ${proof?.exitCode ?? "—"} เมื่อ ${proof?.at ?? "—"}`,
       ``,
       `### acceptance ที่ทำแล้ว`,
       ...(t.acceptance ?? []).map((id) => { const a = raw(byId(state, id)); return `- **${id}** given ${a.given} · when ${a.when} · **then ${a.then}**`; }),
@@ -93,7 +93,7 @@ if (isMain(import.meta.url)) {
   }
 
   console.log(`HANDOFF ${r.module}  ${r.tsks.length} slice(s) · ${r.imps.length} file(s)`);
-  for (const t of r.tsks) console.log(`  ${t.id.padEnd(9)} ${t.usecase.padEnd(16)} ${String(t.commit ?? "").slice(0, 8)}  ${(t.acceptance ?? []).length} AC · ${(t.scenarios ?? []).length} SCN · ${(t.golden ?? []).length} GD`);
+  for (const t of r.tsks) console.log(`  ${t.id.padEnd(9)} ${String(t.usecase ?? `${originOf(t)}/${t.group}`).padEnd(20)} ${String(t.commit ?? "").slice(0, 8)}  ${(t.acceptance ?? []).length} AC · ${(t.scenarios ?? []).length} SCN · ${(t.acls ?? []).length} ACL · ${(t.golden ?? []).length} GD`);
   console.log(`\nwritten: ${r.file}`);
   console.log(`next: /qa:cases ${r.module} — the scenarios are already listed, one test case each`);
   process.exit(0);

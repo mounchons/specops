@@ -19,7 +19,8 @@ import { CORE_FILES, readJson } from "../../core/scripts/paths.mjs";
 import { loadState } from "../../core/scripts/artifacts.mjs";
 import { buildRegistry } from "../../core/scripts/registry.mjs";
 import { CHECKS as CORE_CHECKS } from "../../core/scripts/gates.mjs";
-import { CHECKS, goldenMisses } from "./checks.mjs";
+import { CHECKS, NEXT, goldenMisses } from "./checks.mjs";
+import { byBuildOrder, originOf } from "./lib.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const core = (s) => path.resolve(here, "..", "..", "core", "scripts", s);
@@ -117,6 +118,8 @@ const stacked = step("stack", dev("stack.mjs"), ["--state-dir", S, "--confirmed-
 
 const planned = step("plan", dev("plan.mjs"), ["loan", "--state-dir", S]);
 const planAgain = step("plan again", dev("plan.mjs"), ["loan", "--state-dir", S]);
+// what dev would put on the callsheet the moment the plan exists — every task still draft
+const devNext = NEXT.flatMap((r) => r({ stateDir: S, project: readJson(CORE_FILES.project(S)), state: loadState(S), registry: buildRegistry(S) })).find((a) => /\/dev:task/.test(a.action));
 const started = step("task TSK-001 --start", dev("task.mjs"), ["TSK-001", "--state-dir", S, "--start"]);
 const closeNoProof = step("close with no proof refused", dev("task.mjs"), ["TSK-001", "--state-dir", S, "--close"]);
 
@@ -143,6 +146,22 @@ const green = step("verify 2 after the fix", dev("task.mjs"), ["TSK-002", "--sta
 git("add", "-A");
 git("commit", "-qm", "feat: อนุมัติ (TSK-002)");
 step("close 2", dev("task.mjs"), ["TSK-002", "--state-dir", S, "--close"]);
+
+// The screens no use case produced — login, profile, the masters, the NFR page — are tasks too, and
+// they go through the same four steps. There is no second lane: the manifest is only writable once
+// they are built as well, which is the point of planning them in the first place.
+const tasksNow = () => fs.readdirSync(path.join(S, "dev", "tasks", "loan")).flatMap((f) => JSON.parse(fs.readFileSync(path.join(S, "dev", "tasks", "loan", f), "utf8")).items);
+const rest = tasksNow().filter((t) => t.status === "draft").sort(byBuildOrder);
+const screenStart = step(`task ${rest[0]?.id} --start`, dev("task.mjs"), [rest[0]?.id ?? "TSK-003", "--state-dir", S, "--start"]);
+for (const t of rest) {
+  if (t.id !== rest[0].id) step(`start ${t.id}`, dev("task.mjs"), [t.id, "--state-dir", S, "--start"]);
+  src(`src/${t.id}.mjs`, `export const ok = () => true;\n`);
+  step(`impl ${t.id}`, dev("task.mjs"), [t.id, "--state-dir", S, "--impl", `src/${t.id}.mjs=source`]);
+  step(`verify ${t.id}`, dev("task.mjs"), [t.id, "--state-dir", S, "--verify"]);
+  git("add", "-A");
+  git("commit", "-qm", `feat: ${t.title} (${t.id})`);
+  step(`close ${t.id}`, dev("task.mjs"), [t.id, "--state-dir", S, "--close"]);
+}
 const handed = step("handoff", dev("handoff.mjs"), ["loan", "--state-dir", S]);
 
 // Class A / Class B
@@ -169,10 +188,22 @@ const gapFile = path.join(S, "dev", "gaps.json");
 assert("live: the stack is asked, never guessed", /language/.test(asked.out) && /ยังไม่มี CMP/.test(asked.out), asked.out.trim().split("\n").pop());
 assert("live: an app with no stack is refused", /no stack for backoffice/.test(missingApp.out), missingApp.out.trim().split("\n").pop());
 assert("live: one component per app plus the shared backend", /CMP-api/.test(stacked.out) && /CMP-backoffice/.test(stacked.out) && /LIMIT/.test(stacked.out), stacked.out.split("\n").filter((l) => /CMP-/.test(l)).join(" · "));
-assert("live: one task per use case, ordered, with acceptance and a verify command", /created 2/.test(planned.out) && /TSK-001/.test(planned.out) && /verify for every task: node verify.mjs/.test(planned.out), planned.out.split("\n").filter((l) => /TSK-/.test(l)).join(" · "));
+assert("live: one task per use case, ordered, with acceptance and a verify command", /TSK-001/.test(planned.out) && /UC-loan-001/.test(planned.out) && /verify for every task: node verify.mjs/.test(planned.out), planned.out.split("\n").filter((l) => /TSK-/.test(l)).join(" · "));
 assert("live: the state machine's arrow becomes a dependency, and the rest say so", /no state transition in the design's steps/.test(planned.out), planned.out.split("\n").find((l) => /no state transition/.test(l)) ?? "");
 assert("live: plan is idempotent", /created 0/.test(planAgain.out), planAgain.out.trim().split("\n")[0]);
-assert("live: one file per task, so a module's tasks never grow into the one file rule 4 refuses", taskFiles.join(" ") === "TSK-001.json TSK-002.json", `dev/tasks/loan/ holds ${taskFiles.join(", ") || "(nothing)"}`);
+assert("live: one file per task, so a module's tasks never grow into the one file rule 4 refuses", taskFiles.length === tsk1.length && taskFiles.every((f) => /^TSK-[0-9]{3}\.json$/.test(f)), `dev/tasks/loan/ holds ${taskFiles.join(", ") || "(nothing)"}`);
+
+// A screen the baseline generator made is work nobody wrote a use case for, and before this the plan
+// walked past all of it: 15 of RentPoint's 28 screens, login among them.
+const screenTsks = tsk1.filter((t) => originOf(t) !== "usecase");
+const ucTsks = tsk1.filter((t) => originOf(t) === "usecase");
+assert("live: plan mints a task for the screens no use case produced", screenTsks.length > 0 && screenTsks.every((t) => t.usecase === null && t.acceptance.length === 0 && t.acls.length > 0), screenTsks.map((t) => `${t.id} ${originOf(t)}/${t.group} ${t.screens.length} UI ${t.acls.length} ACL`).join(" · ") || "no screen task");
+assert("live: one task per capability, not per screen", screenTsks.some((t) => t.group === "login") && new Set(screenTsks.map((t) => `${originOf(t)}/${t.group}`)).size === screenTsks.length, screenTsks.map((t) => `${originOf(t)}/${t.group}`).join(" · "));
+const ranked = [...tsk1].sort(byBuildOrder);
+const rank = (t) => ["baseline", "master", "usecase", "nfr"].indexOf(originOf(t));
+assert("live: build order puts sign-in before every use case, because nothing can be done signed out", ucTsks.length > 0 && ranked[0]?.group === "login" && ranked.every((t, i) => i === 0 || rank(ranked[i - 1]) <= rank(t)), ranked.map((t) => `${t.id}:${originOf(t)}`).join(" "));
+assert("live: the slice of a screen task names the apps and their sign-in, and asks for no use case", /no use case:/.test(screenStart.out) && /signs in with/.test(screenStart.out) && /ACL-/.test(screenStart.out) && screenStart.code === 0, screenStart.out.split("\n").find((l) => /no use case:/.test(l)) ?? screenStart.out.trim().split("\n")[0]);
+assert("live: the callsheet starts the build at sign-in, not at the first use case", devNext?.action === `/dev:task ${ranked[0]?.id} --start`, `${devNext?.action ?? "no /dev:task action"} — ${devNext?.reason ?? ""}`);
 assert("live: --start prints the slice, acceptance verbatim and the golden section", /SLICE TSK-001/.test(started.out) && /ระบบปฏิเสธ วงเงินสูงสุด 150,000/.test(started.out) && /— verify —/.test(started.out), started.out.split("\n").find((l) => /AC-loan-001/.test(l)) ?? "");
 assert("live: a task with no proof cannot close", /has no proof/.test(closeNoProof.out), closeNoProof.out.trim().split("\n").pop());
 assert("live: every file is claimed by an IMP under its component", /IMP-001/.test(implied.out) && /CMP-api/.test(implied.out), implied.out.split("\n").filter((l) => /IMP-/.test(l)).join(" · "));

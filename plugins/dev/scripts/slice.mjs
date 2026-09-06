@@ -7,7 +7,7 @@
  * the state machine, the endpoints, the permissions, the testids the wireframe promised, and the
  * golden rows its unit tests must assert — and nothing else.
  */
-import { byId, of } from "./lib.mjs";
+import { byId, of, originOf } from "./lib.mjs";
 
 const raw = (a) => a?.raw ?? {};
 
@@ -17,9 +17,13 @@ const raw = (a) => a?.raw ?? {};
  * it — and every entity whose invariant is one of the rules those steps enforce. Picking by invariant
  * alone left ENT-001 Booking out of UC-rental-001's slice, the record the use case exists to write.
  */
-function entitiesFor(state, uc, brs) {
+function entitiesFor(state, uc, brs, only = null) {
   const ent = of(state, "ENT").map((a) => a.raw);
-  const text = [uc.precondition ?? "", ...(uc.flows ?? []).flatMap((f) => (f.steps ?? []).map((s) => s.step ?? ""))].join(" \n ");
+  // A task with no use case names no flow and no rule, so "every entity whose invariant matched
+  // nothing" would hand it the whole domain. What it does name is what its screens were generated
+  // from — the master a maintenance screen maintains, and nothing at all for a login page.
+  if (only) return ent.filter((e) => only.includes(e.id));
+  const text =[uc.precondition ?? "", ...(uc.flows ?? []).flatMap((f) => (f.steps ?? []).map((s) => s.step ?? ""))].join(" \n ");
   const named = of(state, "STM")
     .map((a) => a.raw)
     .filter((m) => (m.states ?? []).some((x) => new RegExp(`(^|[^A-Za-z])${x.name}([^A-Za-z]|$)`).test(text)))
@@ -29,9 +33,11 @@ function entitiesFor(state, uc, brs) {
   return ent.filter((e) => keep.has(e.id));
 }
 
-export function sliceOf(state, tsk, cmps) {
-  const uc = byId(state, tsk.usecase);
+export function sliceOf(state, tsk, cmps, apps = []) {
+  const uc = tsk.usecase ? byId(state, tsk.usecase) : null;
   const brs = new Set((raw(uc).flows ?? []).flatMap((f) => (f.steps ?? []).flatMap((s) => s.enforces ?? [])));
+  const uiRecords = (tsk.screens ?? []).map((id) => raw(byId(state, id)));
+  const named = new Set(uiRecords.flatMap((u) => (u.actions ?? []).map((a) => a.api).filter(Boolean)));
   return {
     uc: raw(uc),
     acceptance: (tsk.acceptance ?? []).map((id) => raw(byId(state, id))),
@@ -39,25 +45,35 @@ export function sliceOf(state, tsk, cmps) {
     screens: (tsk.screens ?? []).map((id) => raw(byId(state, id))),
     mocks: (tsk.mocks ?? []).map((id) => raw(byId(state, id))),
     rules: [...brs].map((id) => raw(byId(state, id))).filter((r) => r.id),
-    entities: entitiesFor(state, raw(uc), brs),
+    entities: entitiesFor(state, raw(uc), brs, uc ? null : uiRecords.flatMap((u) => u.derivedFrom ?? [])),
     states: of(state, "STM").map((a) => a.raw),
-    apis: of(state, "API").map((a) => a.raw).filter((api) => (tsk.screens ?? []).some((ui) => (api.derivedFrom ?? []).includes(ui) || api.ui === ui)),
+    apis: of(state, "API").map((a) => a.raw).filter((api) => named.has(api.id) || (tsk.screens ?? []).some((ui) => (api.derivedFrom ?? []).includes(ui) || api.ui === ui)),
     acls: of(state, "ACL").map((a) => a.raw).filter((acl) => (tsk.screens ?? []).includes(acl.ui)),
     calcs: (tsk.calcs ?? []).map((id) => raw(byId(state, id))),
     golden: (tsk.golden ?? []).map((id) => raw(byId(state, id))),
     theme: raw(of(state, "THM")[0]),
     components: cmps,
+    apps: apps.filter((a) => (tsk.apps ?? []).includes(a.name)),
   };
 }
 
 export function printSlice(tsk, s) {
-  console.log(`SLICE ${tsk.id}  ${tsk.title}  ·  ${tsk.usecase}  ·  order ${tsk.order}`);
+  console.log(`SLICE ${tsk.id}  ${tsk.title}  ·  ${tsk.usecase ?? `${originOf(tsk)}/${tsk.group}`}  ·  order ${tsk.order}`);
+  if (!tsk.usecase) {
+    // A screen no use case produced is still built against something: the apps that show it — and
+    // they do not sign in the same way — and the ACL rows below. Saying so once beats the session
+    // inventing a use case for it.
+    console.log(`\n— no use case: ${(tsk.screens ?? []).length} screen(s) from the ${originOf(tsk)} generator, one capability across ${(tsk.apps ?? []).length} app(s) —`);
+    for (const a of s.apps) console.log(`  app ${a.name} (${a.type}) signs in with ${a.auth}${(a.owns ?? []).length ? ` · owns ${a.owns.join(", ")}` : ""}`);
+    console.log(`  what it is finished against: every ACL row below, enforced · the testids the wireframe promised`);
+  }
   console.log(`\n— use case —`);
   if (s.uc.precondition) console.log(`  precondition: ${s.uc.precondition}`);
   for (const f of s.uc.flows ?? []) {
     console.log(`  flow ${f.name}:`);
     (f.steps ?? []).forEach((st, i) => console.log(`    ${i + 1}. ${st.step}${(st.enforces ?? []).length ? `   [${st.enforces.join(" ")}]` : ""}`));
   }
+  if (!tsk.usecase) console.log(`  —`);
 
   console.log(`\n— rules these steps enforce (quoted, not summarised) —`);
   for (const r of s.rules) console.log(`  ${r.id}  ${r.title ?? r.rule ?? ""}`);
@@ -82,7 +98,7 @@ export function printSlice(tsk, s) {
     console.log(`  ${m.id} → ${m.ui}  ${m.title}`);
     for (const c of controls) console.log(`      data-testid="${c.testid}"  (${c.from})`);
   }
-  for (const ui of s.screens) if (!s.mocks.some((m) => m.ui === ui.id)) console.log(`  ${ui.id} ${ui.title} — no wireframe yet · /mock:wireframe ${ui.app}`);
+  for (const ui of s.screens) if (!s.mocks.some((m) => m.ui === ui.id)) console.log(`  ${ui.id} ${ui.title} (${ui.app}) — no wireframe yet · fields ${(ui.fields ?? []).join(", ") || "—"} · actions ${(ui.actions ?? []).map((a) => a.name).join(", ") || "—"} · /mock:wireframe ${ui.app}`);
   if (s.theme?.id) console.log(`  tokens come from ${s.theme.id}: ${Object.entries(s.theme.tokens ?? {}).map(([k, v]) => `${k}=${v}`).join(" · ")}`);
 
   console.log(`\n— the numbers, and the answer key the unit tests must assert word for word —`);

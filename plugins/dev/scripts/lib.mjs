@@ -44,6 +44,18 @@ export const now = () => new Date().toISOString();
 export const list = (v) => (typeof v === "string" ? v.split(",").map((x) => x.trim()).filter(Boolean) : []);
 /** The module an id belongs to: the segment between the prefix and the number. One definition, because it names a directory. */
 export const moduleOf = (id) => /^[A-Z]+-([a-z0-9-]+)-[0-9]{3}/.exec(String(id))?.[1] ?? null;
+/**
+ * Build order. A use case's place comes from the state machine, and a screen no use case produced
+ * has no transition to sort on — so its rank is declared once, here: sign-in before everything
+ * (nothing can be done signed out), the masters a use case selects from before it, and an NFR screen,
+ * which reads what the others wrote, last. Build order is the rank, then the module's own order.
+ */
+export const SCREEN_ORIGINS = ["baseline", "master", "usecase", "nfr"];
+export const originOf = (t) => t.screenOrigin ?? (t.usecase ? "usecase" : "baseline");
+export const rankOf = (t) => { const i = SCREEN_ORIGINS.indexOf(originOf(t)); return i < 0 ? SCREEN_ORIGINS.length : i; };
+export const byBuildOrder = (a, b) => rankOf(a) - rankOf(b) || (a.order ?? 0) - (b.order ?? 0) || String(a.id).localeCompare(String(b.id));
+/** The module whose directory a task's file lives in. A task with no use case carries its own. */
+export const taskModule = (t) => t.module ?? moduleOf(t.usecase) ?? "default";
 export const questions = () => readJson(path.join(REFERENCES, "stack-questions.json")).questions;
 export { isFrozen };
 

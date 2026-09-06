@@ -16,7 +16,7 @@ import { parseArgs, resolveStateDir, stateExists, orExit2, isMain } from "../../
 import { loadState } from "../../core/scripts/artifacts.mjs";
 import { ensureRegistry } from "../../core/scripts/query.mjs";
 import { ensureInit } from "./init.mjs";
-import { FILES, allGaps, allTsks, allImps, byId, of, mintId, moduleOf, strip, upsert, git, codeRootOf, isFrozen, now } from "./lib.mjs";
+import { FILES, allGaps, allTsks, allImps, byId, of, mintId, taskModule, strip, upsert, git, codeRootOf, isFrozen, now } from "./lib.mjs";
 
 const ASKS = ["field", "action", "route"];
 
@@ -82,7 +82,7 @@ export function revise(stateDir, target, { asks, name, request = null, cr = null
     tsk.status = "approved";
     tsk.cr = cr ?? tsk.cr;
     tsk.revisions = [...(tsk.revisions ?? []), { asks, name, request, at: now() }];
-    upsert(FILES.tasks(stateDir, moduleOf(tsk.usecase) ?? "default", tsk.id), strip(tsk));
+    upsert(FILES.tasks(stateDir, taskModule(tsk), tsk.id), strip(tsk));
   }
   return { klass, tsk, touched: [], found };
 }

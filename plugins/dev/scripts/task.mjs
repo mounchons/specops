@@ -16,7 +16,7 @@ import path from "node:path";
 import { parseArgs, resolveStateDir, stateExists, orExit2, isMain } from "../../core/scripts/paths.mjs";
 import { loadState } from "../../core/scripts/artifacts.mjs";
 import { ensureInit } from "./init.mjs";
-import { FILES, KINDS, MAX_ATTEMPTS, allCmps, allImps, findTsk, upsert, strip, mintId, addEdges, componentOf, codeRootOf, requireRepo, git, run, list, of, isFrozen, moduleOf, now, migrateImpl } from "./lib.mjs";
+import { FILES, KINDS, MAX_ATTEMPTS, allCmps, allImps, findTsk, upsert, strip, mintId, addEdges, componentOf, codeRootOf, requireRepo, git, run, list, of, isFrozen, taskModule, originOf, project, now, migrateImpl } from "./lib.mjs";
 import { sliceOf, printSlice } from "./slice.mjs";
 import { goldenMisses } from "./checks.mjs";
 
@@ -27,10 +27,11 @@ const load = (stateDir, id) => {
   return tsk;
 };
 
-const save = (stateDir, tsk) => upsert(FILES.tasks(stateDir, moduleOf(tsk.usecase) ?? "default", tsk.id), strip(tsk));
+const save = (stateDir, tsk) => upsert(FILES.tasks(stateDir, taskModule(tsk), tsk.id), strip(tsk));
 
 function frozenFor(stateDir, tsk) {
   return [tsk.usecase, ...(tsk.screens ?? []), ...(tsk.acceptance ?? [])]
+    .filter(Boolean)
     .map((id) => ({ id, f: isFrozen(id, { stateDir }) }))
     .filter((x) => x.f.frozen && x.f.by !== tsk.cr);
 }
@@ -46,7 +47,7 @@ export function start(stateDir, id, codeRoot) {
   tsk.startCommit = git.head(codeRoot);
   save(stateDir, tsk);
   const state = loadState(stateDir);
-  return { tsk, frozen: [], slice: sliceOf(state, tsk, allCmps(stateDir)) };
+  return { tsk, frozen: [], slice: sliceOf(state, tsk, allCmps(stateDir), project(stateDir).apps ?? []) };
 }
 
 export function impl(stateDir, id, spec, golden, codeRoot) {
@@ -183,7 +184,8 @@ if (isMain(import.meta.url)) {
     console.log(`CLOSE ${id}  ${tsk.title}`);
     console.log(`  proof: ${tsk.proof.at(-1).cmd} → exit 0 at ${tsk.proof.at(-1).at}`);
     console.log(`  commit: ${String(head).slice(0, 8)}  ${String(message).split("\n")[0]}`);
-    console.log(`  ${tsk.usecase} is now implemented and verified — /core:query ${tsk.usecase} shows it`);
+    const shown = tsk.usecase ?? (tsk.screens ?? [])[0] ?? tsk.id;
+    console.log(`  ${tsk.usecase ?? `${originOf(tsk)}/${tsk.group}`} is now implemented and verified — /core:query ${shown} shows it`);
     process.exit(0);
   }
 

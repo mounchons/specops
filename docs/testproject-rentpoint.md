@@ -104,7 +104,10 @@ Unit test expected values = GD-rental-001/002 คำต่อคำ · **ทด�
 | DEF | อาการ | root cause | routing ที่คาด |
 |---|---|---|---|
 | DEF-rental-001 | ยืนยันจองได้ทั้งที่ยังไม่ชำระมัดจำ | โค้ดไม่ตรงสเปก (SCN ระบุไว้แล้ว) | **dev** — ไม่เปิด CR |
-| DEF-rental-002 | มัดจำของ fee 3,000 แสดง 1,000 | สเปกกำกวม: `ceil` ที่ค่าพอดี — GD บอก 900 แต่ SCN ไม่มีเคสขอบเขต | **design** — เปิด CR source finding อัตโนมัติ · เพิ่ม SCN ขอบเขต |
+| DEF-rental-002 | มัดจำของ fee 3,000 ตอบ 900 ตรง GD-rental-002 แถว "ขอบเขตพอดี" — แต่ไม่มี SCN ใดพิสูจน์ขอบเขตนี้ (AC-rental-004 ไม่มี SCN) ถ้าโค้ดปัดเป็น 1,000 QA จะไม่เห็น | สเปกกำกวม: `ceil` ที่ค่าพอดี — GD บอก 900 แต่ SCN ไม่มีเคสขอบเขต | **design** — เปิด CR source finding อัตโนมัติ · เพิ่ม SCN ขอบเขต |
+
+อาการ "แสดง 1,000" ในฉบับก่อน (2026-09-05) เกิดได้เฉพาะบนโค้ดที่ละเมิด GD-rental-002 ซึ่ง unit test เฟส 5 assert ไว้คำต่อคำ (`InlineData(3000, 900)`) — สร้างมันคือแก้สิ่งที่วัด (DESIGN.md §3) จึงไม่ทำ · สิ่งที่ต้องพิสูจน์คือ root cause กับ routing ไม่ใช่ตัวเลขบนหน้าจอ · reworded 2026-09-06 (phase 6 build run 2, decision row 11)
+id ในตารางเป็นป้ายของ §นี้ — `cases`/`finding` mint id จริงตามลำดับที่เกิด (บน RentPoint: แถวแรก = DEF-rental-004 · แถวสอง = DEF-rental-003 → CR-004)
 
 ## 9. Cold Start questions ต่อเฟส (ต้องตอบได้จาก `/core:query` + `/core:next` เท่านั้น)
 

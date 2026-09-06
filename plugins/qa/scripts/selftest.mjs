@@ -151,13 +151,22 @@ const casesDir = path.join(S, "qa", "loan", "cases");
 const tcsAfterCases = fs.existsSync(casesDir) ? fs.readdirSync(casesDir).map((f) => JSON.parse(fs.readFileSync(path.join(casesDir, f), "utf8")).items[0]) : [];
 const notRunnableCount = tcsAfterCases.filter((t) => !t.runnable).length;
 
+// A defect a person raises is never blocked by the handoff defect `cases` wrote for the same case:
+// "it could not run" and "here is what it does" are different claims, and the second supersedes.
+const seen = src("seen.log", "ยิง POST แล้วระบบตอบ 500\n");
+const observed = step("finding on a case that already has a handoff defect", qa("finding.mjs"), [defsAfterCases[0]?.tc ?? "TC-loan-001", "--state-dir", S, "--routing", "dev", "--evidence", seen, "--reproduce", "ระบบตอบ 500 ตอนยิงด้วยมือ"]);
+const defsNow = () => fs.readdirSync(findingsDir).map((f) => JSON.parse(fs.readFileSync(path.join(findingsDir, f), "utf8")).items[0]);
+const afterObserved = defsNow();
+
 // the record is fixed the way /design:api would fix it, and the same command is run again
 for (const f of fs.readdirSync(path.join(S, "design")).filter((f) => /^api-.*.json$/.test(f))) {
   const file = path.join(S, "design", f);
   const apis = JSON.parse(fs.readFileSync(file, "utf8"));
-  for (const a of apis.items ?? []) if (a.action === "submit") Object.assign(a, { path: "/api/loan", request: { income: "number", amount: "number" } });
+  for (const a of apis.items ?? []) if (a.action === "submit") Object.assign(a, { path: "/api/loan", request: { income: "number", amount: "number" }, sample: { income: 30000, amount: 200000 } });
   fs.writeFileSync(file, JSON.stringify(apis, null, 2), "utf8");
 }
+const casesRetire = step("cases --refresh once the endpoint is real", qa("cases.mjs"), ["loan", "--state-dir", S, "--refresh"]);
+const afterRefresh = defsNow();
 fs.rmSync(path.join(S, "qa", "loan"), { recursive: true, force: true });
 fs.rmSync(path.join(S, "trace.qa.json"), { force: true });
 const casesOk = step("cases once the endpoint is real", qa("cases.mjs"), ["loan", "--state-dir", S]);
@@ -232,6 +241,9 @@ assert("live: every command exits 0", broke.length === 0, broke.map(([l, r]) => 
 assert("live: a case whose endpoint the generator could not finish is not runnable, and says which record and why", notRunnableCount > 0 && /API-[0-9]{3}(\.request is null| path is)/.test(casesRaw.out), casesRaw.out.split("\n").filter((l) => /API-[0-9]{3}/.test(l)).slice(0, 2).join(" · "));
 assert("live: qa asks nobody — every unrunnable case becomes a finding routed to dev", defsAfterCases.length === notRunnableCount && notRunnableCount > 0, `${defsAfterCases.length} finding(s) for ${notRunnableCount} unrunnable case(s): ${defsAfterCases.map((d) => `${d.id} -> ${d.tc}`).join(", ")}`);
 assert("live: a finding from cases routes to dev, names the case, and opens no change request", defsAfterCases.every((d) => d.routing === "dev" && d.cr === null && d.source === "cases" && d.tc), defsAfterCases.map((d) => `${d.id} routing ${d.routing} cr ${d.cr} tc ${d.tc}`).join(" · "));
+assert("live: an observed defect is not blocked by the handoff one on the same case, and supersedes it", !/ALREADY/.test(observed.out) && afterObserved.some((d) => d.cause === "observed") && afterObserved.some((d) => d.cause === "handoff" && d.status === "retired" && d.retiredBy), afterObserved.map((d) => `${d.id} ${d.cause ?? "?"} ${d.status}`).join(" · "));
+assert("live: a handoff defect retires when its case runs — the gap is gone, and nothing was tested", /retired [1-9]/.test(casesRetire.out) && afterRefresh.filter((d) => d.cause === "handoff").every((d) => d.status === "retired" && Boolean(d.retiredReason)), afterRefresh.map((d) => `${d.id} ${d.cause ?? "?"} ${d.status}`).join(" · "));
+assert("live: retired is not verified — a green run is still the only thing that verifies a defect", afterRefresh.every((d) => d.status !== "verified"), afterRefresh.map((d) => `${d.id} ${d.status}`).join(" · "));
 assert("live: with a real endpoint the same command produces runnable cases, one per scenario", /created 2/.test(casesOk.out) && !/no address to call/.test(casesOk.out), casesOk.out.split("\n").filter((l) => /TC-loan-/.test(l)).join(" · "));
 assert("live: a screen step is recorded and skipped, never quietly passed", /ui/.test(casesOk.out) || true, "G-qa-007 is a LIMIT");
 assert("live: gates.mjs loads qa's checks through project.json — 10 core + 10 req + 16 design + 6 change + 8 dev + 8 qa", /gates=58/.test(gates.out), gates.out.trim().split("\n").pop());

@@ -12,7 +12,7 @@
  * is no default for it.
  *
  * --records payload:
- *   { "apis": [ { for: "UI-rental-003.create", method?, path?, title?, request?, response?, auth? } ],
+ *   { "apis": [ { for: "UI-rental-003.create", method?, path?, title?, request?, sample?, response?, auth? } ],
  *     "integrations": [ { key, title, direction: in|out, failureMode, usedBy: [UI|API] } ] }
  */
 import fs from "node:fs";
@@ -87,6 +87,9 @@ export function generate(stateDir, module) {
       forUi: ui.id,
       action: action.name,
       request: null,
+      // What a call that works looks like — the fields a person fills in, not the shape. qa builds
+      // its request body from this and nothing else; "{{key}}" is a golden-row input field.
+      sample: null,
       response: null,
       auth: "required",
       derivedFrom: [ui.id],
@@ -134,6 +137,7 @@ export function refine(stateDir, records) {
       ...(spec.path ? { path: spec.path } : {}),
       ...(spec.title ? { title: spec.title } : {}),
       ...(spec.request !== undefined ? { request: spec.request } : {}),
+      ...(spec.sample !== undefined ? { sample: spec.sample } : {}),
       ...(spec.response !== undefined ? { response: spec.response } : {}),
       ...(spec.auth ? { auth: spec.auth } : {}),
       status: "reviewed",

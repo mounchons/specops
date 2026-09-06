@@ -12,7 +12,7 @@ import { parseArgs, resolveStateDir, stateExists, orExit2, isMain } from "../../
 import { loadState } from "../../core/scripts/artifacts.mjs";
 import { isFrozen } from "../../change/scripts/checks.mjs";
 import { ensureInit } from "./init.mjs";
-import { FILES, allTcs, allDefs, of, byId, raw, mintId, upsert, addEdges, apiComponent, originOf, verifiedUseCases, shellText, now } from "./lib.mjs";
+import { FILES, allTcs, allDefs, of, byId, raw, mintId, upsert, strip, addEdges, apiComponent, originOf, verifiedUseCases, shellText, causeOf, defOpen, moduleOf, now } from "./lib.mjs";
 
 const WRITE = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 const norm = (s) => String(s ?? "").split(",").join("");
@@ -51,7 +51,40 @@ function endpointGaps(api, origin, cmp) {
   else if (p.includes("//")) gaps.push(`${api.id} path is ${JSON.stringify(p)} — the resource segment is empty, so there is no address to call`);
   else if (/\{[^}]*\}/.test(p)) gaps.push(`${api.id} path is ${JSON.stringify(p)} — it needs an id no record supplies for this scenario`);
   if (WRITE.has(String(api.method).toUpperCase()) && !api.request) gaps.push(`${api.id}.request is null — nothing says what the endpoint takes, so a body cannot be built`);
+  else if (WRITE.has(String(api.method).toUpperCase()) && !api.sample) gaps.push(`${api.id} declares its fields but no sample call — "request" says what the endpoint takes, not what a call that works looks like · /design:api <module> --records with "sample"`);
   return gaps;
+}
+
+/**
+ * The body of a call, from the sample a person declared on the API record. `{{key}}` is a golden-row
+ * input field; everything else in the sample is a constant the owner wrote — the id of a seeded row,
+ * a customer, a date that is not part of the answer key. qa never invents either half: the golden row
+ * is signed, the sample is declared, and where they do not meet the case says so instead of guessing.
+ */
+export function bodyFor(api, match) {
+  const sample = api?.sample ?? null;
+  if (sample === null || sample === undefined) return { body: null, gaps: [] };
+  const missing = new Set();
+  const fill = (v) => {
+    if (typeof v === "string") {
+      const m = /^\{\{([A-Za-z_][\w-]*)\}\}$/.exec(v);
+      if (!m) return v;
+      const got = match?.input?.[m[1]];
+      if (got === undefined) {
+        missing.add(m[1]);
+        return v;
+      }
+      return got;
+    }
+    if (Array.isArray(v)) return v.map(fill);
+    if (v && typeof v === "object") return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, fill(x)]));
+    return v;
+  };
+  const body = fill(sample);
+  const gaps = missing.size
+    ? [`${api.id}.sample names ${[...missing].map((k) => `{{${k}}}`).join(", ")} and ${match ? `the golden row ${match.gd} (${match.label}) has no such input` : "no golden row matches this scenario's given"}`]
+    : [];
+  return { body, gaps };
 }
 
 function httpStep(n, { api, origin, flow, body, fields }) {
@@ -112,11 +145,12 @@ export function cases(stateDir, module, { refresh = false } = {}) {
     const match = goldenFor(gds, s.given);
     const fields = expectFields(match);
 
-    const gaps = s.usecase ? endpointGaps(api, origin, cmp) : [`${scn.id} is a scenario of a non-functional requirement — it names no use case, so there is no endpoint to call`];
+    const { body, gaps: bodyGaps } = bodyFor(api, match);
+    const gaps = s.usecase ? [...endpointGaps(api, origin, cmp), ...bodyGaps] : [`${scn.id} is a scenario of a non-functional requirement — it names no use case, so there is no endpoint to call`];
     if (s.usecase && !built.has(s.usecase)) gaps.push(`${s.usecase} has no verified task — dev has not built it yet, so there is nothing to run against`);
 
     const steps = [];
-    if (gaps.length === 0) steps.push(httpStep(steps.length + 1, { api, origin, flow: s.flow ?? "main", body: match?.input ?? null, fields }));
+    if (gaps.length === 0) steps.push(httpStep(steps.length + 1, { api, origin, flow: s.flow ?? "main", body, fields }));
     for (const m of mcks.filter((m) => myUis.includes(m.ui)))
       for (const c of (m.zones ?? []).flatMap((z) => z.controls ?? []).filter((c) => String(c.from ?? "").startsWith("action:")))
         steps.push({ n: steps.length + 1, do: `on ${m.ui}, use ${c.testid}`, via: "ui", mock: m.id, testid: c.testid, cmd: null, argv: null, expect: {} });
@@ -157,11 +191,23 @@ export function cases(stateDir, module, { refresh = false } = {}) {
   const defs = allDefs(stateDir);
   const defIds = defs.map((d) => d.id);
   const kept = existing.filter((t) => scns.some((s) => s.id === t.scenario) && !refreshed.some((r) => r.id === t.id));
+  // A handoff defect exists because a case could not run. When the gap upstream is fixed and the
+  // case runs, the defect is not "verified" — nothing was tested — it is retired, and the record
+  // says which gap went away. `verified` stays a green run's word (G-qa-005).
+  const retired = [];
+  for (const tc of [...created, ...refreshed, ...kept]) {
+    if (!tc.runnable) continue;
+    for (const d of defs.filter((d) => d.tc === tc.id && defOpen(d) && causeOf(d) === "handoff")) {
+      upsert(FILES.def(stateDir, moduleOf(d.id), d.id), { ...strip(d), status: "retired", retiredAt: now(), retiredReason: `${tc.id} runs now — the gap it was raised for is gone: ${d.reproduce.split(": ").slice(1).join(": ") || d.reproduce}` });
+      retired.push(d);
+    }
+  }
+
   const raised = [];
   for (const tc of [...created, ...refreshed, ...kept]) {
     if (tc.runnable || !tc.usecase || !built.has(tc.usecase)) continue;
-    // one defect per case per routing, the same rule finding.mjs enforces — whoever raised it first owns it
-    if (defs.some((d) => d.tc === tc.id && d.routing === "dev" && d.status !== "verified")) continue;
+    // one open defect per case per routing, the same rule finding.mjs enforces
+    if (defs.some((d) => d.tc === tc.id && d.routing === "dev" && defOpen(d))) continue;
     const id = mintId(defIds, "DEF", module);
     defIds.push(id);
     const def = {
@@ -176,6 +222,7 @@ export function cases(stateDir, module, { refresh = false } = {}) {
       evidence: [],
       severity: "s3",
       routing: "dev",
+      cause: "handoff",
       reproduce: `/qa:cases ${module} could not build a runnable step for ${tc.id} (${tc.scenario}): ${tc.gaps.join(" · ")}`,
       cr: null,
       raisedAt: now(),
@@ -185,7 +232,7 @@ export function cases(stateDir, module, { refresh = false } = {}) {
     raised.push(def);
   }
 
-  return { module, created, refreshed, kept, blocked, raised, cmp, origin };
+  return { module, created, refreshed, kept, blocked, raised, retired, cmp, origin };
 }
 
 if (isMain(import.meta.url)) {
@@ -195,7 +242,7 @@ if (isMain(import.meta.url)) {
   orExit2(_[0], "usage: cases.mjs <module> [--refresh]");
   const r = cases(stateDir, _[0], { refresh: Boolean(flags.refresh) });
 
-  console.log(`CASES ${r.module}  created ${r.created.length}  refreshed ${r.refreshed.length}  already there ${r.kept.length}  blocked ${r.blocked.length}  findings raised ${r.raised.length}`);
+  console.log(`CASES ${r.module}  created ${r.created.length}  refreshed ${r.refreshed.length}  already there ${r.kept.length}  blocked ${r.blocked.length}  findings raised ${r.raised.length}  retired ${r.retired.length}`);
   console.log(`  system under test: ${r.cmp?.id ?? "(no component)"} ${r.origin ?? "(no origin)"}`);
   const rows = [...r.created, ...r.refreshed, ...r.kept].sort((a, b) => a.id.localeCompare(b.id));
   if (rows.length) {
@@ -207,6 +254,11 @@ if (isMain(import.meta.url)) {
   if (notRunnable.length) {
     console.log(`\nnot runnable, and what stopped each one — this is the list, not a question:`);
     for (const t of notRunnable) for (const g of t.gaps) console.log(`  ${t.id}  ${g}`);
+  }
+  if (r.retired.length) {
+    console.log(`
+findings retired — the gap they were raised for is gone:`);
+    for (const d of r.retired) console.log(`  ${d.id}  ${d.tc}  ${d.title}`);
   }
   if (r.raised.length) {
     console.log(`\nfindings routed to dev (the use case is verified and its case still cannot run):`);

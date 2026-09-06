@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "1.0",
+  "owner": "change",
+  "edges": [
+    {"from":"CR-001","rel":"touches","to":"UI-loan-001"},
+    {"from":"CR-002","rel":"touches","to":"UI-loan-002"}
+  ]
+}

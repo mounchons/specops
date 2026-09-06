@@ -26,6 +26,30 @@
       "source": "./plugins/design",
       "description": "Design per module: entities with kinds and state machines, use cases whose steps enforce rule versions, screens from four generators (use case, master, app-type baseline, NFR) with the screen x app matrix, api, rbac and scenarios. Needs core and req.",
       "version": "0.1.0"
+    },
+    {
+      "name": "change",
+      "source": "./plugins/change",
+      "description": "Change control: every request becomes a CR, a one-way graph walk finds what depends on it and decides the lane (ui or full), apply names the exact commands per plugin, and everything in the blast radius is frozen until the change closes. Needs core and design.",
+      "version": "0.1.0"
+    },
+    {
+      "name": "mock",
+      "source": "./plugins/mock",
+      "description": "Wireframes the client signs: one theme the owner answers instead of a stylesheet nobody chose, an L1 drawing per screen with a data-testid on every control the design declared and no control it did not, and a signed baseline whose hashes go red the moment a screen changes without a change request. Needs core, design and change.",
+      "version": "0.1.0"
+    },
+    {
+      "name": "dev",
+      "source": "./plugins/dev",
+      "description": "Code with a record behind it: a stack the owner answered once, one vertical slice per use case ordered by the state machine, a task that closes only on a command that ran and a commit a person made, unit tests that assert the signed golden values word for word, and a Class B line that turns an undeclared field into a question instead of code. Needs core, design, change and mock.",
+      "version": "0.1.0"
+    },
+    {
+      "name": "qa",
+      "source": "./plugins/qa",
+      "description": "Testing with a record behind it: a test case per scenario written without asking anyone, a run that is a new record every time with one evidence file per step named for what happened, a verdict read off the output rather than off an opinion, and a finding whose routing decides whether it is a bug for dev or a change request the spec has to answer. Needs core, design, change and dev.",
+      "version": "0.1.0"
     }
   ]
 }

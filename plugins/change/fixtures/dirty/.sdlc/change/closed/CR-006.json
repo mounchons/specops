@@ -1,0 +1,27 @@
+{
+  "fields": [],
+  "finding": null,
+  "impact": null,
+  "applied": {
+    "at": "2026-09-03T09:11:54.565Z",
+    "by": null,
+    "evidence": null,
+    "commands": [
+      "/design:screens loan"
+    ]
+  },
+  "closed": {},
+  "module": "loan",
+  "app": "backoffice",
+  "touches": [
+    "UI-loan-001"
+  ],
+  "id": "CR-006",
+  "title": "ปิดโดยไม่มีใครเซ็น",
+  "status": "verified",
+  "kind": "other",
+  "source": "internal",
+  "request": "จัดหน้าใหม่",
+  "lane": "ui",
+  "openedAt": "2026-09-03T09:11:54.565Z"
+}

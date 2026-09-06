@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "ENT-001",
+      "title": "Borrower",
+      "status": "approved",
+      "kind": "reference",
+      "attributes": [
+        "name"
+      ],
+      "invariants": []
+    }
+  ]
+}

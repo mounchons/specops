@@ -1,0 +1,39 @@
+{
+  "fields": [],
+  "finding": null,
+  "impact": {
+    "at": "2026-09-03T09:11:54.565Z",
+    "decidedBy": "kind",
+    "reasons": [
+      "no  · a screen"
+    ],
+    "affected": [
+      {
+        "id": "UI-loan-001",
+        "depth": 0,
+        "rel": "touches",
+        "via": null,
+        "status": "approved"
+      }
+    ],
+    "counts": {
+      "UI": 1
+    },
+    "toCreate": []
+  },
+  "applied": null,
+  "closed": null,
+  "module": "loan",
+  "app": "backoffice",
+  "touches": [
+    "UI-loan-001"
+  ],
+  "id": "CR-005",
+  "title": "แก้หน้ารายการคำขอ",
+  "status": "reviewed",
+  "kind": "screen",
+  "source": "client",
+  "request": "ขอแก้หน้ารายการคำขอ",
+  "lane": "full",
+  "openedAt": "2026-09-03T09:11:54.565Z"
+}

@@ -1,0 +1,64 @@
+{
+  "id": "CR-002",
+  "title": "หน้าอนุมัติคำขอสำหรับหัวหน้าฝ่าย",
+  "status": "verified",
+  "kind": "screen",
+  "source": "client",
+  "request": "หัวหน้าฝ่ายต้องมีหน้าอนุมัติของตัวเอง ไม่ใช้หน้าเดียวกับเจ้าหน้าที่",
+  "module": "loan",
+  "app": "backoffice",
+  "touches": [
+    "UI-loan-002"
+  ],
+  "fields": [],
+  "finding": null,
+  "lane": "full",
+  "impact": {
+    "at": "2026-08-01T00:00:00.000Z",
+    "decidedBy": "kind",
+    "reasons": [
+      "no  · a screen the client has never seen is a capability no artifact declares"
+    ],
+    "affected": [
+      {
+        "id": "UI-loan-002",
+        "depth": 0,
+        "rel": "touches",
+        "via": null,
+        "status": "approved"
+      },
+      {
+        "id": "ACL-002",
+        "depth": 1,
+        "rel": "refs",
+        "via": "UI-loan-002",
+        "status": "approved"
+      }
+    ],
+    "counts": {
+      "UI": 1,
+      "ACL": 1
+    },
+    "toCreate": [
+      {
+        "kind": "UC",
+        "count": 1,
+        "by": "/design:usecase"
+      }
+    ]
+  },
+  "applied": {
+    "at": "2026-08-02T00:00:00.000Z",
+    "by": null,
+    "evidence": null,
+    "commands": [
+      "/design:usecase loan --cr CR-002"
+    ]
+  },
+  "closed": {
+    "at": "2026-08-20T00:00:00.000Z",
+    "by": "STK-001",
+    "evidence": "export/signoff-CR-002.pdf"
+  },
+  "openedAt": "2026-08-01T00:00:00.000Z"
+}

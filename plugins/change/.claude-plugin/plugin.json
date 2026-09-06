@@ -1,0 +1,9 @@
+{
+  "name": "change",
+  "version": "0.1.0",
+  "description": "specops change control: every request becomes a CR, a graph walk decides the lane, apply names the exact commands per plugin, and what an open CR touches is frozen until it closes.",
+  "author": {
+    "name": "Mounchons"
+  },
+  "keywords": ["sdlc", "specops", "change-request", "impact-analysis", "traceability"]
+}

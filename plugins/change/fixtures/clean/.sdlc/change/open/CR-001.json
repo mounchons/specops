@@ -1,0 +1,67 @@
+{
+  "id": "CR-001",
+  "title": "แสดงเบอร์โทรผู้กู้บนหน้ารายการคำขอ",
+  "status": "reviewed",
+  "kind": "display",
+  "source": "client",
+  "request": "อยากเห็นเบอร์โทรผู้กู้ในตารางรายการคำขอ จะได้โทรตามได้เลย",
+  "module": "loan",
+  "app": "backoffice",
+  "touches": [
+    "UI-loan-001"
+  ],
+  "fields": [
+    "ENT-001.phone"
+  ],
+  "finding": null,
+  "lane": "ui",
+  "impact": {
+    "at": "2026-09-05T00:00:00.000Z",
+    "decidedBy": "discriminator",
+    "reasons": [
+      "yes · ENT-001.phone already exists on Borrower",
+      "yes · UI-loan-001 is already viewable by ROLE-001 (ACL-001)",
+      "yes · no CALC is touched or affected"
+    ],
+    "affected": [
+      {
+        "id": "UI-loan-001",
+        "depth": 0,
+        "rel": "touches",
+        "via": null,
+        "status": "draft"
+      },
+      {
+        "id": "ACL-001",
+        "depth": 1,
+        "rel": "refs",
+        "via": "UI-loan-001",
+        "status": "draft"
+      }
+    ],
+    "counts": {
+      "UI": 1,
+      "ACL": 1
+    },
+    "toCreate": [
+      {
+        "kind": "MCK",
+        "count": 1,
+        "by": "/mock:wireframe"
+      },
+      {
+        "kind": "TSK",
+        "count": 1,
+        "by": "/dev:revise"
+      },
+      {
+        "kind": "TC",
+        "count": 1,
+        "by": "/qa:cases"
+      }
+    ]
+  },
+  "applied": null,
+  "closed": null,
+  "openedAt": "2026-09-05T00:00:00.000Z"
+}

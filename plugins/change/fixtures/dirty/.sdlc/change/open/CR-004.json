@@ -1,0 +1,18 @@
+{
+  "fields": [],
+  "finding": null,
+  "impact": null,
+  "applied": null,
+  "closed": null,
+  "module": "loan",
+  "app": "backoffice",
+  "touches": [],
+  "id": "CR-004",
+  "title": "หน้ารายงานใหม่",
+  "status": "draft",
+  "kind": "screen",
+  "source": "client",
+  "request": "ขอหน้ารายงานใหม่",
+  "lane": null,
+  "openedAt": "2020-01-01T00:00:00.000Z"
+}

@@ -1,0 +1,18 @@
+{
+  "fields": [],
+  "finding": null,
+  "impact": null,
+  "applied": null,
+  "closed": null,
+  "module": "loan",
+  "app": "backoffice",
+  "touches": [],
+  "id": "CR-002",
+  "title": "แก้ตามผลทดสอบ",
+  "status": "draft",
+  "kind": "other",
+  "source": "finding",
+  "request": "ทดสอบแล้วยอดไม่ตรง",
+  "lane": null,
+  "openedAt": "2026-09-03T09:11:54.565Z"
+}

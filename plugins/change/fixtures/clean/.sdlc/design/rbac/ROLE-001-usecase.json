@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "ACL-001",
+      "title": "เจ้าหน้าที่สินเชื่อ → รายการคำขอสินเชื่อ",
+      "status": "draft",
+      "role": "ROLE-001",
+      "ui": "UI-loan-001",
+      "allow": [
+        "view"
+      ],
+      "dataScope": "all"
+    },
+    {
+      "id": "ACL-002",
+      "title": "เจ้าหน้าที่สินเชื่อ → อนุมัติคำขอ",
+      "status": "approved",
+      "role": "ROLE-001",
+      "ui": "UI-loan-002",
+      "allow": [
+        "view",
+        "edit"
+      ],
+      "dataScope": "all"
+    }
+  ]
+}

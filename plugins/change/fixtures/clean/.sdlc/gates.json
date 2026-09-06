@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "1.0",
+  "gates": [
+    {
+      "id": "G-change-001",
+      "plugin": "change",
+      "check": "change:cr-shape",
+      "severity": "error",
+      "rule": "every CR has a kind and a source from the lists, a request in the client's own words, and lane null|ui|full"
+    },
+    {
+      "id": "G-change-002",
+      "plugin": "change",
+      "check": "change:finding-needs-def",
+      "severity": "error",
+      "rule": "a CR with source finding names an existing DEF"
+    },
+    {
+      "id": "G-change-003",
+      "plugin": "change",
+      "check": "change:display-needs-fields",
+      "severity": "error",
+      "rule": "a display CR names at least one ENT.attribute and every one exists on its entity"
+    },
+    {
+      "id": "G-change-004",
+      "plugin": "change",
+      "check": "change:stale-open",
+      "severity": "warn",
+      "rule": "an open CR older than 14 days that still has no impact"
+    },
+    {
+      "id": "G-change-005",
+      "plugin": "change",
+      "check": "change:frozen",
+      "severity": "warn",
+      "rule": "every artifact at approved or beyond that an open CR freezes, with the CR and its lane"
+    },
+    {
+      "id": "G-change-006",
+      "plugin": "change",
+      "check": "change:closed-clean",
+      "severity": "error",
+      "rule": "a closed CR records who signed and the evidence, and nothing it touched is still draft"
+    }
+  ]
+}

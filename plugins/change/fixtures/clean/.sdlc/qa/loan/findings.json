@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "DEF-loan-001",
+      "title": "มัดจำที่ค่าพอดีปัดผิด",
+      "status": "reviewed",
+      "routing": "design",
+      "severity": "major"
+    }
+  ]
+}

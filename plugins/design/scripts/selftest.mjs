@@ -100,6 +100,13 @@ const screens = step("screens", dsn("screens.mjs"), ["loan", "--state-dir", S]);
 const again = step("screens again", dsn("screens.mjs"), ["loan", "--state-dir", S]);
 step("api", dsn("api.mjs"), ["loan", "--state-dir", S]);
 const noFailureMode = step("integration without failureMode refused", dsn("api.mjs"), ["loan", "--state-dir", S, "--records", w("bad-int.json", { integrations: [{ key: "x", title: "X" }] })]);
+// A sign-in is not a write, so no generator will ever make its endpoint — and a change request that
+// asks for the route needs somewhere for the answer to land. The owner declares it, with the method
+// and the path spelled out; a route nobody typed is a route somebody guessed.
+const loginId = loadState(S).artifacts.find((a) => a.prefix === "UI" && (a.title ?? "").includes("เข้าสู่ระบบ"))?.id;
+const declareNoPath = step("declare without a path refused", dsn("api.mjs"), ["loan", "--state-dir", S, "--records", w("nopath.json", { apis: [{ for: `${loginId}.sign-in` }] })]);
+const declareNoAction = step("declare for an action the screen does not have refused", dsn("api.mjs"), ["loan", "--state-dir", S, "--records", w("noact.json", { apis: [{ for: `${loginId}.teleport`, method: "POST", path: "/api/teleport" }] })]);
+const declared = step("declare an endpoint no action generated", dsn("api.mjs"), ["loan", "--state-dir", S, "--records", w("auth.json", { apis: [{ for: `${loginId}.sign-in`, method: "POST", path: "/api/auth/login", title: "เข้าสู่ระบบ", request: { username: "string", password: "string" } }] })]);
 step("rbac", dsn("rbac.mjs"), ["--state-dir", S, "--records", w("rbac.json", {
   roles: [{ key: "officer", title: "เจ้าหน้าที่", stk: "STK-001", apps: ["backoffice"] }, { key: "customer", title: "ลูกค้า", stk: "STK-002", apps: ["customer"] }],
   grants: [{ role: "@officer", ui: "*", allow: ["view", "create", "edit"], dataScope: "all" }, { role: "@customer", ui: "*", allow: ["view"], dataScope: "own" }],
@@ -107,12 +114,16 @@ step("rbac", dsn("rbac.mjs"), ["--state-dir", S, "--records", w("rbac.json", {
 step("scenario", dsn("scenario.mjs"), ["loan", "--state-dir", S]);
 const green = step("gates", core("gates.mjs"), ["--state-dir", S]);
 
-const REFUSALS = new Set(["dead state refused", "paraphrased AC refused", "integration without failureMode refused"]);
+const REFUSALS = new Set(["dead state refused", "paraphrased AC refused", "integration without failureMode refused", "declare without a path refused", "declare for an action the screen does not have refused"]);
 const broke = steps.filter(([l, r]) => (REFUSALS.has(l) ? r.code !== 2 : r.code !== 0));
 assert("live: every command exits 0, every refusal exits 2", broke.length === 0, broke.map(([l, r]) => `${l} -> ${r.code}: ${r.out.trim().split("\n")[0]}`).join(" | "));
 assert("live: a state with no way out is refused before it reaches disk", /no way out/.test(deadState.out), deadState.out.trim().split("\n")[0]);
 assert("live: an acceptance criterion that paraphrases its example is refused", /words exactly/.test(paraphrase.out), paraphrase.out.trim().split("\n")[0]);
 assert("live: an integration with no failureMode is refused", /failureMode/.test(noFailureMode.out), noFailureMode.out.trim().split("\n").pop());
+const apiNow = () => loadState(S).artifacts.filter((a) => a.prefix === "API").map((a) => a.raw);
+assert("live: an endpoint no action generated is declared, not guessed", declared.code === 0 && /API-/.test(declared.out) && apiNow().some((a) => a.path === "/api/auth/login" && a.forUi === loginId && a.status === "reviewed"), declared.out.trim().split("\n").pop());
+assert("live: declaring one without a method and a path is refused", declareNoPath.code === 2 && /--method and a --path/.test(declareNoPath.out), declareNoPath.out.trim().split("\n").pop());
+assert("live: declaring one for an action the screen does not have is refused", declareNoAction.code === 2 && /declares no action/.test(declareNoAction.out), declareNoAction.out.trim().split("\n").pop());
 assert("live: login appears in both apps without being asked for", (screens.out.match(/เข้าสู่ระบบ/g) ?? []).length >= 1 && /baseline/.test(screens.out), screens.out.split("\n").find((l) => /เข้าสู่ระบบ/.test(l)) ?? "");
 assert("live: the reference entity got a master screen in the app that owns master", /master/.test(screens.out) && /Borrower/.test(screens.out), screens.out.split("\n").find((l) => /Borrower/.test(l)) ?? "");
 assert("live: the audit NFR produced a screen nobody asked for", /nfr/.test(screens.out), screens.out.split("\n").find((l) => /nfr\s*$/.test(l)) ?? "");

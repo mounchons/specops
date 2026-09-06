@@ -4,15 +4,23 @@
  *
  *   node api.mjs <module>                        generate the missing endpoints and back-fill UI.action.api
  *   node api.mjs <module> --repath               recompute the path of every endpoint no one has refined
- *   node api.mjs <module> --records <file.json>  refine them, and declare the outside world
+ *   node api.mjs <module> --records <file.json>  refine them, declare the ones no action produces,
+ *                                                and declare the outside world
  *
  * Generated first, refined second: every write action on a screen needs somewhere to send the write,
  * and that is derivable. What is not derivable is the shape of the payload and — the part that gets
  * forgotten — what happens when an external system is down, so INT carries `failureMode` and there
  * is no default for it.
  *
+ * A third case sits between them: an action that is not a write and still needs a route. A sign-in
+ * writes nothing the screen declares, so no generator will ever produce its endpoint, and before this
+ * a change request asking for one had no command that could answer it. A `--records` entry naming an
+ * action with no generated endpoint declares it, and must spell out the method and the path: a route
+ * nobody typed is a route somebody guessed.
+ *
  * --records payload:
- *   { "apis": [ { for: "UI-rental-003.create", method?, path?, title?, request?, sample?, response?, auth? } ],
+ *   { "apis": [ { for: "UI-rental-003.create", method?, path?, title?, request?, sample?, response?, auth? }
+ *              { for: "UI-rental-017.sign-in", method, path, … }   declares one no action generated ],
  *     "integrations": [ { key, title, direction: in|out, failureMode, usedBy: [UI|API] } ] }
  */
 import fs from "node:fs";
@@ -130,7 +138,37 @@ export function refine(stateDir, records) {
     const [uiId, actionName] = String(spec.for ?? "").split(".");
     const design = allDesign(stateDir);
     const api = byPrefix(design, "API").find((a) => a.forUi === uiId && a.action === actionName);
-    orExit2(api, `no generated endpoint for ${JSON.stringify(spec.for)} — run without --records first, then refine`);
+    // The generator builds an endpoint from a screen action that writes. A sign-in writes nothing a
+    // screen declares, so no generator will ever produce it — and the route still has to exist. The
+    // owner declares it here, the way `integrations` below are declared: with the method and the path
+    // spelled out, because a path nobody typed is a path somebody guessed.
+    if (!api) {
+      orExit2(spec.method && spec.path, `no generated endpoint for ${JSON.stringify(spec.for)} — to declare one that no screen action produces, give it a --method and a --path in the record; to refine one the generator made, run without --records first`);
+      const ui = findById(design, uiId);
+      orExit2(ui, `${JSON.stringify(spec.for)} names ${uiId}, which is not a screen`);
+      orExit2((ui.actions ?? []).some((a) => a.name === actionName), `${uiId} declares no action ${JSON.stringify(actionName)} — its actions are ${(ui.actions ?? []).map((a) => a.name).join(", ") || "(none)"} · an endpoint serves something the screen does`);
+      const id = minter(design.map((r) => r.id), "API")();
+      upsert(FILES.api(stateDir, ui.app, ui.origin), {
+        id,
+        title: spec.title ?? `${actionName} — ${ui.title}`,
+        status: "reviewed",
+        method: spec.method,
+        path: spec.path,
+        forUi: ui.id,
+        action: actionName,
+        request: spec.request ?? null,
+        sample: spec.sample ?? null,
+        response: spec.response ?? null,
+        auth: spec.auth ?? "required",
+        derivedFrom: [ui.id],
+        declaredAt: now(),
+      });
+      const fresh = findById(allDesign(stateDir), ui.id);
+      upsert(fresh.__file, { ...stripInternal(fresh), actions: fresh.actions.map((a) => (a.name === actionName ? { ...a, api: id } : a)) });
+      addEdges(stateDir, [{ from: id, rel: "serves", to: ui.id }]);
+      touched.push(id);
+      continue;
+    }
     upsert(api.__file, {
       ...stripInternal(api),
       ...(spec.method ? { method: spec.method } : {}),

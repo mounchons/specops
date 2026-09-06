@@ -48,6 +48,9 @@ export function sliceOf(state, tsk, cmps, apps = []) {
     entities: entitiesFor(state, raw(uc), brs, uc ? null : uiRecords.flatMap((u) => u.derivedFrom ?? [])),
     states: of(state, "STM").map((a) => a.raw),
     apis: of(state, "API").map((a) => a.raw).filter((api) => named.has(api.id) || (tsk.screens ?? []).some((ui) => (api.derivedFrom ?? []).includes(ui) || api.ui === ui)),
+    // An integration is a route too — someone else's. Leaving INT out of the slice is what sends the
+    // session into design/ to find out how a screen signs in, which is the one thing rule 6 forbids.
+    ints: of(state, "INT").map((a) => a.raw).filter((int) => (tsk.screens ?? []).some((ui) => (int.usedBy ?? []).includes(ui) || (int.derivedFrom ?? []).includes(ui))),
     acls: of(state, "ACL").map((a) => a.raw).filter((acl) => (tsk.screens ?? []).includes(acl.ui)),
     calcs: (tsk.calcs ?? []).map((id) => raw(byId(state, id))),
     golden: (tsk.golden ?? []).map((id) => raw(byId(state, id))),
@@ -90,6 +93,8 @@ export function printSlice(tsk, s) {
 
   console.log(`\n— endpoints and permissions —`);
   for (const a of s.apis) console.log(`  ${a.id}  ${a.method ?? ""} ${a.path ?? a.route ?? ""}  ${a.title ?? ""}`);
+  for (const i of s.ints ?? []) console.log(`  ${i.id}  ${i.title} (${i.direction ?? "?"}) — someone else's route · on failure: ${i.failureMode ?? "not declared"}`);
+  if (!s.apis.length && !(s.ints ?? []).length) console.log(`  no endpoint and no integration is declared for these screens — a route written here would be dev's invention · /dev:revise <UI> --route "<METHOD /path>"`);
   for (const a of s.acls) console.log(`  ${a.id}  ${a.role} on ${a.ui}: ${(a.allow ?? []).join("/")} · scope ${a.dataScope}`);
 
   console.log(`\n— screens and the testids the wireframe promised —`);

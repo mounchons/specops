@@ -54,7 +54,9 @@ export function finding(stateDir, tcId, o = {}) {
     id,
     title: String(o.title ?? o.reproduce).trim().split("\n")[0].slice(0, 120),
     status: "draft",
-    source: "run",
+    // A failing run is one kind of evidence and a capture somebody brought is another; the record
+    // says which without anybody opening the log.
+    source: failed ? "run" : "hand",
     tc: tc.id,
     scenario: tc.scenario,
     usecase: tc.usecase,
@@ -114,7 +116,7 @@ if (isMain(import.meta.url)) {
   }
   console.log(`FINDING ${r.def.id}  ${r.def.tc}  routing ${r.def.routing}  severity ${r.def.severity}`);
   console.log(`  ${r.def.title}`);
-  console.log(`  scenario ${r.def.scenario}${r.def.usecase ? ` · use case ${r.def.usecase}` : ""}${r.def.run ? ` · run ${r.def.run}` : ""}`);
+  console.log(`  scenario ${r.def.scenario}${r.def.usecase ? ` · use case ${r.def.usecase}` : ""} · evidence from ${r.def.source}${r.def.run ? ` ${r.def.run}` : ""}`);
   for (const e of r.def.evidence) console.log(`  evidence: ${e}`);
   for (const d of r.superseded ?? []) console.log(`  retired ${d.id} — it was raised because ${d.tc} could not run; this one says what it does`);
   if (r.def.routing === "dev") {

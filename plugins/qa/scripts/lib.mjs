@@ -20,6 +20,12 @@ export const PLUGIN = "qa";
 export const VERDICTS = ["pass", "fail", "partial", "blocked"];
 export const ROUTINGS = ["dev", "design", "req"];
 export const SEVERITIES = ["s1", "s2", "s3", "s4"];
+/**
+ * Where the defect's evidence came from, readable without opening the file: `cases` — the command
+ * could not build a runnable step · `run` — a run failed and its step logs are the evidence ·
+ * `hand` — somebody brought what they saw, a capture or a client's screenshot, with no failing run.
+ */
+export const DEF_SOURCES = ["cases", "run", "hand"];
 export const STEP_TIMEOUT_MS = 120000;
 export const EVIDENCE_CHARS = 8000;
 

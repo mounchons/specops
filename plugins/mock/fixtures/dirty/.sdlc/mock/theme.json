@@ -1,0 +1,27 @@
+{
+  "id": "THM-001",
+  "title": "ธีมของระบบ",
+  "status": "approved",
+  "tokens": {
+    "color.primary": "#0d6efd",
+    "color.surface": "#ffffff",
+    "color.text": "#212529",
+    "spacing.unit": "8",
+    "radius": "6",
+    "font.family": "system-ui, sans-serif",
+    "font.scale": "16"
+  },
+  "components": [
+    "button",
+    "input",
+    "select",
+    "table",
+    "card",
+    "alert",
+    "modal",
+    "nav",
+    "badge"
+  ],
+  "answeredBy": "STK-001",
+  "answeredAt": "2026-09-05T00:00:00.000Z"
+}

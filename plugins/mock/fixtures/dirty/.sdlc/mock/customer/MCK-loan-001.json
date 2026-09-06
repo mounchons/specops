@@ -1,0 +1,54 @@
+{
+  "id": "MCK-loan-001",
+  "title": "ประวัติการกู้ของฉัน",
+  "status": "draft",
+  "ui": "UI-loan-001",
+  "app": "customer",
+  "theme": "THM-001",
+  "kind": "form",
+  "zones": [
+    {
+      "name": "header",
+      "controls": []
+    },
+    {
+      "name": "body",
+      "controls": [
+        {
+          "testid": "field-phone",
+          "kind": "input",
+          "from": "field:phone"
+        },
+        {
+          "testid": "field-phone",
+          "kind": "input",
+          "from": "field:phone"
+        }
+      ]
+    },
+    {
+      "name": "actions",
+      "controls": [
+        {
+          "testid": "action-save",
+          "kind": "button",
+          "from": "action:save"
+        }
+      ]
+    }
+  ],
+  "states": [
+    "empty",
+    "loaded",
+    "error"
+  ],
+  "roles": [
+    "ROLE-001"
+  ],
+  "cr": null,
+  "signed": null,
+  "hash": "74bf0d9235ba778d",
+  "derivedFrom": [
+    "UI-loan-001"
+  ]
+}

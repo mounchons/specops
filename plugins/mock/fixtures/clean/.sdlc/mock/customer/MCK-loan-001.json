@@ -1,0 +1,54 @@
+{
+  "id": "MCK-loan-001",
+  "title": "ประวัติการกู้ของฉัน",
+  "status": "approved",
+  "ui": "UI-loan-001",
+  "app": "customer",
+  "theme": "THM-001",
+  "kind": "form",
+  "zones": [
+    {
+      "name": "header",
+      "controls": []
+    },
+    {
+      "name": "body",
+      "controls": [
+        {
+          "testid": "field-name",
+          "kind": "input",
+          "from": "field:name"
+        }
+      ]
+    },
+    {
+      "name": "actions",
+      "controls": [
+        {
+          "testid": "action-save",
+          "kind": "button",
+          "from": "action:save"
+        }
+      ]
+    }
+  ],
+  "states": [
+    "empty",
+    "loaded",
+    "error"
+  ],
+  "roles": [
+    "ROLE-001"
+  ],
+  "cr": null,
+  "signed": {
+    "at": "2026-09-05T00:00:00.000Z",
+    "by": "STK-001",
+    "evidence": "export/signoff-customer.pdf",
+    "hash": "3ea95c7e1c90d91d"
+  },
+  "hash": "3ea95c7e1c90d91d",
+  "derivedFrom": [
+    "UI-loan-001"
+  ]
+}

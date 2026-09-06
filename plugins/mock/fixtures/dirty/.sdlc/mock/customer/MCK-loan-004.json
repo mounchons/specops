@@ -1,0 +1,43 @@
+{
+  "id": "MCK-loan-004",
+  "title": "หน้าแรก",
+  "status": "draft",
+  "ui": "UI-loan-004",
+  "app": "customer",
+  "theme": "THM-001",
+  "kind": "dashboard",
+  "zones": [
+    {
+      "name": "header",
+      "controls": []
+    },
+    {
+      "name": "body",
+      "controls": []
+    },
+    {
+      "name": "actions",
+      "controls": [
+        {
+          "testid": "action-refresh",
+          "kind": "button",
+          "from": "action:refresh"
+        }
+      ]
+    }
+  ],
+  "states": [
+    "empty",
+    "loaded",
+    "error"
+  ],
+  "roles": [
+    "ROLE-001"
+  ],
+  "cr": null,
+  "signed": null,
+  "hash": "b8d861f6f7173443",
+  "derivedFrom": [
+    "UI-loan-004"
+  ]
+}

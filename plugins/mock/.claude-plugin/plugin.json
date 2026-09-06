@@ -1,0 +1,9 @@
+{
+  "name": "mock",
+  "version": "0.1.0",
+  "description": "specops mock: one theme the owner answers, an L1 wireframe per screen with a data-testid on every control the design declared, and a signed baseline with hashes that go red the moment a screen changes without a change request.",
+  "author": {
+    "name": "Mounchons"
+  },
+  "keywords": ["sdlc", "specops", "wireframe", "design-tokens", "baseline", "sign-off"]
+}

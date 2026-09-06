@@ -1,0 +1,54 @@
+{
+  "id": "MCK-loan-003",
+  "title": "โปรไฟล์",
+  "status": "approved",
+  "ui": "UI-loan-003",
+  "app": "customer",
+  "theme": "THM-001",
+  "kind": "form",
+  "zones": [
+    {
+      "name": "header",
+      "controls": []
+    },
+    {
+      "name": "body",
+      "controls": [
+        {
+          "testid": "field-displayName",
+          "kind": "input",
+          "from": "field:displayName"
+        }
+      ]
+    },
+    {
+      "name": "actions",
+      "controls": [
+        {
+          "testid": "action-save",
+          "kind": "button",
+          "from": "action:save"
+        }
+      ]
+    }
+  ],
+  "states": [
+    "empty",
+    "loaded",
+    "error"
+  ],
+  "roles": [
+    "ROLE-001"
+  ],
+  "cr": null,
+  "signed": {
+    "at": "2026-08-01T00:00:00.000Z",
+    "by": "STK-001",
+    "evidence": "export/signoff-customer.pdf",
+    "hash": "0000000000000000"
+  },
+  "hash": "423aa065beaba9bd",
+  "derivedFrom": [
+    "UI-loan-003"
+  ]
+}

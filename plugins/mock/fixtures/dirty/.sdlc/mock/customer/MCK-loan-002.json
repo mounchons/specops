@@ -1,0 +1,49 @@
+{
+  "id": "MCK-loan-002",
+  "title": "รายการคำขอ",
+  "status": "draft",
+  "ui": "UI-loan-002",
+  "app": "customer",
+  "theme": null,
+  "kind": "list",
+  "zones": [
+    {
+      "name": "header",
+      "controls": []
+    },
+    {
+      "name": "body",
+      "controls": [
+        {
+          "testid": "field-code",
+          "kind": "column",
+          "from": "field:code"
+        }
+      ]
+    },
+    {
+      "name": "actions",
+      "controls": [
+        {
+          "testid": "action-open",
+          "kind": "button",
+          "from": "action:open"
+        }
+      ]
+    }
+  ],
+  "states": [
+    "empty",
+    "loaded",
+    "error"
+  ],
+  "roles": [
+    "ROLE-001"
+  ],
+  "cr": null,
+  "signed": null,
+  "hash": "8721f001e5a57e4e",
+  "derivedFrom": [
+    "UI-loan-002"
+  ]
+}

@@ -1,0 +1,119 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "UI-loan-001",
+      "title": "ประวัติการกู้ของฉัน",
+      "status": "approved",
+      "app": "customer",
+      "origin": "usecase",
+      "kind": "form",
+      "generatorKey": "form",
+      "fields": [
+        "name"
+      ],
+      "actions": [
+        {
+          "name": "save",
+          "writes": false,
+          "api": null
+        }
+      ],
+      "zones": [
+        "header",
+        "body",
+        "actions"
+      ],
+      "states": [
+        "empty",
+        "loaded",
+        "error"
+      ]
+    },
+    {
+      "id": "UI-loan-002",
+      "title": "รายการคำขอ",
+      "status": "approved",
+      "app": "customer",
+      "origin": "usecase",
+      "kind": "list",
+      "generatorKey": "list",
+      "fields": [
+        "code"
+      ],
+      "actions": [
+        {
+          "name": "open",
+          "writes": false,
+          "api": null
+        }
+      ],
+      "zones": [
+        "header",
+        "body",
+        "actions"
+      ],
+      "states": [
+        "empty",
+        "loaded",
+        "error"
+      ]
+    },
+    {
+      "id": "UI-loan-003",
+      "title": "โปรไฟล์",
+      "status": "approved",
+      "app": "customer",
+      "origin": "usecase",
+      "kind": "form",
+      "generatorKey": "form",
+      "fields": [
+        "displayName"
+      ],
+      "actions": [
+        {
+          "name": "save",
+          "writes": false,
+          "api": null
+        }
+      ],
+      "zones": [
+        "header",
+        "body",
+        "actions"
+      ],
+      "states": [
+        "empty",
+        "loaded",
+        "error"
+      ]
+    },
+    {
+      "id": "UI-loan-004",
+      "title": "หน้าแรก",
+      "status": "approved",
+      "app": "customer",
+      "origin": "usecase",
+      "kind": "dashboard",
+      "generatorKey": "dashboard",
+      "fields": [],
+      "actions": [
+        {
+          "name": "refresh",
+          "writes": false,
+          "api": null
+        }
+      ],
+      "zones": [
+        "header",
+        "body",
+        "actions"
+      ],
+      "states": [
+        "empty",
+        "loaded",
+        "error"
+      ]
+    }
+  ]
+}

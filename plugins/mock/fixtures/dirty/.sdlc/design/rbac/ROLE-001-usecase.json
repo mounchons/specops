@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "ACL-001",
+      "title": "ลูกค้า → UI-loan-001",
+      "status": "approved",
+      "role": "ROLE-001",
+      "ui": "UI-loan-001",
+      "allow": [
+        "view"
+      ],
+      "dataScope": "own"
+    },
+    {
+      "id": "ACL-002",
+      "title": "ลูกค้า → UI-loan-002",
+      "status": "approved",
+      "role": "ROLE-001",
+      "ui": "UI-loan-002",
+      "allow": [
+        "view"
+      ],
+      "dataScope": "own"
+    },
+    {
+      "id": "ACL-003",
+      "title": "ลูกค้า → UI-loan-003",
+      "status": "approved",
+      "role": "ROLE-001",
+      "ui": "UI-loan-003",
+      "allow": [
+        "view"
+      ],
+      "dataScope": "own"
+    },
+    {
+      "id": "ACL-004",
+      "title": "ลูกค้า → UI-loan-004",
+      "status": "approved",
+      "role": "ROLE-001",
+      "ui": "UI-loan-004",
+      "allow": [
+        "view"
+      ],
+      "dataScope": "own"
+    }
+  ]
+}

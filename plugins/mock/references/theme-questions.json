@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "1.0",
+  "note": "Seven questions, each with the Bootstrap 5 value beside it. dev never picks a colour, a radius or a font: it references a token, and the token is whatever the owner said here. Answering \"default\" is an answer and is recorded as one; leaving a key out is not, and theme refuses.",
+  "components": ["button", "input", "select", "table", "card", "alert", "modal", "nav", "badge"],
+  "questions": [
+    { "key": "color.primary", "ask": "สีหลักของระบบ — ปุ่มหลัก ลิงก์ แถบที่ active", "default": "#0d6efd" },
+    { "key": "color.surface", "ask": "สีพื้นของการ์ดและพื้นที่เนื้อหา", "default": "#ffffff" },
+    { "key": "color.text", "ask": "สีตัวอักษรหลัก", "default": "#212529" },
+    { "key": "spacing.unit", "ask": "หน่วยระยะห่างพื้นฐาน หน่วย px — ระยะอื่นเป็นตัวคูณของค่านี้", "default": "8" },
+    { "key": "radius", "ask": "ความมนของมุม หน่วย px — 0 คือมุมเหลี่ยม", "default": "6" },
+    { "key": "font.family", "ask": "ฟอนต์หลัก — ต้องมีฟอนต์ไทยใน stack", "default": "system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans Thai', sans-serif" },
+    { "key": "font.scale", "ask": "ขนาดฟอนต์ฐาน หน่วย px", "default": "16" }
+  ]
+}

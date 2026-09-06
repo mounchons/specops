@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "1.0",
+  "gates": [
+    {
+      "id": "G-mock-001",
+      "plugin": "mock",
+      "check": "mock:control-matches-ui",
+      "severity": "error",
+      "rule": "every control maps to a field or action of the screen it mocks, and every field and action has exactly one control"
+    },
+    {
+      "id": "G-mock-002",
+      "plugin": "mock",
+      "check": "mock:theme-first",
+      "severity": "error",
+      "rule": "a wireframe exists while no theme does, or names a theme that does not exist"
+    },
+    {
+      "id": "G-mock-003",
+      "plugin": "mock",
+      "check": "mock:baseline-hash",
+      "severity": "error",
+      "rule": "a signed wireframe whose current hash differs from the one that was signed, with no open CR to account for it"
+    },
+    {
+      "id": "G-mock-004",
+      "plugin": "mock",
+      "check": "mock:ui-without-fields",
+      "severity": "warn",
+      "rule": "a wireframe drawn from a screen that declares no fields"
+    }
+  ]
+}

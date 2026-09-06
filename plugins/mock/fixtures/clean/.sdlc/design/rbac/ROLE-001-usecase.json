@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "ACL-001",
+      "title": "ลูกค้า → ประวัติการกู้ของฉัน",
+      "status": "approved",
+      "role": "ROLE-001",
+      "ui": "UI-loan-001",
+      "allow": [
+        "view"
+      ],
+      "dataScope": "own"
+    }
+  ]
+}

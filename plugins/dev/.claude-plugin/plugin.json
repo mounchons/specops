@@ -1,0 +1,9 @@
+{
+  "name": "dev",
+  "version": "0.1.0",
+  "description": "specops dev: a stack the owner answered, one vertical slice per use case, a task that closes only on a command that ran and a commit a person made, and a Class B line that turns an undeclared field into a question instead of code.",
+  "author": {
+    "name": "Mounchons"
+  },
+  "keywords": ["sdlc", "specops", "vertical-slice", "traceability", "proof", "handoff"]
+}

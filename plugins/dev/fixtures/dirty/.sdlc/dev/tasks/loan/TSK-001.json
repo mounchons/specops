@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "TSK-001",
+      "title": "ยื่นขอสินเชื่อ",
+      "status": "implemented",
+      "usecase": "UC-loan-001",
+      "origin": "new",
+      "order": 1,
+      "dependsOn": [],
+      "acceptance": [
+        "AC-loan-001"
+      ],
+      "scenarios": [
+        "SCN-loan-001"
+      ],
+      "screens": [
+        "UI-loan-001"
+      ],
+      "mocks": [],
+      "components": [
+        "CMP-api"
+      ],
+      "calcs": [
+        "CALC-loan-001@v1"
+      ],
+      "golden": [
+        "GD-loan-001"
+      ],
+      "verify": "node --test",
+      "proof": [
+        {
+          "cmd": "node --test",
+          "exitCode": 1,
+          "result": "# fail 1",
+          "at": "2026-09-05T00:00:00.000Z"
+        }
+      ],
+      "attempts": 1,
+      "blocked": null,
+      "startedAt": "2026-09-05T00:00:00.000Z",
+      "startCommit": "1111111111111111111111111111111111111111",
+      "commit": null,
+      "cr": null,
+      "plannedAt": "2026-09-05T00:00:00.000Z"
+    }
+  ]
+}

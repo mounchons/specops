@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "1.0",
+  "name": "fixture",
+  "apps": [
+    {
+      "name": "backoffice",
+      "type": "backoffice-web",
+      "auth": "username",
+      "owns": [
+        "master",
+        "roles",
+        "users"
+      ]
+    }
+  ],
+  "modules": [
+    "loan"
+  ],
+  "plugins": {}
+}

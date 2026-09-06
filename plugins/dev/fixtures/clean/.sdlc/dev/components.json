@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "CMP-api",
+      "title": "api",
+      "status": "approved",
+      "app": "backoffice",
+      "language": "javascript",
+      "framework": "node",
+      "version": "22",
+      "orm": "none",
+      "db": "sqlite",
+      "testRunner": "node:test",
+      "skills": [
+        "api-design"
+      ],
+      "root": "src",
+      "codeRoot": "..",
+      "run": {
+        "compose": "docker-compose.yml",
+        "up": "docker compose up -d",
+        "down": "docker compose down -v",
+        "healthcheck": "curl -fsS http://localhost:8080/health",
+        "test": "node --test"
+      },
+      "config": {
+        "env": [
+          "DB_URL"
+        ],
+        "secrets": [
+          "DB_PASSWORD"
+        ]
+      },
+      "confirmedBy": "STK-001",
+      "decidedFrom": [],
+      "confirmedAt": "2026-09-05T00:00:00.000Z",
+      "firstConfirmedAt": "2026-09-05T00:00:00.000Z"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "UC-loan-001",
+      "title": "ยื่นขอสินเชื่อ",
+      "status": "approved",
+      "actor": "STK-001",
+      "apps": [
+        "backoffice"
+      ],
+      "precondition": null,
+      "flows": [
+        {
+          "name": "main",
+          "steps": [
+            {
+              "step": "กรอกวงเงิน",
+              "enforces": [
+                "BR-loan-001@v1"
+              ]
+            }
+          ]
+        }
+      ],
+      "derivedFrom": []
+    },
+    {
+      "id": "AC-loan-001",
+      "title": "main: วงเงินสูงสุด",
+      "status": "approved",
+      "usecase": "UC-loan-001",
+      "flow": "main",
+      "given": "รายได้ 30,000",
+      "when": "ขอ 200,000",
+      "then": "ระบบปฏิเสธ วงเงินสูงสุด 150,000",
+      "derivedFrom": [
+        "UC-loan-001"
+      ]
+    }
+  ]
+}

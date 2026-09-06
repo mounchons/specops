@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "GAP-001",
+      "title": "field \"note\" ที่ UI-loan-001 ไม่มีในดีไซน์",
+      "status": "draft",
+      "question": "ขอช่องหมายเหตุในหน้ายื่นขอ",
+      "about": "UI-loan-001",
+      "class": "B",
+      "asks": "field",
+      "name": "note",
+      "lookedIn": "UI-loan-001.fields[]",
+      "openWith": "/change:open --kind display --source internal --title x --request y --touches UI-loan-001",
+      "cr": null,
+      "answer": null,
+      "raisedAt": "2026-09-05T00:00:00.000Z"
+    }
+  ]
+}

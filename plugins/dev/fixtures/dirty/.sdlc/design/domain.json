@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "ENT-001",
+      "title": "LoanApplication",
+      "status": "approved",
+      "kind": "aggregate",
+      "attributes": [
+        "amount"
+      ],
+      "invariants": [
+        "BR-loan-001@v1"
+      ]
+    }
+  ]
+}

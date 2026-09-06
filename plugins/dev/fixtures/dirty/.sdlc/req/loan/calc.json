@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "CALC-loan-001@v1",
+      "title": "วงเงินสูงสุด",
+      "status": "approved",
+      "formula": "limit = income * 5",
+      "numberType": "integer",
+      "rounding": {
+        "mode": "none",
+        "unit": null,
+        "at": null
+      },
+      "boundary": [],
+      "derivedFrom": [
+        "BR-loan-001@v1"
+      ]
+    }
+  ]
+}

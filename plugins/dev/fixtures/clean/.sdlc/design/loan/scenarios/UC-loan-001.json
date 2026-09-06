@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "SCN-loan-001",
+      "title": "main",
+      "status": "approved",
+      "usecase": "UC-loan-001",
+      "flow": "main",
+      "expected": "ระบบปฏิเสธ",
+      "derivedFrom": [
+        "UC-loan-001",
+        "AC-loan-001"
+      ]
+    }
+  ]
+}

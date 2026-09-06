@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "1.0",
+  "gates": [
+    {
+      "id": "G-dev-001",
+      "plugin": "dev",
+      "check": "dev:tsk-needs-proof",
+      "severity": "error",
+      "rule": "a task at implemented or beyond has no proof entry that exited 0"
+    },
+    {
+      "id": "G-dev-002",
+      "plugin": "dev",
+      "check": "dev:imp-in-layout",
+      "severity": "error",
+      "rule": "an implementation unit's path is outside its component's root, or its file does not exist"
+    },
+    {
+      "id": "G-dev-003",
+      "plugin": "dev",
+      "check": "dev:tsk-frozen",
+      "severity": "error",
+      "rule": "a task that has started and is not verified, whose use case, screen or acceptance criterion an open CR freezes"
+    },
+    {
+      "id": "G-dev-004",
+      "plugin": "dev",
+      "check": "dev:gd-verbatim",
+      "severity": "error",
+      "rule": "a test file names a golden dataset and does not contain one of its expected values literally"
+    },
+    {
+      "id": "G-dev-005",
+      "plugin": "dev",
+      "check": "dev:file-without-imp",
+      "severity": "warn",
+      "rule": "a source or test file under a component root that no implementation unit owns"
+    },
+    {
+      "id": "G-dev-006",
+      "plugin": "dev",
+      "check": "dev:trace-uc-not-br",
+      "severity": "error",
+      "rule": "an edge written by dev points at a business rule"
+    },
+    {
+      "id": "G-dev-007",
+      "plugin": "dev",
+      "check": "dev:gap-open",
+      "severity": "warn",
+      "rule": "a gap with no CR and no answer"
+    },
+    {
+      "id": "G-dev-008",
+      "plugin": "dev",
+      "check": "dev:skill-installed",
+      "severity": "limit",
+      "rule": "every skill a component names is installed in the session writing it"
+    }
+  ]
+}

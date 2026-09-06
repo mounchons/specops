@@ -1,0 +1,152 @@
+#!/usr/bin/env node
+/**
+ * plan.mjs — one vertical slice per use case, in an order the graph decides.
+ *
+ *   node plan.mjs <module> [--state-dir X]
+ *
+ * The order comes from the state machine, not from a person's sense of what is foundational: a use
+ * case that moves a booking confirmed → out cannot be built before the one that produces confirmed.
+ * Where the design's steps name no transition, no dependency is invented — those tasks fall back to
+ * use-case order and the command prints which ones, so the gap is visible rather than guessed at.
+ */
+import { parseArgs, resolveStateDir, stateExists, orExit2, isMain } from "../../core/scripts/paths.mjs";
+import { loadState } from "../../core/scripts/artifacts.mjs";
+import { ensureInit } from "./init.mjs";
+import { FILES, allCmps, allTsks, of, byId, mintId, upsert, addEdges, isFrozen, statesOf, now } from "./lib.mjs";
+
+/** Kahn, with use-case id as the tiebreak so two runs never disagree. */
+export function topo(nodes, deps) {
+  const left = new Map(nodes.map((n) => [n, new Set((deps.get(n) ?? []).filter((d) => nodes.includes(d)))]));
+  const out = [];
+  while (left.size) {
+    const ready = [...left].filter(([, d]) => d.size === 0).map(([n]) => n).sort();
+    if (ready.length === 0) return { order: null, cycle: [...left.keys()].sort() };
+    for (const n of ready) {
+      out.push(n);
+      left.delete(n);
+    }
+    for (const [, d] of left) for (const n of ready) d.delete(n);
+  }
+  return { order: out, cycle: null };
+}
+
+export function plan(stateDir, module) {
+  ensureInit(stateDir);
+  const cmps = allCmps(stateDir);
+  orExit2(cmps.length, `no components yet — /dev:stack decides the stack before anything is planned against it`);
+
+  const state = loadState(stateDir);
+  const ucs = of(state, "UC").filter((a) => a.module === module && a.status !== "retired");
+  orExit2(ucs.length, `module "${module}" has no use case — /design:usecase ${module} first`);
+
+  const stms = of(state, "STM").map((a) => a.raw);
+  const stateNames = new Set(stms.flatMap((s) => (s.states ?? []).map((x) => x.name)));
+  const acs = of(state, "AC").map((a) => a.raw);
+  const scns = of(state, "SCN").map((a) => a.raw);
+  const screens = [...of(state, "UI"), ...of(state, "RPT")].map((a) => a.raw);
+  const mcks = of(state, "MCK").map((a) => a.raw);
+  const calcs = of(state, "CALC").map((a) => a.raw);
+  const gds = of(state, "GD").map((a) => a.raw);
+
+  // who produces which state, so who has to exist before whom
+  const moves = new Map(ucs.map((uc) => [uc.id, statesOf(uc.raw, stateNames)]));
+  const producers = new Map();
+  for (const [id, m] of moves) for (const s of m.produces) producers.set(s, [...(producers.get(s) ?? []), id]);
+  const deps = new Map();
+  const noDep = [];
+  for (const uc of ucs) {
+    const from = (moves.get(uc.id).consumes ?? []).flatMap((s) => producers.get(s) ?? []).filter((d) => d !== uc.id);
+    deps.set(uc.id, [...new Set(from)]);
+    if (from.length === 0) noDep.push(uc.id);
+  }
+  const { order, cycle } = topo(ucs.map((u) => u.id), deps);
+  orExit2(order, `the use cases of ${module} depend on each other in a cycle: ${cycle?.join(" -> ")} — a build order cannot exist until /design:usecase breaks it`);
+
+  const existing = allTsks(stateDir);
+  const ids = existing.map((t) => t.id);
+  const created = [];
+  const kept = [];
+  const blocked = [];
+  const edges = [];
+
+  order.forEach((ucId, i) => {
+    const uc = ucs.find((u) => u.id === ucId);
+    const have = existing.find((t) => t.usecase === ucId);
+    if (have) {
+      kept.push(have);
+      return;
+    }
+    const frozen = isFrozen(ucId, { stateDir });
+    if (frozen.frozen) {
+      blocked.push({ id: ucId, title: uc.title, by: frozen.by, lane: frozen.lane });
+      return;
+    }
+    const myAcs = acs.filter((a) => a.usecase === ucId).map((a) => a.id);
+    const myUis = screens.filter((s) => (s.derivedFrom ?? []).includes(ucId)).map((s) => s.id);
+    const myBrs = (uc.raw.flows ?? []).flatMap((f) => (f.steps ?? []).flatMap((s) => s.enforces ?? []));
+    const myCalcs = calcs.filter((c) => (c.derivedFrom ?? []).some((d) => myBrs.includes(d))).map((c) => c.id);
+    const id = mintId(ids, "TSK");
+    ids.push(id);
+    const tsk = {
+      id,
+      title: uc.title,
+      status: "draft",
+      usecase: ucId,
+      origin: "new",
+      order: i + 1,
+      dependsOn: (deps.get(ucId) ?? []).map((d) => existing.find((t) => t.usecase === d)?.id ?? created.find((t) => t.usecase === d)?.id).filter(Boolean),
+      acceptance: myAcs,
+      scenarios: scns.filter((s) => s.usecase === ucId).map((s) => s.id),
+      screens: myUis,
+      mocks: mcks.filter((m) => myUis.includes(m.ui)).map((m) => m.id),
+      components: cmps.map((c) => c.id),
+      calcs: myCalcs,
+      golden: gds.filter((g) => (g.derivedFrom ?? []).some((d) => myCalcs.includes(d))).map((g) => g.id),
+      verify: cmps.find((c) => c.run?.test)?.run.test ?? null,
+      proof: [],
+      attempts: 0,
+      blocked: null,
+      startedAt: null,
+      startCommit: null,
+      commit: null,
+      cr: null,
+      plannedAt: now(),
+    };
+    orExit2(tsk.acceptance.length, `${ucId} (${uc.title}) has no acceptance criterion — there is nothing for a task to be finished against · /design:usecase ${module}`);
+    orExit2(tsk.verify, `no component declares run.test — a task with no command to prove it can never close · /dev:stack`);
+    upsert(FILES.tasks(stateDir, module, id), tsk);
+    edges.push({ from: id, rel: "implements", to: ucId }, ...tsk.acceptance.map((a) => ({ from: id, rel: "implements", to: a })), ...tsk.golden.map((g) => ({ from: id, rel: "uses", to: g })));
+    created.push(tsk);
+  });
+
+  if (edges.length) addEdges(stateDir, edges);
+  return { module, order, created, kept, blocked, noDep, deps };
+}
+
+if (isMain(import.meta.url)) {
+  const { _, flags } = parseArgs();
+  const stateDir = resolveStateDir(flags);
+  orExit2(stateExists(stateDir), `no state dir at ${stateDir}`);
+  orExit2(_[0], "usage: plan.mjs <module>");
+  const r = plan(stateDir, _[0]);
+
+  console.log(`PLAN ${r.module}  created ${r.created.length}  already there ${r.kept.length}  blocked ${r.blocked.length}`);
+  const rows = [...r.created, ...r.kept].sort((a, b) => a.order - b.order);
+  if (rows.length) {
+    console.log(`\n  #  task     use case         AC  SCN  UI  MCK  CALC  GD  depends on`);
+    console.log(`  ---------------------------------------------------------------------`);
+    for (const t of rows) {
+      const n = (a) => String((a ?? []).length).padEnd(3);
+      console.log(`  ${String(t.order).padStart(2)} ${t.id.padEnd(8)} ${t.usecase.padEnd(16)} ${n(t.acceptance)} ${n(t.scenarios)} ${n(t.screens)} ${n(t.mocks)} ${n(t.calcs).padEnd(2)} ${n(t.golden)} ${(t.dependsOn ?? []).join(", ") || "—"}`);
+    }
+  }
+  if (r.noDep.length) console.log(`\nno state transition in the design's steps, so no dependency inferred — ordered by use case: ${r.noDep.join(", ")}`);
+  if (rows.length) console.log(`\nverify for every task: ${rows[0].verify}`);
+  if (r.blocked.length) {
+    console.log(`\nnot planned:`);
+    for (const b of r.blocked) console.log(`  ${b.id} ${b.title} — frozen by ${b.by} (lane ${b.lane}) · close the change first`);
+    process.exit(1);
+  }
+  console.log(`\nnext: /dev:task ${rows[0]?.id ?? "TSK-001"} --start — one slice per session`);
+  process.exit(0);
+}

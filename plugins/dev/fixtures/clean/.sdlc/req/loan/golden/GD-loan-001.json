@@ -1,0 +1,30 @@
+{
+  "id": "GD-loan-001",
+  "title": "answer key ของ CALC-loan-001@v1",
+  "status": "approved",
+  "derivedFrom": [
+    "CALC-loan-001@v1"
+  ],
+  "rows": [
+    {
+      "label": "รายได้ 30,000",
+      "input": {
+        "income": 30000
+      },
+      "expected": {
+        "limit": 150000
+      }
+    },
+    {
+      "label": "รายได้ 12,500",
+      "input": {
+        "income": 12500
+      },
+      "expected": {
+        "limit": 62500
+      }
+    }
+  ],
+  "signedBy": "STK-001",
+  "signedAt": "2026-09-05T00:00:00.000Z"
+}

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "IMP-001",
+      "title": "elsewhere/limit.mjs",
+      "status": "implemented",
+      "path": "elsewhere/limit.mjs",
+      "component": "CMP-api",
+      "kind": "source",
+      "implements": [
+        "TSK-001"
+      ],
+      "golden": [],
+      "addedAt": "2026-09-05T00:00:00.000Z"
+    },
+    {
+      "id": "IMP-002",
+      "title": "src/limit.test.mjs",
+      "status": "implemented",
+      "path": "src/limit.test.mjs",
+      "component": "CMP-api",
+      "kind": "test",
+      "implements": [
+        "TSK-001"
+      ],
+      "golden": [
+        "GD-loan-001"
+      ],
+      "addedAt": "2026-09-05T00:00:00.000Z"
+    }
+  ]
+}

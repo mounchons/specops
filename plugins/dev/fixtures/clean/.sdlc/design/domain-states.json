@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "STM-001",
+      "title": "วงจรสถานะ",
+      "status": "approved",
+      "entity": "ENT-001",
+      "states": [
+        {
+          "name": "draft"
+        },
+        {
+          "name": "done",
+          "final": true
+        }
+      ],
+      "transitions": [
+        {
+          "from": "draft",
+          "to": "done",
+          "by": "officer",
+          "enforces": [
+            "BR-loan-001@v1"
+          ]
+        }
+      ]
+    }
+  ]
+}

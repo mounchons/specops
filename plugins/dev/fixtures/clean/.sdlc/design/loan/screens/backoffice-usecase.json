@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "UI-loan-001",
+      "title": "ยื่นขอสินเชื่อ",
+      "status": "approved",
+      "app": "backoffice",
+      "origin": "usecase",
+      "kind": "form",
+      "generatorKey": "UC-loan-001",
+      "fields": [
+        "amount"
+      ],
+      "actions": [
+        {
+          "name": "submit",
+          "writes": true,
+          "api": null
+        }
+      ],
+      "zones": [
+        "header",
+        "body",
+        "actions"
+      ],
+      "states": [
+        "loaded"
+      ],
+      "derivedFrom": [
+        "UC-loan-001"
+      ]
+    }
+  ]
+}

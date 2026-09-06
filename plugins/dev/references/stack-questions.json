@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "1.0",
+  "note": "Asked once per app, remembered for the project. Nothing here has a default: a stack nobody chose is a stack the first file picks, and by then it is in the code rather than in the record. `skills` names Claude skills the sessions should load for this component — no script can see what a session has installed, which is why dev:skill-installed is a LIMIT and not a gate.",
+  "questions": [
+    { "key": "language", "ask": "ภาษา", "example": "csharp" },
+    { "key": "framework", "ask": "framework", "example": "ASP.NET Core" },
+    { "key": "version", "ask": "เวอร์ชันของ framework", "example": "9" },
+    { "key": "orm", "ask": "ORM หรือ data access", "example": "EF Core" },
+    { "key": "db", "ask": "ฐานข้อมูล", "example": "PostgreSQL 16" },
+    { "key": "testRunner", "ask": "ตัวรันเทสต์", "example": "xunit" },
+    { "key": "root", "ask": "โฟลเดอร์ของ component นี้ เทียบกับ code root", "example": "src/Api" },
+    { "key": "skills", "ask": "Claude skills ที่ session ควรโหลดสำหรับ component นี้ (คั่นด้วย ,)", "example": "efcore-patterns,api-design" },
+    { "key": "run.compose", "ask": "ไฟล์ compose", "example": "docker-compose.yml" },
+    { "key": "run.up", "ask": "คำสั่งขึ้นระบบ", "example": "docker compose up -d" },
+    { "key": "run.down", "ask": "คำสั่งลงระบบ", "example": "docker compose down -v" },
+    { "key": "run.healthcheck", "ask": "คำสั่งหรือ URL ที่บอกว่าขึ้นแล้วจริง", "example": "curl -fsS http://localhost:8080/health" },
+    { "key": "run.test", "ask": "คำสั่งที่พิสูจน์ว่า slice ใช้ได้ — คำสั่งนี้คือ verify ของทุก TSK", "example": "dotnet test" },
+    { "key": "config.env", "ask": "ตัวแปรแวดล้อมที่ต้องมี (คั่นด้วย ,)", "example": "ConnectionStrings__Db,ASPNETCORE_ENVIRONMENT" },
+    { "key": "config.secrets", "ask": "ความลับที่ต้องมี ไม่เก็บค่าไว้ที่นี่ (คั่นด้วย ,)", "example": "Db__Password" }
+  ]
+}

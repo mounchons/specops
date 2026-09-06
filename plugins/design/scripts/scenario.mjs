@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * scenario.mjs — one scenario per flow, including the ones that go wrong, and one per NFR.
+ * scenario.mjs — one scenario per acceptance criterion, including the flows that go wrong, and one per NFR.
  * Also the last step of design: it renders the Thai document for the client.
  *
  *   node scenario.mjs <module>                                generate the missing ones, render the document
@@ -14,7 +14,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { parseArgs, resolveStateDir, orExit2, isMain } from "../../core/scripts/paths.mjs";
 import { ensureInit } from "./init.mjs";
-import { FILES, allDesign, allReq, byPrefix, findById, inModule, live, minter, upsert, addEdges, requireModule, project, stripInternal, now } from "./lib.mjs";
+import { FILES, allDesign, allReq, byPrefix, findById, inModule, live, minter, upsert, addEdges, requireModule, project, stripInternal, approveCli, now } from "./lib.mjs";
 
 export function generate(stateDir, module) {
   const design = allDesign(stateDir);
@@ -22,27 +22,38 @@ export function generate(stateDir, module) {
   const have = byPrefix(design, "SCN").filter((s) => inModule(s, module));
   const next = minter(design.map((r) => r.id), "SCN", module);
   const created = [];
+  const acOf = (s) => (s.derivedFrom ?? []).find((d) => String(d).startsWith("AC-")) ?? null;
 
   for (const uc of byPrefix(design, "UC").filter((u) => inModule(u, module))) {
+    const acs = byPrefix(design, "AC").filter((a) => a.usecase === uc.id);
     for (const flow of uc.flows ?? []) {
-      if (have.some((s) => s.usecase === uc.id && s.flow === flow.name)) continue;
-      const id = next();
-      const ac = byPrefix(design, "AC").find((a) => a.usecase === uc.id && a.flow === flow.name);
-      upsert(FILES.scenarios(stateDir, module, uc.id), {
-        id,
-        title: `${uc.title} — ${flow.name}`,
-        status: ac ? "draft" : "draft",
-        usecase: uc.id,
-        flow: flow.name,
-        given: ac?.given ?? uc.precondition ?? null,
-        when: ac?.when ?? flow.steps.map((s) => s.step).join(" → "),
-        expected: ac?.then ?? null,
-        enforces: [...new Set(flow.steps.flatMap((s) => s.enforces ?? []))],
-        derivedFrom: [uc.id, ...(ac ? [ac.id] : [])],
-        generatedAt: now(),
-      });
-      addEdges(stateDir, [{ from: id, rel: "verifies", to: uc.id }]);
-      created.push(id);
+      const mine = acs.filter((a) => (a.flow ?? "main") === flow.name);
+      const enforces = [...new Set((flow.steps ?? []).flatMap((s) => s.enforces ?? []))];
+      const write = (ac) => {
+        const id = next();
+        upsert(FILES.scenarios(stateDir, module, uc.id), {
+          id,
+          title: `${uc.title} — ${flow.name}${ac && mine.length > 1 ? ` · ${ac.id}` : ""}`,
+          status: "draft",
+          usecase: uc.id,
+          flow: flow.name,
+          given: ac?.given ?? uc.precondition ?? null,
+          when: ac?.when ?? (flow.steps ?? []).map((s) => s.step).join(" → "),
+          expected: ac?.then ?? null,
+          enforces,
+          derivedFrom: [uc.id, ...(ac ? [ac.id] : [])],
+          generatedAt: now(),
+        });
+        addEdges(stateDir, [{ from: id, rel: "verifies", to: uc.id }]);
+        created.push(id);
+      };
+      // One scenario per acceptance criterion, not per flow. Four AC on one flow are four promises,
+      // and cutting one scenario per flow silently drops three of them: AC-rental-002/003/004 had no
+      // scenario for a whole phase, AC-rental-004 being the exact boundary CR-004 was opened about.
+      for (const ac of mine) if (!have.some((s) => acOf(s) === ac.id)) write(ac);
+      // A flow nobody wrote an acceptance criterion for still needs a scenario (G-design-014). It
+      // proves nothing anyone signed, and G-design-016 says so out loud rather than leaving it quiet.
+      if (mine.length === 0 && !have.some((s) => s.usecase === uc.id && s.flow === flow.name)) write(null);
     }
   }
 
@@ -152,8 +163,9 @@ if (isMain(import.meta.url)) {
   const { _, flags } = parseArgs();
   const stateDir = resolveStateDir(flags);
   const module = _[0];
-  orExit2(module, "usage: scenario.mjs <module> [--expected SCN-nnn=\"…\"]");
+  orExit2(module, "usage: scenario.mjs <module> [--expected SCN-nnn=\"…\"] [--approve <ids> --sign STK-nnn]");
   ensureInit(stateDir);
+  if (typeof flags.approve === "string") approveCli(stateDir, flags, ["SCN"]);
   requireModule(stateDir, module);
 
   if (typeof flags.expected === "string") {

@@ -163,6 +163,22 @@ export const CHECKS = {
     return out;
   },
 
+  // A flow with no acceptance criterion still gets a scenario (G-design-014 demands one), but that
+  // scenario proves nothing anybody signed: `given/when` fall back to the precondition and the step
+  // list, and `expected` is empty. The fix is upstream — write the criterion — so this reports, the
+  // way G-design-015 reports an undecided lookup, rather than blocking a design nobody has finished.
+  "design:flow-without-ac": ({ state }) => {
+    const acs = of(state, "AC").map(raw);
+    const out = [];
+    for (const uc of of(state, "UC")) {
+      for (const f of raw(uc).flows ?? []) {
+        if (acs.some((a) => a.usecase === uc.id && (a.flow ?? "main") === f.name)) continue;
+        out.push({ subject: uc.file, message: `${uc.id} flow "${f.name}" has no AC — its scenario is generated from the steps, so nothing in it is a promise the client agreed to · /design:usecase ${uc.module ?? "<module>"} --records … acceptance[]`, severity: "warn" });
+      }
+    }
+    return out;
+  },
+
   "design:lookup-undecided": ({ state }) => {
     const undecided = of(state, "ENT").filter((e) => raw(e).kind === "lookup" && !raw(e).lookupAs);
     return undecided.length

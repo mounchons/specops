@@ -118,7 +118,7 @@ assert("live: the reference entity got a master screen in the app that owns mast
 assert("live: the audit NFR produced a screen nobody asked for", /nfr/.test(screens.out), screens.out.split("\n").find((l) => /nfr\s*$/.test(l)) ?? "");
 assert("live: customer (auth line) is told why it has no forgot-password", /forgot-password/.test(screens.out) && /does not hold/.test(screens.out), screens.out.split("\n").find((l) => /forgot-password/.test(l)) ?? "");
 assert("live: re-running screens creates nothing", /created 0/.test(again.out), again.out.trim().split("\n")[0]);
-assert("live: gates.mjs loads design's checks through project.json", /gates=35/.test(green.out), green.out.trim().split("\n").pop());
+assert("live: gates.mjs loads design's checks through project.json", /gates=36/.test(green.out), green.out.trim().split("\n").pop());
 assert("live: gates green after a full pass", green.code === 0, green.out.trim().split("\n").pop());
 
 // an open CR freezes what it touches — design must refuse to regenerate it (phase 3 opens the CRs)

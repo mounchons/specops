@@ -29,6 +29,7 @@ export const DESIGN_GATES = [
   { id: "G-design-013", plugin: "design", check: "design:write-action-has-api", severity: "error", rule: "every UI action that writes across an app boundary names an API" },
   { id: "G-design-014", plugin: "design", check: "design:flow-has-scn", severity: "error", rule: "every use case flow and every NFR has a scenario" },
   { id: "G-design-015", plugin: "design", check: "design:lookup-undecided", severity: "warn", rule: "a lookup entity has no decision yet: master screen or seed data" },
+  { id: "G-design-016", plugin: "design", check: "design:flow-without-ac", severity: "warn", rule: "every use case flow has at least one acceptance criterion — a scenario cut from steps alone is not a promise" },
 ];
 
 /** Idempotent. Returns { registered, gatesAdded }. */

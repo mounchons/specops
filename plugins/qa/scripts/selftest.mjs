@@ -234,7 +234,7 @@ assert("live: qa asks nobody — every unrunnable case becomes a finding routed 
 assert("live: a finding from cases routes to dev, names the case, and opens no change request", defsAfterCases.every((d) => d.routing === "dev" && d.cr === null && d.source === "cases" && d.tc), defsAfterCases.map((d) => `${d.id} routing ${d.routing} cr ${d.cr} tc ${d.tc}`).join(" · "));
 assert("live: with a real endpoint the same command produces runnable cases, one per scenario", /created 2/.test(casesOk.out) && !/no address to call/.test(casesOk.out), casesOk.out.split("\n").filter((l) => /TC-loan-/.test(l)).join(" · "));
 assert("live: a screen step is recorded and skipped, never quietly passed", /ui/.test(casesOk.out) || true, "G-qa-007 is a LIMIT");
-assert("live: gates.mjs loads qa's checks through project.json — 10 core + 10 req + 15 design + 6 change + 8 dev + 8 qa", /gates=57/.test(gates.out), gates.out.trim().split("\n").pop());
+assert("live: gates.mjs loads qa's checks through project.json — 10 core + 10 req + 16 design + 6 change + 8 dev + 8 qa", /gates=58/.test(gates.out), gates.out.trim().split("\n").pop());
 assert("live: the callsheet answers on live state — qa's NEXT rules get the ctx they were promised", callsheet.code === 0 && /\/qa:/.test(callsheet.out) && !/TypeError|Cannot read properties/.test(callsheet.out), callsheet.out.split("\n").filter((l) => /\/(qa|change):/.test(l)).slice(0, 3).join(" · ") || callsheet.out.trim().split("\n")[0]);
 assert("live: the two qa limits print every run and never block", /limit=3/.test(gates.out) && /LIMIT.*G-qa-007/.test(gates.out) && /LIMIT.*G-qa-008/.test(gates.out), gates.out.split("\n").filter((l) => /LIMIT/.test(l)).join(" · "));
 

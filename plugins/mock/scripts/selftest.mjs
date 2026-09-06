@@ -167,7 +167,7 @@ assert("live: putting the file back turns it green again", greenAgain.code === 0
 assert("live: a screen an open CR froze is not drawn", frozen.code === 1 && frozen.out.includes(backofficeUi) && /frozen by CR-001/.test(frozen.out), frozen.out.split("\n").find((l) => /frozen by/.test(l)) ?? frozen.out.trim().split("\n").pop());
 assert("live: --cr draws it and the wireframe records which change it was drawn under", withCr.code === 0 && JSON.parse(fs.readFileSync(path.join(S, "mock", "backoffice", fs.readdirSync(path.join(S, "mock", "backoffice")).find((f) => f.endsWith(".json") && JSON.parse(fs.readFileSync(path.join(S, "mock", "backoffice", f), "utf8")).ui === backofficeUi)), "utf8")).cr === "CR-001", withCr.out.trim().split("\n")[0]);
 assert("live: sync-design writes prompts and says nothing reads them back", /LIMIT: no script sends these/.test(sync.out) && fs.existsSync(path.join(S, "mock", "customer", "design")), sync.out.trim().split("\n").pop());
-assert("live: gates.mjs loads mock's checks through project.json", /gates=45/.test(green.out), green.out.trim().split("\n").pop());
+assert("live: gates.mjs loads mock's checks through project.json", /gates=46/.test(green.out), green.out.trim().split("\n").pop());
 assert("live: gates green with a signed baseline and an open CR", green.code === 0, green.out.trim().split("\n").pop());
 
 fs.rmSync(tmp, { recursive: true, force: true });

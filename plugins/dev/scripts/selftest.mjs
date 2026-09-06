@@ -185,7 +185,7 @@ assert("live: Class B writes a GAP and the /change:open line, and no code", /CLA
 assert("live: Class B says where it looked", /looked in .*fields\[\]/.test(classB.out), classB.out.split("\n").find((l) => /looked in/.test(l)) ?? "");
 assert("live: Class A reopens the task instead of asking upstream", /CLASS A/.test(classA.out) && /origin "changed"/.test(classA.out), classA.out.trim().split("\n").filter(Boolean).pop());
 assert("live: a frozen screen cannot be revised", /frozen by CR-001/.test(frozenRevise.out), frozenRevise.out.trim().split("\n").pop());
-assert("live: gates.mjs loads dev's checks through project.json — 10 core + 10 req + 15 design + 6 change + 8 dev", /gates=49/.test(gates.out), gates.out.trim().split("\n").pop());
+assert("live: gates.mjs loads dev's checks through project.json — 10 core + 10 req + 16 design + 6 change + 8 dev", /gates=50/.test(gates.out), gates.out.trim().split("\n").pop());
 assert("live: the skill gate is a LIMIT that prints every run and never blocks", /limit=1/.test(gates.out) && /LIMIT.*G-dev-008/.test(gates.out) && gates.code === 0, gates.out.split("\n").find((l) => /G-dev-008/.test(l)) ?? gates.out.trim().split("\n").pop());
 
 fs.rmSync(tmp, { recursive: true, force: true });

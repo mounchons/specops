@@ -63,8 +63,23 @@ export function resourceOf(design, ui) {
   return raw || null;
 }
 
-/** No resource, no path: an empty segment is not an address, and pretending otherwise is the bug. */
-export const pathFor = (resource, action) => (resource ? `/api/${resource}${action === "create" ? "" : "/{id}"}` : null);
+/**
+ * The address of an action, or nothing. Two segments have to be derivable and only one of them ever
+ * is by itself: the resource (above) and what the action does to it.
+ *
+ * `create` posts to the collection. `edit`, `save` and `delete` address one existing row, and the id
+ * is the only thing that could be in the path. Every other action — a submit that means something
+ * different on every screen, a send-reset-link that has no row to address, a disable, a retry — is a
+ * decision: /api/bookings/{id} was handed to ten different screen actions at once because the action
+ * name was never in the path, and a forgot-password that takes an email was given an {id} nobody has.
+ *
+ * So they get null, and `--records` is where a person says what they are. This is the same rule the
+ * empty resource already follows one line up: an address nobody can call is not an address, and
+ * pretending otherwise is the bug.
+ */
+export const ADDRESSABLE = { create: "", edit: "/{id}", save: "/{id}", delete: "/{id}" };
+export const pathFor = (resource, action) =>
+  resource && ADDRESSABLE[action] !== undefined ? `/api/${resource}${ADDRESSABLE[action]}` : null;
 
 
 /** Every (screen, write action) that has no endpoint yet. A screen in an `api` app is the endpoint. */
@@ -219,7 +234,16 @@ if (isMain(import.meta.url)) {
     for (const c of changed) console.log(`    ${c.id}  ${JSON.stringify(c.from)} -> ${JSON.stringify(c.to)}  (${c.ui})`);
   }
   const unresolved = byPrefix(allDesign(stateDir), "API").filter((a) => !a.path);
-  if (unresolved.length) console.log(`  ${unresolved.length} endpoint(s) have no path — the screen has no id-language name to build one from: ${unresolved.map((a) => `${a.id} (${a.forUi})`).join(" · ")} · give one with --records`);
+  if (unresolved.length) {
+    // Two reasons a path is null, and they are answered by different people: a screen with no
+    // id-language name is a naming decision, an action that is not create/edit/save/delete is a
+    // decision about what the call does. Saying "no path" for both sends the owner looking in the
+    // wrong place.
+    const byAction = unresolved.filter((a) => ADDRESSABLE[a.action] === undefined);
+    const byResource = unresolved.filter((a) => ADDRESSABLE[a.action] !== undefined);
+    if (byResource.length) console.log(`  ${byResource.length} endpoint(s) have no path — the screen has no id-language name to build one from: ${byResource.map((a) => `${a.id} (${a.forUi})`).join(" · ")} · give one with --records`);
+    if (byAction.length) console.log(`  ${byAction.length} endpoint(s) have no path — "${[...new Set(byAction.map((a) => a.action))].join('", "')}" is not create, edit, save or delete, so what it does to the resource is a decision, not an address: ${byAction.map((a) => `${a.id} (${a.forUi}.${a.action})`).join(" · ")} · give each one with --records`);
+  }
 
   if (typeof flags.records === "string") {
     orExit2(fs.existsSync(flags.records), `no such file: ${flags.records}`);

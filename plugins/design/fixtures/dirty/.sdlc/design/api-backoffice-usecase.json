@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "API-001",
+      "title": "create — คำขอสินเชื่อ",
+      "status": "reviewed",
+      "method": "POST",
+      "path": "/api/applications",
+      "forUi": "UI-loan-001",
+      "action": "create",
+      "request": null,
+      "sample": null,
+      "response": null,
+      "auth": "required",
+      "derivedFrom": ["UI-loan-001"]
+    },
+    {
+      "id": "API-002",
+      "title": "submit — คำขอสินเชื่อ",
+      "status": "reviewed",
+      "method": "POST",
+      "path": "/api/applications",
+      "forUi": "UI-loan-001",
+      "action": "submit",
+      "request": null,
+      "sample": null,
+      "response": null,
+      "auth": "required",
+      "derivedFrom": ["UI-loan-001"]
+    }
+  ]
+}

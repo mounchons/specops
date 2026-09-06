@@ -6,7 +6,7 @@
       "title": "submit — ลูกค้ายื่นขอสินเชื่อ",
       "status": "draft",
       "method": "POST",
-      "path": "/api//{id}",
+      "path": null,
       "forUi": "UI-loan-001",
       "action": "submit",
       "request": null,

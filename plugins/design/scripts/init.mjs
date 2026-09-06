@@ -30,6 +30,7 @@ export const DESIGN_GATES = [
   { id: "G-design-014", plugin: "design", check: "design:flow-has-scn", severity: "error", rule: "every use case flow and every NFR has a scenario" },
   { id: "G-design-015", plugin: "design", check: "design:lookup-undecided", severity: "warn", rule: "a lookup entity has no decision yet: master screen or seed data" },
   { id: "G-design-016", plugin: "design", check: "design:flow-without-ac", severity: "warn", rule: "every use case flow has at least one acceptance criterion — a scenario cut from steps alone is not a promise" },
+  { id: "G-design-017", plugin: "design", check: "design:api-address", severity: "error", rule: "two endpoints never answer at the same method and path" },
 ];
 
 /** Idempotent. Returns { registered, gatesAdded }. */

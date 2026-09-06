@@ -6,7 +6,7 @@
       "title": "save — ข้อมูลของฉัน",
       "status": "draft",
       "method": "PUT",
-      "path": "/api//{id}",
+      "path": "/api/profile/{id}",
       "forUi": "UI-loan-013",
       "action": "save",
       "request": null,

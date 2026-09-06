@@ -269,7 +269,7 @@ const impsNow = () => fs.readdirSync(path.join(S, "dev", "impl")).flatMap((d) =>
 const sharedImps = impsNow().filter((i) => i.path === "src/shared.mjs");
 assert("live: one file is one IMP, however many slices touch it", implShared1.code === 0 && implShared2.code === 0 && sharedImps.length === 1 && sharedImps[0].implements.length === 2, sharedImps.map((i) => `${i.id} -> ${(i.implements ?? []).join(",")}`).join(" | ") || "no IMP for src/shared.mjs");
 assert("live: one file per implementation unit, so a slice of 22 files cannot cross rule 4", fs.readdirSync(path.join(S, "dev", "impl")).every((n) => fs.statSync(path.join(S, "dev", "impl", n)).isDirectory()) && fs.readdirSync(path.join(S, "dev", "impl", "TSK-001")).every((n) => /^IMP-[0-9]{3}\.json$/.test(n)), fs.readdirSync(path.join(S, "dev", "impl")).map((n) => `${n}/${fs.readdirSync(path.join(S, "dev", "impl", n)).join(",")}`).join(" · "));
-assert("live: gates.mjs loads dev's checks through project.json — 10 core + 10 req + 16 design + 6 change + 8 dev", /gates=50/.test(gates.out), gates.out.trim().split("\n").pop());
+assert("live: gates.mjs loads dev's checks through project.json — 10 core + 10 req + 17 design + 6 change + 8 dev", /gates=51/.test(gates.out), gates.out.trim().split("\n").pop());
 assert("live: the skill gate is a LIMIT that prints every run and never blocks", /limit=1/.test(gates.out) && /LIMIT.*G-dev-008/.test(gates.out) && gates.code === 0, gates.out.split("\n").find((l) => /G-dev-008/.test(l)) ?? gates.out.trim().split("\n").pop());
 
 fs.rmSync(tmp, { recursive: true, force: true });

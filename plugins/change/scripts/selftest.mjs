@@ -189,7 +189,7 @@ assert("live: close refuses without evidence", /evidence/.test(closeNoEvidence.o
 assert("live: a field the entity does not have is not a display change", /is not a display change|has no attribute/.test(newField.out), newField.out.trim().split("\n").pop());
 assert("live: a change cannot touch something nobody designed", /does not exist/.test(ghost.out), ghost.out.trim().split("\n").pop());
 assert("live: apply wrote nothing outside change/", fs.readdirSync(path.join(S)).includes("change") && !/draft/.test(JSON.parse(fs.readFileSync(path.join(S, "change", "open", "CR-001.json"), "utf8")).status), "CR-001 status after apply");
-assert("live: gates.mjs loads change's checks through project.json", /gates=42/.test(green.out), green.out.trim().split("\n").pop());
+assert("live: gates.mjs loads change's checks through project.json", /gates=43/.test(green.out), green.out.trim().split("\n").pop());
 assert("live: gates green with four changes open", green.code === 0, green.out.trim().split("\n").pop());
 
 fs.rmSync(tmp, { recursive: true, force: true });

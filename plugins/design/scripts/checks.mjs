@@ -147,6 +147,31 @@ export const CHECKS = {
     return out;
   },
 
+  /**
+   * One address, two different things. `pathFor` used to hand every non-create action the same
+   * `/api/<resource>/{id}`, so ten booking screens shared one URL and the design looked complete
+   * while naming ten operations once; it now returns null for an action it cannot address, and only
+   * a person typing a path through --records can still land two operations on one address.
+   *
+   * Two screens doing the *same* thing to the same resource — a backoffice profile and a customer
+   * profile both saving — is one endpoint seen twice, not a collision. What a caller cannot resolve
+   * is two different actions answering at one method and path.
+   */
+  "design:api-address": ({ state }) => {
+    const at = new Map();
+    for (const a of state.artifacts.filter((x) => x.prefix === "API")) {
+      if (!a.raw?.path) continue;
+      const key = `${a.raw.method ?? "?"} ${a.raw.path}`;
+      at.set(key, [...(at.get(key) ?? []), a]);
+    }
+    return [...at]
+      .filter(([, v]) => new Set(v.map((a) => a.raw.action)).size > 1)
+      .map(([key, v]) => ({
+        subject: v[0].file,
+        message: `${key} answers for ${new Set(v.map((a) => a.raw.action)).size} different actions: ${v.map((a) => `${a.id} (${a.raw.forUi}.${a.raw.action})`).join(", ")} — a caller cannot say which of them it wants · /design:api <module> --records gives each its own path`,
+      }));
+  },
+
   "design:flow-has-scn": ({ state }) => {
     const scns = of(state, "SCN").map(raw);
     const out = [];

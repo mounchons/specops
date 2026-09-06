@@ -10,7 +10,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { allTcs, allRuns, allDefs, verifiedUseCases, moduleOf } from "./lib.mjs";
+import { allTcs, allRuns, allDefs, verifiedUseCases, defOpen, moduleOf } from "./lib.mjs";
 
 const of = (state, prefix) => state.artifacts.filter((a) => a.prefix === prefix);
 const raw = (a) => a.raw ?? {};
@@ -39,7 +39,7 @@ export const CHECKS = {
 
   "qa:def-routing-needs-cr": ({ stateDir }) =>
     allDefs(stateDir)
-      .filter((d) => ["design", "req"].includes(d.routing) && !d.cr)
+      .filter((d) => defOpen(d) && ["design", "req"].includes(d.routing) && !d.cr)
       .map((d) => ({ subject: `qa/${moduleOf(d.id)}/findings/${d.id}.json`, message: `${d.id} is routed to ${d.routing} and names no change request — a defect whose root cause is the spec is a change, and a change that is not a CR is unbilled work nobody agreed to` })),
 
   "qa:evidence-missing": ({ stateDir }) => {

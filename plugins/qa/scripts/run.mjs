@@ -14,7 +14,7 @@ import path from "node:path";
 import { parseArgs, resolveStateDir, stateExists, orExit2, isMain } from "../../core/scripts/paths.mjs";
 import { prefixOf } from "../../core/scripts/ids.mjs";
 import { ensureInit } from "./init.mjs";
-import { FILES, allTcs, allRuns, allDefs, mintId, upsert, strip, addEdges, apiComponent, codeRoot as codeRootOf, gitHead, runArgv, runCmd, writeEvidence, checkExpect, moduleOf, now } from "./lib.mjs";
+import { FILES, allTcs, allRuns, allDefs, mintId, upsert, strip, addEdges, apiComponent, codeRoot as codeRootOf, gitHead, runArgv, runCmd, writeEvidence, checkExpect, defOpen, moduleOf, now } from "./lib.mjs";
 
 /** module name · a TC id · a UC id — the three ways an owner says "run this". */
 export function inScope(tcs, scope) {
@@ -94,7 +94,7 @@ export function run(stateDir, scope, codeRoot) {
     const next = { ...strip(tc), lastRun: runId, lastVerdict: r.verdict, status: r.verdict === "pass" ? "verified" : tc.status === "verified" ? "approved" : tc.status };
     upsert(FILES.tc(stateDir, moduleOf(tc.id), tc.id), next);
     if (r.verdict !== "pass") continue;
-    for (const d of defs.filter((d) => d.tc === r.tc && d.status !== "verified")) {
+    for (const d of defs.filter((d) => d.tc === r.tc && defOpen(d))) {
       upsert(FILES.def(stateDir, moduleOf(d.id), d.id), { ...strip(d), status: "verified", closedBy: runId, closedAt: now() });
       closed.push(d.id);
     }

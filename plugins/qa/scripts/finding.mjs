@@ -20,7 +20,7 @@ import path from "node:path";
 import { parseArgs, resolveStateDir, stateExists, rel, orExit2, isMain } from "../../core/scripts/paths.mjs";
 import { openCr } from "../../change/scripts/open.mjs";
 import { ensureInit } from "./init.mjs";
-import { FILES, ROUTINGS, SEVERITIES, allTcs, allDefs, allRuns, mintId, upsert, strip, addEdges, list, moduleOf, now } from "./lib.mjs";
+import { FILES, ROUTINGS, SEVERITIES, allTcs, allDefs, allRuns, mintId, upsert, strip, addEdges, list, causeOf, defOpen, moduleOf, now } from "./lib.mjs";
 
 export function finding(stateDir, tcId, o = {}) {
   ensureInit(stateDir);
@@ -41,8 +41,13 @@ export function finding(stateDir, tcId, o = {}) {
   orExit2(failed || evidence.length, `${tc.id}'s last run did not fail (${tc.lastVerdict ?? "never run"}) — run it first, or bring what was seen instead: --evidence <file>`);
 
   const defs = allDefs(stateDir);
-  const already = defs.find((d) => d.tc === tc.id && d.routing === o.routing && d.status !== "verified");
+  // One open defect per case per routing — but a handoff defect (`cases` could not run the case) and
+  // an observed one (somebody watched the system do the wrong thing) are different claims. The
+  // observed one is never blocked by the handoff one; it supersedes it, and the record says so.
+  const open = defs.filter((d) => d.tc === tc.id && d.routing === o.routing && defOpen(d));
+  const already = open.find((d) => causeOf(d) !== "handoff");
   if (already) return { def: already, tc, cr: null, reused: true };
+  const superseded = open.filter((d) => causeOf(d) === "handoff");
 
   const id = mintId(defs.map((d) => d.id), "DEF", module);
   const def = {
@@ -57,13 +62,16 @@ export function finding(stateDir, tcId, o = {}) {
     evidence: [...evidence, ...(failed?.steps ?? []).map((s) => s.evidence).filter(Boolean)],
     severity: o.severity ?? "s3",
     routing: o.routing,
+    cause: "observed",
     reproduce: String(o.reproduce).trim(),
     cr: null,
     raisedAt: now(),
   };
   upsert(FILES.def(stateDir, module, id), def);
   addEdges(stateDir, [{ from: id, rel: "found-in", to: tc.id }]);
-  if (o.routing === "dev") return { def, tc, cr: null, reused: false };
+  for (const d of superseded)
+    upsert(FILES.def(stateDir, moduleOf(d.id), d.id), { ...strip(d), status: "retired", retiredAt: now(), retiredBy: id, retiredReason: `superseded by ${id} — it was raised because the case could not run; this one says what the system does` });
+  if (o.routing === "dev") return { def, tc, cr: null, superseded, reused: false };
 
   // The spec is what is wrong. That is a change request, and it is opened now — not written on a
   // list of things to open later. `touches` defaults to the scenario, because a scenario that did
@@ -81,7 +89,7 @@ export function finding(stateDir, tcId, o = {}) {
   });
   const withCr = { ...def, cr: cr.id };
   upsert(FILES.def(stateDir, module, id), withCr);
-  return { def: withCr, tc, cr, reused: false };
+  return { def: withCr, tc, cr, superseded, reused: false };
 }
 
 if (isMain(import.meta.url)) {
@@ -108,6 +116,7 @@ if (isMain(import.meta.url)) {
   console.log(`  ${r.def.title}`);
   console.log(`  scenario ${r.def.scenario}${r.def.usecase ? ` · use case ${r.def.usecase}` : ""}${r.def.run ? ` · run ${r.def.run}` : ""}`);
   for (const e of r.def.evidence) console.log(`  evidence: ${e}`);
+  for (const d of r.superseded ?? []) console.log(`  retired ${d.id} — it was raised because ${d.tc} could not run; this one says what it does`);
   if (r.def.routing === "dev") {
     console.log(`\n  routing dev — the code does not do what the spec already says. No change request, and nothing to bill.`);
     console.log(`  dev fixes it and /qa:run ${r.def.tc} closes it. dev cannot close it; a green run does.`);

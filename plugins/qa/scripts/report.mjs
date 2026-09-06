@@ -13,7 +13,7 @@ import path from "node:path";
 import { parseArgs, resolveStateDir, stateExists, orExit2, isMain } from "../../core/scripts/paths.mjs";
 import { loadState } from "../../core/scripts/artifacts.mjs";
 import { ensureInit } from "./init.mjs";
-import { FILES, allTcs, allRuns, allDefs, of, raw, moduleOf, now } from "./lib.mjs";
+import { FILES, allTcs, allRuns, allDefs, of, raw, causeOf, defOpen, moduleOf, now } from "./lib.mjs";
 
 const VERDICT_MARK = { pass: "ผ่าน", fail: "ไม่ผ่าน", partial: "ผ่านบางส่วน", blocked: "รันไม่ได้" };
 
@@ -58,8 +58,10 @@ export function report(stateDir, module) {
     // Per AC, not per flow: SCN.derivedFrom names the AC it was cut from, and four AC sharing one
     // flow are four promises. Comparing flows hid AC-rental-002/003/004 behind AC-rental-001.
     acWithoutScn: acs.filter((a) => !scns.some((s) => (s.derivedFrom ?? []).includes(a.id))).map((a) => a.id),
-    openDefs: defs.filter((d) => d.status !== "verified"),
+    openDefs: defs.filter((d) => defOpen(d)),
     closedDefs: defs.filter((d) => d.status === "verified"),
+    // Retired is not closed: nothing was tested, the gap the defect was raised for went away.
+    retiredDefs: defs.filter((d) => d.status === "retired"),
   };
 
   const lines = [
@@ -102,6 +104,7 @@ export function report(stateDir, module) {
   if (defs.length === 0) lines.push(`- ยังไม่มี finding`, ``);
   for (const d of defs)
     lines.push(`- **${d.id}** [${d.status}] routing **${d.routing}** · ${d.tc} · ${d.severity}${d.cr ? ` · ${d.cr}` : d.routing === "dev" ? ` · ไม่มี CR (โค้ดไม่ตรงสเปก ไม่คิดเงิน)` : ``}\n  - ${d.reproduce}`);
+  if (counts.retiredDefs.length) lines.push(`- เลิกใช้แล้ว (ช่องว่างที่เป็นเหตุให้เปิดหายไป — ไม่ใช่ผ่านการทดสอบ): ${counts.retiredDefs.map((d) => d.id).join(", ")}`);
   lines.push(``, `## AC ที่ไม่มี scenario (ช่องว่างของดีไซน์ ไม่ใช่ของเทสต์)`, ``);
   lines.push(counts.acWithoutScn.length ? counts.acWithoutScn.map((a) => `- ${a}`).join("\n") : `- ไม่มี`);
   lines.push(``, `## ประวัติการรัน`, ``, `| run | เมื่อ | code | ผ่าน | ไม่ผ่าน | อื่น ๆ |`, `|---|---|---|---|---|---|`);
@@ -140,6 +143,7 @@ if (isMain(import.meta.url)) {
     for (const d of counts.openDefs) console.log(`    ${d.id} routing ${d.routing}${d.cr ? ` · ${d.cr}` : ""}  ${d.title}`);
   }
   if (counts.closedDefs.length) console.log(`\n  closed by a green run: ${counts.closedDefs.map((d) => d.id).join(", ")}`);
+  if (counts.retiredDefs.length) console.log(`  retired — the gap they were raised for is gone: ${counts.retiredDefs.map((d) => d.id).join(", ")}`);
   console.log(`\nwritten: ${file}`);
   process.exit(0);
 }

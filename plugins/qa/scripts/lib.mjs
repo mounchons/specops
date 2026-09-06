@@ -252,3 +252,15 @@ export function checkExpect(expect, { exitCode, out }) {
   for (const s of list(e.contains)) if (!String(out).includes(s)) problems.push(`the output does not contain ${JSON.stringify(s)}`);
   return problems;
 }
+
+/**
+ * Where a defect came from. `cases` raises one for a case it could not make runnable — the handoff
+ * is incomplete, and qa writes that down rather than asking (brief §5.6). A person raises one for
+ * something they saw the system do. They are not the same claim, so an observed defect is never
+ * blocked by, and supersedes, a handoff one on the same case. Records written before the field
+ * existed are read from `source`.
+ */
+export const causeOf = (d) => d.cause ?? (d.source === "cases" ? "handoff" : "observed");
+
+/** A defect is open until a green run verifies it or its gap is retired — nothing else closes one. */
+export const defOpen = (d) => !["verified", "retired"].includes(d.status);

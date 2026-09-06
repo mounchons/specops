@@ -3,6 +3,7 @@
  * open.mjs — every request becomes a CR before anything is said back (rule 7).
  *
  *   node open.mjs --kind display|screen|report|rule|other --source client|external|internal|finding
+ *   node open.mjs --amend CR-nnn --kind <k> --reason "…"     correct the kind of a CR nobody has applied
  *                 --title "..." --request "the client's own words"
  *                 [--touches UI-x,ENT-y] [--fields ENT-y.attr] [--finding DEF-x]
  *                 [--module <m>] [--app <a>] [--state-dir X]
@@ -15,7 +16,7 @@ import { ensureRegistry } from "../../core/scripts/query.mjs";
 import { loadState } from "../../core/scripts/artifacts.mjs";
 import { prefixOf } from "../../core/scripts/ids.mjs";
 import { ensureInit } from "./init.mjs";
-import { KINDS, SOURCES, list, now, mintCrId, writeCr, addEdges, project, resolveModule, resolveApp } from "./lib.mjs";
+import { KINDS, SOURCES, list, now, mintCrId, readCr, writeCr, addEdges, project, resolveModule, resolveApp } from "./lib.mjs";
 
 /** "ENT-006.phone" -> { ent, attr }. Anything else is not a field reference. */
 export function parseField(spec) {
@@ -78,10 +79,50 @@ export function openCr(stateDir, o) {
   return { cr, file };
 }
 
+/**
+ * The kind of a change is a judgement made when it was opened, and `impact` reads it to decide the
+ * lane — so a wrong kind is a wrong lane and, for a CR opened by `qa:finding` (which defaults to
+ * `rule`), a full lane nobody asked for. Correcting it is not editing history: the old value, who
+ * changed it and why are kept on the record, and the lane and impact decided from the old kind are
+ * cleared, because keeping them would be a decision nobody made.
+ */
+export function amendCr(stateDir, id, { kind = null, reason = null } = {}) {
+  ensureInit(stateDir);
+  const cr = readCr(stateDir, id);
+  orExit2(cr, `no such CR: ${id}`);
+  orExit2(cr.__open, `${id} is closed — a closed change is history; open a new CR`);
+  orExit2(!cr.applied, `${id} was applied on ${String(cr.applied?.at).slice(0, 10)} — the plugins have already been told what to do, so what the change *is* cannot move under them; close it and open a new CR`);
+  orExit2(KINDS.includes(kind), `--kind must be one of ${KINDS.join("|")}`);
+  orExit2(String(reason ?? "").trim(), `--reason is required — a kind that changed with nobody's reason on it is the same as one nobody checked`);
+  orExit2(kind !== cr.kind, `${id} is already kind "${kind}"`);
+  orExit2(kind !== "display" || (cr.fields ?? []).length, `a display change with nothing to display is not a display change — this CR names no fields`);
+
+  const from = cr.kind;
+  cr.kind = kind;
+  cr.amendments = [...(cr.amendments ?? []), { at: now(), field: "kind", from, to: kind, reason: String(reason).trim() }];
+  cr.lane = null;
+  cr.impact = null;
+  cr.status = "draft";
+  const file = writeCr(stateDir, cr);
+  return { cr, file, from };
+}
+
 if (isMain(import.meta.url)) {
   const { flags } = parseArgs();
   const stateDir = resolveStateDir(flags);
   orExit2(stateExists(stateDir), `no state dir at ${stateDir}`);
+
+  if (typeof flags.amend === "string") {
+    const { cr, file, from } = amendCr(stateDir, flags.amend, { kind: typeof flags.kind === "string" ? flags.kind : null, reason: typeof flags.reason === "string" ? flags.reason : null });
+    console.log(`AMEND ${cr.id}  kind ${from} -> ${cr.kind}`);
+    console.log(`  reason: ${cr.amendments.at(-1).reason}`);
+    console.log(`  lane and impact cleared — they were decided from kind "${from}"`);
+    console.log(`  written: ${file}`);
+    console.log(`
+next: /change:impact ${cr.id}${cr.kind === "other" ? " --lane ui|full — \"other\" has no discriminator, so the lane is recorded as the owner’s" : ""}`);
+    process.exit(0);
+  }
+
   const { cr, file } = openCr(stateDir, flags);
   console.log(`OPEN ${cr.id}  ${cr.kind} · ${cr.source} · module ${cr.module}${cr.app ? ` · app ${cr.app}` : ""}`);
   console.log(`  ${cr.title}`);

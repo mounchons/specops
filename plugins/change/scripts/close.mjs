@@ -27,7 +27,11 @@ export function closeCr(stateDir, id, { sign = null, evidence = null } = {}) {
   const reg = ensureRegistry(stateDir);
   orExit2(prefixOf(sign) === "STK" && reg.index[sign], `--sign ${sign} is not a stakeholder in req/stakeholders.json`);
 
-  const ids = [...new Set([...(cr.touches ?? []), ...(cr.impact?.affected ?? []).map((a) => a.id)])];
+  // A DEF is never in this list. A defect leaves `draft` only when a later run passes its test case
+  // (G-qa-005 — dev does not close a finding, a green run does), so nobody can re-approve one and a
+  // CR opened from a finding would be unclosable by construction: its own DEF sits in `affected`
+  // because the defect text names the artifact the change touches.
+  const ids = [...new Set([...(cr.touches ?? []), ...(cr.impact?.affected ?? []).map((a) => a.id)])].filter((aid) => prefixOf(aid) !== "DEF");
   const notReady = ids
     .map((aid) => ({ id: aid, status: reg.index[aid]?.status ?? "(missing)" }))
     .filter((a) => !atLeast(a.status, "approved"));

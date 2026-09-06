@@ -20,6 +20,7 @@ import { loadState } from "../../core/scripts/artifacts.mjs";
 import { buildRegistry } from "../../core/scripts/registry.mjs";
 import { CHECKS as CORE_CHECKS } from "../../core/scripts/gates.mjs";
 import { CHECKS, isFrozen } from "./checks.mjs";
+import { now } from "./lib.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const core = (s) => path.resolve(here, "..", "..", "core", "scripts", s);
@@ -103,6 +104,15 @@ const reg0 = buildRegistry(S);
 const master = Object.entries(reg0.index).find(([id, r]) => id.startsWith("UI-") && /Borrower/.test(r.title ?? ""))?.[0];
 const borrower = Object.entries(reg0.index).find(([id, r]) => id.startsWith("ENT-") && r.title === "Borrower")?.[0];
 
+// A defect that names the screen CR-001 touches. It exists so `close` can be watched ignoring it:
+// a DEF leaves `draft` only when a later run passes its test case (G-qa-005), so waiting for one to
+// be approved would make every CR a finding opened unclosable.
+fs.mkdirSync(path.join(S, "qa", "loan", "findings"), { recursive: true });
+fs.writeFileSync(path.join(S, "qa", "loan", "findings", "DEF-loan-001.json"), JSON.stringify({ schemaVersion: "1.0", items: [{
+  id: "DEF-loan-001", title: "เบอร์โทรไม่ขึ้นในตาราง", status: "draft", tc: null, scenario: null, usecase: null,
+  routing: "dev", severity: "s3", cr: null, run: null, evidence: [], reproduce: `เปิด ${master} แล้วคอลัมน์เบอร์โทรว่าง`, raisedAt: now(),
+}] }, null, 2), "utf8");
+
 // CR-001 display -> lane ui
 step("open display", chg("open.mjs"), ["--state-dir", S, "--kind", "display", "--source", "client", "--title", "แสดงเบอร์โทรผู้กู้", "--request", "อยากเห็นเบอร์โทรในตาราง", "--touches", master, "--fields", `${borrower}.phone`]);
 const i1 = step("impact CR-001", chg("impact.mjs"), ["CR-001", "--state-dir", S]);
@@ -118,6 +128,14 @@ step("open other", chg("open.mjs"), ["--state-dir", S, "--kind", "other", "--sou
 const noLane = step("impact other without --lane refused", chg("impact.mjs"), ["CR-004", "--state-dir", S]);
 const applyNoLane = step("apply without a lane refused", chg("apply.mjs"), ["CR-004", "--state-dir", S]);
 step("impact CR-004 --lane full", chg("impact.mjs"), ["CR-004", "--state-dir", S, "--lane", "full"]);
+
+// amending what a change *is* — the kind decides the lane, so a wrong kind is a wrong lane
+step("open screen to amend", chg("open.mjs"), ["--state-dir", S, "--kind", "screen", "--source", "internal", "--title", "จัดหน้าใหม่อีกที", "--request", "จัดเรียงใหม่", "--app", "customer"]);
+step("impact CR-005", chg("impact.mjs"), ["CR-005", "--state-dir", S]);
+const amendNoReason = step("amend without --reason refused", chg("open.mjs"), ["--state-dir", S, "--amend", "CR-005", "--kind", "other"]);
+const amendApplied = step("amend an applied CR refused", chg("open.mjs"), ["--state-dir", S, "--amend", "CR-003", "--kind", "other", "--reason", "เปลี่ยนใจ"]);
+const amended = step("amend CR-005 kind screen -> other", chg("open.mjs"), ["--state-dir", S, "--amend", "CR-005", "--kind", "other", "--reason", "ไม่ใช่หน้าจอใหม่ — เป็นการจัดเรียงของที่ประกาศไว้แล้ว"]);
+const amendedCr = () => JSON.parse(fs.readFileSync(path.join(S, "change", "open", "CR-005.json"), "utf8"));
 
 // the freeze
 const a1 = step("apply CR-001", chg("apply.mjs"), ["CR-001", "--state-dir", S]);
@@ -142,6 +160,7 @@ const REFUSALS = new Set([
   "impact other without --lane refused", "apply without a lane refused", "apply twice refused",
   "close before apply refused", "close without evidence refused", "display without --fields refused",
   "source finding without --finding refused", "a field the entity does not have refused", "touching an id that does not exist refused",
+  "amend without --reason refused", "amend an applied CR refused",
 ]);
 const broke = steps.filter(([l, r]) => (REFUSALS.has(l) ? r.code !== 2 : r.code !== 0));
 assert("live: every command exits 0, every refusal exits 2", broke.length === 0, broke.map(([l, r]) => `${l} -> ${r.code}: ${r.out.trim().split("\n")[0]}`).join(" | "));
@@ -161,12 +180,17 @@ assert("live: a screen an open CR touches is frozen against regeneration", froze
 assert("live: isFrozen names the CR and the lane", isFrozen(master, { stateDir: S }).by === "CR-001" && isFrozen(master, { stateDir: S }).lane === "ui", JSON.stringify(isFrozen(master, { stateDir: S })));
 assert("live: close is a finding, not an argument error, while the work is still draft", closeDraft.code === 1 && /CANNOT CLOSE/.test(closeDraft.out), closeDraft.out.trim().split("\n")[0]);
 assert("live: close refuses a CR nobody was ever told to do", /never applied/.test(closeEarly.out), closeEarly.out.trim().split("\n").pop());
+assert("live: close never waits for a defect — a DEF leaves draft on a green run, not on an approval", closeDraft.code === 1 && !/DEF-loan-001/.test(closeDraft.out) && closeDraft.out.includes(master), closeDraft.out.split("\n").filter((l) => /^ {2}[A-Z]+-/.test(l)).join(" · "));
+assert("live: amending the kind records what it was and why", /kind screen -> other/.test(amended.out) && amendedCr().amendments?.at(-1)?.from === "screen" && amendedCr().amendments.at(-1).to === "other" && Boolean(amendedCr().amendments.at(-1).reason), JSON.stringify(amendedCr().amendments));
+assert("live: amending clears the lane and impact decided from the old kind", amendedCr().lane === null && amendedCr().impact === null && amendedCr().status === "draft", JSON.stringify({ lane: amendedCr().lane, impact: amendedCr().impact, status: amendedCr().status }));
+assert("live: a kind that changed with nobody's reason on it is refused", /--reason is required/.test(amendNoReason.out), amendNoReason.out.trim().split("\n").pop());
+assert("live: a change already handed to the plugins cannot change what it is", /was applied/.test(amendApplied.out), amendApplied.out.trim().split("\n").pop());
 assert("live: close refuses without evidence", /evidence/.test(closeNoEvidence.out), closeNoEvidence.out.trim().split("\n").pop());
 assert("live: a field the entity does not have is not a display change", /is not a display change|has no attribute/.test(newField.out), newField.out.trim().split("\n").pop());
 assert("live: a change cannot touch something nobody designed", /does not exist/.test(ghost.out), ghost.out.trim().split("\n").pop());
 assert("live: apply wrote nothing outside change/", fs.readdirSync(path.join(S)).includes("change") && !/draft/.test(JSON.parse(fs.readFileSync(path.join(S, "change", "open", "CR-001.json"), "utf8")).status), "CR-001 status after apply");
-assert("live: gates.mjs loads change's checks through project.json", /gates=41/.test(green.out), green.out.trim().split("\n").pop());
-assert("live: gates green with three changes open", green.code === 0, green.out.trim().split("\n").pop());
+assert("live: gates.mjs loads change's checks through project.json", /gates=42/.test(green.out), green.out.trim().split("\n").pop());
+assert("live: gates green with four changes open", green.code === 0, green.out.trim().split("\n").pop());
 
 fs.rmSync(tmp, { recursive: true, force: true });
 

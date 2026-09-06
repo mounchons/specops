@@ -2,7 +2,7 @@
 /**
  * task.mjs — one vertical slice, from the slice printed to the commit that closes it.
  *
- *   node task.mjs <TSK> --start
+ *   node task.mjs <TSK> --start [--cr CR-nnn]
  *                       --impl "<path>=<kind>[,<path>=<kind>]" [--golden GD-x,GD-y]
  *                       --verify
  *                       --close
@@ -37,10 +37,20 @@ function frozenFor(stateDir, tsk) {
     .filter((x) => x.f.frozen && x.f.by !== tsk.cr);
 }
 
-export function start(stateDir, id, codeRoot) {
+export function start(stateDir, id, codeRoot, cr = null) {
   const tsk = load(stateDir, id);
   orExit2(!tsk.blocked, `${id} is blocked since ${tsk.blocked?.at}: ${tsk.blocked?.reason} — a fourth attempt at the same thing is not a plan`);
   requireRepo(codeRoot);
+  // `/change:apply` prints "/dev:task --cr CR-nnn" as step 7 of a full lane: the task is part of the
+  // change, so the freeze the change put on its screens is not a freeze against it. It has to be that
+  // CR and no other — binding a task to an unrelated change would turn the gate off with a flag.
+  if (cr) {
+    const mine = [tsk.usecase, ...(tsk.screens ?? []), ...(tsk.acceptance ?? [])].filter(Boolean).map((x) => isFrozen(x, { stateDir })).filter((f) => f.frozen);
+    orExit2(mine.length, `${id} is not frozen by anything — --cr is for a task being built as part of an open change`);
+    orExit2(mine.every((f) => f.by === cr), `${id} is frozen by ${[...new Set(mine.map((f) => f.by))].join(", ")}, not by ${cr} — a task is built under the change that froze it`);
+    tsk.cr = cr;
+    tsk.origin = "changed";
+  }
   const frozen = frozenFor(stateDir, tsk);
   if (frozen.length) return { tsk, frozen };
   tsk.status = "approved";
@@ -171,7 +181,7 @@ if (isMain(import.meta.url)) {
   const id = _[0];
 
   if (flags.start) {
-    const { tsk, frozen, slice } = start(stateDir, id, codeRoot);
+    const { tsk, frozen, slice } = start(stateDir, id, codeRoot, typeof flags.cr === "string" ? flags.cr : null);
     if (frozen.length) {
       console.log(`CANNOT START ${id} — an open change request freezes what it would touch:`);
       for (const f of frozen) console.log(`  ${f.id.padEnd(16)} frozen by ${f.f.by} (lane ${f.f.lane})`);

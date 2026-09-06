@@ -17,3 +17,7 @@ Show the result and stop.
 The command prints *where it looked* (`UI-rental-001.fields[]`, which may be empty) so the answer is checkable rather than asserted.
 
 It refuses when a file the task owns differs from the last commit: somebody edited it by hand, and a script does not overwrite a person — commit or discard first. It also refuses an artifact an open CR has frozen unless `--cr` names that change.
+
+## `--gap GAP-nnn --answer "…"` — the other half
+
+dev asked, the owner opened the change, design declared the thing. This is where that comes back: the GAP gets its `answer`, the CR that answers it, and `approved`. **Every id inside the answer must exist** — you cannot answer "it is `API-033`" before `API-033` is a record, so the question is settled by the design and not by a sentence. Until a gap is answered it stays `draft`, and a change request that touched it cannot close.

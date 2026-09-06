@@ -152,6 +152,7 @@ step("close 2", dev("task.mjs"), ["TSK-002", "--state-dir", S, "--close"]);
 // The screens no use case produced — login, profile, the masters, the NFR page — are tasks too, and
 // they go through the same four steps. There is no second lane: the manifest is only writable once
 // they are built as well, which is the point of planning them in the first place.
+const gapsNow = () => { const p = path.join(S, "dev", "gaps.json"); const j = fs.existsSync(p) ? JSON.parse(fs.readFileSync(p, "utf8")) : {}; return j.items ?? (Array.isArray(j) ? j : []); };
 const tasksNow = () => fs.readdirSync(path.join(S, "dev", "tasks", "loan")).flatMap((f) => JSON.parse(fs.readFileSync(path.join(S, "dev", "tasks", "loan", f), "utf8")).items);
 const rest = tasksNow().filter((t) => t.status === "draft").sort(byBuildOrder);
 const screenStart = step(`task ${rest[0]?.id} --start`, dev("task.mjs"), [rest[0]?.id ?? "TSK-003", "--state-dir", S, "--start"]);
@@ -184,6 +185,17 @@ const profileTsk = tasksNow().find((t) => t.group === "profile");
 const classAScreen = step("revise Class A on a screen task", dev("revise.mjs"), [profileTsk?.screens?.[0] ?? "UI-loan-001", "--state-dir", S, "--action", "save"]);
 step("open CR on a screen no task owns", chg("open.mjs"), ["--state-dir", S, "--kind", "screen", "--source", "client", "--title", "แก้หน้า login", "--request", "ขอแก้หน้าเข้าสู่ระบบ", "--app", "backoffice", "--touches", login]);
 const frozenRevise = step("revise a frozen screen refused", dev("revise.mjs"), [login, "--state-dir", S, "--field", "captcha"]);
+// Building under the change that froze you: /change:apply prints "/dev:task --cr CR-nnn" as step 7
+// of a full lane, and until now no such flag existed — the CR named a command nobody could run.
+const loginTsk = tasksNow().find((t) => (t.screens ?? []).includes(login));
+const startFrozenNoCr = cli(dev("task.mjs"), [loginTsk?.id ?? "TSK-003", "--state-dir", S, "--start"]);
+const startWrongCr = cli(dev("task.mjs"), [loginTsk?.id ?? "TSK-003", "--state-dir", S, "--start", "--cr", "CR-002"]);
+const startUnderCr = step(`start ${loginTsk?.id} under its CR`, dev("task.mjs"), [loginTsk?.id ?? "TSK-003", "--state-dir", S, "--start", "--cr", "CR-001"]);
+// The other half of a GAP: dev asked, design answered, and the record says so. Before this a GAP sat
+// at draft for ever, and a CR that touched one could never close.
+const answerUnknown = cli(dev("revise.mjs"), ["--state-dir", S, "--gap", "GAP-001", "--answer", "API-999"]);
+const answered = step("answer the gap", dev("revise.mjs"), ["--state-dir", S, "--gap", "GAP-001", "--answer", `ประกาศแล้วที่ ${ui}`]);
+const answerTwice = cli(dev("revise.mjs"), ["--state-dir", S, "--gap", "GAP-001", "--answer", "อีกรอบ"]);
 // A file that is not source in any language but decides whether the thing runs. Nobody claims it,
 // so the sweep has to say so — before this it only looked at .mjs and a Dockerfile was invisible.
 src("src/package.json", `{ "name": "loan", "type": "module" }\n`);
@@ -236,6 +248,10 @@ assert("live: Class B says where it looked", /looked in .*fields\[\]/.test(class
 assert("live: Class A reopens the task instead of asking upstream", /CLASS A/.test(classA.out) && /origin "changed"/.test(classA.out), classA.out.trim().split("\n").filter(Boolean).pop());
 assert("live: Class A finds the task of a screen no use case produced", /CLASS A/.test(classAScreen.out) && new RegExp(`${profileTsk?.id} .* reopened`).test(classAScreen.out), classAScreen.out.trim().split("\n").filter(Boolean).pop());
 assert("live: a frozen screen cannot be revised", /frozen by CR-001/.test(frozenRevise.out), frozenRevise.out.trim().split("\n").pop());
+assert("live: a task is built under the change that froze it, and under no other", startFrozenNoCr.code === 1 && startWrongCr.code === 2 && /not by CR-002/.test(startWrongCr.out) && /SLICE/.test(startUnderCr.out), `${startFrozenNoCr.code} · ${startWrongCr.out.trim().split("\n").pop()} · ${startUnderCr.out.trim().split("\n")[0]}`);
+assert("live: a gap is answered by the record that declares it, and stops being draft", /ANSWERED GAP-001/.test(answered.out) && /draft → approved/.test(answered.out) && gapsNow().find((g) => g.id === "GAP-001")?.status === "approved", answered.out.trim().split("\n").pop());
+assert("live: an answer that names a record which does not exist is refused", answerUnknown.code === 2 && /API-999 does not exist/.test(answerUnknown.out), answerUnknown.out.trim().split("\n").pop());
+assert("live: a gap is answered once", answerTwice.code === 2 && /already answered/.test(answerTwice.out), answerTwice.out.trim().split("\n").pop());
 assert("live: the orphan sweep counts the files that decide whether it runs, not only source", /G-dev-005/.test(gates.out) && /src\/package\.json/.test(gates.out), gates.out.split("\n").find((l) => /G-dev-005/.test(l))?.slice(0, 160) ?? "G-dev-005 did not fire");
 assert("live: one file per implementation unit, so a slice of 22 files cannot cross rule 4", fs.readdirSync(path.join(S, "dev", "impl")).every((n) => fs.statSync(path.join(S, "dev", "impl", n)).isDirectory()) && fs.readdirSync(path.join(S, "dev", "impl", "TSK-001")).every((n) => /^IMP-[0-9]{3}\.json$/.test(n)), fs.readdirSync(path.join(S, "dev", "impl")).map((n) => `${n}/${fs.readdirSync(path.join(S, "dev", "impl", n)).join(",")}`).join(" · "));
 assert("live: gates.mjs loads dev's checks through project.json — 10 core + 10 req + 16 design + 6 change + 8 dev", /gates=50/.test(gates.out), gates.out.trim().split("\n").pop());

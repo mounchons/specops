@@ -1,6 +1,6 @@
 ---
 description: One slice from the printed spec to the commit that closes it. Four conditions, all checkable.
-argument-hint: <TSK-nnn> --start | --impl "<path>=<kind>" [--golden GD-x] | --verify | --close | --abandon [--reason "…"]
+argument-hint: <TSK-nnn> --start [--cr CR-nnn] | --impl "<path>=<kind>" [--golden GD-x] | --verify | --close | --abandon [--reason "…"]
 allowed-tools: Bash
 ---
 

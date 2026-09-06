@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "API-001",
+      "title": "submit",
+      "status": "approved",
+      "method": "POST",
+      "path": "/api/loan",
+      "forUi": "UI-loan-001",
+      "action": "submit",
+      "request": {
+        "income": "number",
+        "amount": "number"
+      },
+      "response": null,
+      "auth": "required",
+      "derivedFrom": [
+        "UI-loan-001"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "SCN-loan-001",
+      "title": "main",
+      "status": "approved",
+      "usecase": "UC-loan-001",
+      "flow": "main",
+      "expected": "ระบบปฏิเสธ",
+      "derivedFrom": [
+        "UC-loan-001",
+        "AC-loan-001"
+      ]
+    },
+    {
+      "id": "SCN-loan-002",
+      "title": "alt — no test case at all",
+      "status": "approved",
+      "usecase": "UC-loan-001",
+      "flow": "main",
+      "expected": "ระบบปฏิเสธ",
+      "derivedFrom": [
+        "UC-loan-001",
+        "AC-loan-001"
+      ]
+    },
+    {
+      "id": "SCN-loan-003",
+      "title": "alt — verified case never run",
+      "status": "approved",
+      "usecase": "UC-loan-001",
+      "flow": "main",
+      "expected": "ระบบปฏิเสธ",
+      "derivedFrom": [
+        "UC-loan-001",
+        "AC-loan-001"
+      ]
+    },
+    {
+      "id": "SCN-loan-004",
+      "title": "alt — case cannot run",
+      "status": "approved",
+      "usecase": "UC-loan-001",
+      "flow": "main",
+      "expected": "ระบบปฏิเสธ",
+      "derivedFrom": [
+        "UC-loan-001",
+        "AC-loan-001"
+      ]
+    }
+  ]
+}

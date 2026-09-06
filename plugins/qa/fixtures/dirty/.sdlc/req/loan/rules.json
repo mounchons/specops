@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "BR-loan-001@v1",
+      "title": "วงเงินไม่เกิน 5 เท่าของรายได้",
+      "status": "approved",
+      "statement": "วงเงินไม่เกิน 5 เท่าของรายได้",
+      "derivedFrom": []
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "1.0",
+  "owner": "qa",
+  "edges": [
+    {
+      "from": "TC-loan-001",
+      "rel": "covers",
+      "to": "SCN-loan-001"
+    },
+    {
+      "from": "TC-loan-002",
+      "rel": "covers",
+      "to": "SCN-loan-003"
+    },
+    {
+      "from": "TC-loan-003",
+      "rel": "covers",
+      "to": "SCN-loan-004"
+    },
+    {
+      "from": "RUN-001",
+      "rel": "ran",
+      "to": "TC-loan-001"
+    },
+    {
+      "from": "DEF-loan-002",
+      "rel": "found-in",
+      "to": "TC-loan-001"
+    },
+    {
+      "from": "DEF-loan-003",
+      "rel": "found-in",
+      "to": "TC-loan-003"
+    }
+  ]
+}

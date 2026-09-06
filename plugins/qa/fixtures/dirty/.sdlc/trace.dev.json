@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "1.0",
+  "owner": "dev",
+  "edges": [
+    {"from":"TSK-001","rel":"implements","to":"UC-loan-001"},
+    {"from":"TSK-001","rel":"implements","to":"AC-loan-001"},
+    {"from":"TSK-001","rel":"uses","to":"GD-loan-001"},
+    {"from":"IMP-001","rel":"implements","to":"TSK-001"},
+    {"from":"IMP-002","rel":"implements","to":"TSK-001"}
+  ]
+}

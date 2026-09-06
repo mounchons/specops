@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "RUN-001",
+      "title": "run loan",
+      "status": "verified",
+      "scope": "loan",
+      "codeVersion": "2222222222222222222222222222222222222222",
+      "env": {
+        "os": "fixture",
+        "node": "v22.0.0",
+        "healthcheck": {
+          "cmd": "curl -fsS http://localhost:8080/health",
+          "exitCode": 0,
+          "evidence": "qa/evidence/RUN-001-healthcheck-pass.log",
+          "up": true
+        }
+      },
+      "results": [
+        {
+          "tc": "TC-loan-001",
+          "verdict": "pass",
+          "steps": [
+            {
+              "n": 1,
+              "via": "http",
+              "result": "pass",
+              "exitCode": 0,
+              "evidence": "qa/evidence/TC-loan-001-RUN-001-s1-pass.log"
+            }
+          ]
+        }
+      ],
+      "at": "2026-09-06T00:00:00.000Z"
+    }
+  ]
+}

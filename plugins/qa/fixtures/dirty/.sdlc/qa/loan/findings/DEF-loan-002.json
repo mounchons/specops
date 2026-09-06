@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "DEF-loan-002",
+      "title": "the scenario never described the boundary case",
+      "status": "draft",
+      "source": "run",
+      "tc": "TC-loan-001",
+      "scenario": "SCN-loan-001",
+      "usecase": "UC-loan-001",
+      "run": "RUN-001",
+      "evidence": [],
+      "severity": "s2",
+      "routing": "design",
+      "reproduce": "the scenario has no case for an exact boundary",
+      "cr": null,
+      "raisedAt": "2026-09-06T01:00:00.000Z"
+    }
+  ]
+}

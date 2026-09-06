@@ -1,0 +1,4 @@
+# RUN-001 healthcheck
+# exit 0
+
+{"status":"ok"}

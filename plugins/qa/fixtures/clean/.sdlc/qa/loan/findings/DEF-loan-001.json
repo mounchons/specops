@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "DEF-loan-001",
+      "title": "วงเงินสูงสุดคำนวณผิด",
+      "status": "verified",
+      "source": "run",
+      "tc": "TC-loan-001",
+      "scenario": "SCN-loan-001",
+      "usecase": "UC-loan-001",
+      "run": null,
+      "evidence": [],
+      "severity": "s2",
+      "routing": "dev",
+      "reproduce": "ยื่นด้วยรายได้ 30,000 ขอ 200,000 แล้ววงเงินสูงสุดกลับมาไม่ถูก",
+      "cr": null,
+      "raisedAt": "2026-09-05T00:00:00.000Z",
+      "closedBy": "RUN-001",
+      "closedAt": "2026-09-06T00:00:00.000Z"
+    }
+  ]
+}

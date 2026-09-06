@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "DEF-loan-003",
+      "title": "closed with no green run behind it",
+      "status": "verified",
+      "source": "run",
+      "tc": "TC-loan-003",
+      "scenario": "SCN-loan-004",
+      "usecase": "UC-loan-001",
+      "run": null,
+      "evidence": [],
+      "severity": "s3",
+      "routing": "dev",
+      "reproduce": "closed by hand",
+      "cr": null,
+      "raisedAt": "2026-09-07T00:00:00.000Z"
+    }
+  ]
+}

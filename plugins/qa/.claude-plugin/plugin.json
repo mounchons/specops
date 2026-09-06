@@ -1,0 +1,9 @@
+{
+  "name": "qa",
+  "version": "0.1.0",
+  "description": "specops qa: a test case per scenario written without asking anyone, a run that is a new record every time with one evidence file per step, and a finding whose routing decides whether it is a bug for dev or a change request the spec has to answer.",
+  "author": {
+    "name": "Mounchons"
+  },
+  "keywords": ["sdlc", "specops", "test-case", "evidence", "defect-routing", "coverage"]
+}

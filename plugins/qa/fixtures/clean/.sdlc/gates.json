@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "1.0",
+  "gates": [
+    {
+      "id": "G-dev-001",
+      "plugin": "dev",
+      "check": "dev:tsk-needs-proof",
+      "severity": "error",
+      "rule": "a task at implemented or beyond has no proof entry that exited 0"
+    },
+    {
+      "id": "G-dev-002",
+      "plugin": "dev",
+      "check": "dev:imp-in-layout",
+      "severity": "error",
+      "rule": "an implementation unit's path is outside its component's root, or its file does not exist"
+    },
+    {
+      "id": "G-dev-003",
+      "plugin": "dev",
+      "check": "dev:tsk-frozen",
+      "severity": "error",
+      "rule": "a task that has started and is not verified, whose use case, screen or acceptance criterion an open CR freezes"
+    },
+    {
+      "id": "G-dev-004",
+      "plugin": "dev",
+      "check": "dev:gd-verbatim",
+      "severity": "error",
+      "rule": "a test file names a golden dataset and does not contain one of its expected values literally"
+    },
+    {
+      "id": "G-dev-005",
+      "plugin": "dev",
+      "check": "dev:file-without-imp",
+      "severity": "warn",
+      "rule": "a source or test file under a component root that no implementation unit owns"
+    },
+    {
+      "id": "G-dev-006",
+      "plugin": "dev",
+      "check": "dev:trace-uc-not-br",
+      "severity": "error",
+      "rule": "an edge written by dev points at a business rule"
+    },
+    {
+      "id": "G-dev-007",
+      "plugin": "dev",
+      "check": "dev:gap-open",
+      "severity": "warn",
+      "rule": "a gap with no CR and no answer"
+    },
+    {
+      "id": "G-dev-008",
+      "plugin": "dev",
+      "check": "dev:skill-installed",
+      "severity": "limit",
+      "rule": "every skill a component names is installed in the session writing it"
+    },
+    {
+      "id": "G-qa-001",
+      "plugin": "qa",
+      "check": "qa:scn-without-tc",
+      "severity": "error",
+      "rule": "a scenario whose use case has a verified task and no test case covering it"
+    },
+    {
+      "id": "G-qa-002",
+      "plugin": "qa",
+      "check": "qa:tc-verified-needs-run",
+      "severity": "error",
+      "rule": "a test case at verified with no run in which it passed"
+    },
+    {
+      "id": "G-qa-003",
+      "plugin": "qa",
+      "check": "qa:def-routing-needs-cr",
+      "severity": "error",
+      "rule": "a finding routed to design or req with no change request"
+    },
+    {
+      "id": "G-qa-004",
+      "plugin": "qa",
+      "check": "qa:evidence-missing",
+      "severity": "error",
+      "rule": "a run step or a finding names an evidence file that is not on disk"
+    },
+    {
+      "id": "G-qa-005",
+      "plugin": "qa",
+      "check": "qa:def-closed-needs-green-run",
+      "severity": "error",
+      "rule": "a finding at verified with no green run after it was raised"
+    },
+    {
+      "id": "G-qa-006",
+      "plugin": "qa",
+      "check": "qa:tc-not-runnable",
+      "severity": "warn",
+      "rule": "a test case that cannot be executed"
+    },
+    {
+      "id": "G-qa-007",
+      "plugin": "qa",
+      "check": "qa:ui-runner",
+      "severity": "limit",
+      "rule": "a step on a data-testid is recorded and skipped"
+    },
+    {
+      "id": "G-qa-008",
+      "plugin": "qa",
+      "check": "qa:no-duplicate-unit",
+      "severity": "limit",
+      "rule": "an end-to-end step must not re-prove what a unit test proves"
+    }
+  ]
+}

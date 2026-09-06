@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "TC-loan-001",
+      "title": "main",
+      "status": "approved",
+      "scenario": "SCN-loan-001",
+      "usecase": "UC-loan-001",
+      "flow": "main",
+      "given": "รายได้ 30,000",
+      "expected": "ระบบปฏิเสธ",
+      "acceptance": [
+        "AC-loan-001"
+      ],
+      "screens": [
+        "UI-loan-001"
+      ],
+      "component": "CMP-api",
+      "data": [],
+      "steps": [
+        {
+          "n": 1,
+          "do": "POST /api/loan — submit",
+          "via": "http",
+          "api": "API-001",
+          "cmd": "curl -sS -w \\nHTTP_STATUS=%{http_code}\\n -X POST http://localhost:8080/api/loan -H content-type: application/json -d {\"income\":30000,\"amount\":200000}",
+          "argv": [
+            "curl",
+            "-sS",
+            "-w",
+            "\\nHTTP_STATUS=%{http_code}\\n",
+            "-X",
+            "POST",
+            "http://localhost:8080/api/loan",
+            "-H",
+            "content-type: application/json",
+            "-d",
+            "{\"income\":30000,\"amount\":200000}"
+          ],
+          "expect": {
+            "http": 201,
+            "fields": {
+              "maxLimit": 150000
+            }
+          }
+        }
+      ],
+      "runnable": true,
+      "gaps": [],
+      "lastRun": "RUN-001",
+      "lastVerdict": "pass",
+      "createdAt": "2026-09-06T00:00:00.000Z"
+    }
+  ]
+}

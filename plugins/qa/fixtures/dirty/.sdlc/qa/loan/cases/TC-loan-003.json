@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "id": "TC-loan-003",
+      "title": "not runnable",
+      "status": "draft",
+      "scenario": "SCN-loan-004",
+      "usecase": "UC-loan-001",
+      "flow": "main",
+      "given": "รายได้ 30,000",
+      "expected": "ระบบปฏิเสธ",
+      "acceptance": [
+        "AC-loan-001"
+      ],
+      "screens": [
+        "UI-loan-001"
+      ],
+      "component": "CMP-api",
+      "data": [],
+      "steps": [],
+      "runnable": false,
+      "gaps": [
+        "API-001 path has an empty resource segment, so there is no address to call"
+      ],
+      "lastRun": null,
+      "lastVerdict": null,
+      "createdAt": "2026-09-06T00:00:00.000Z"
+    }
+  ]
+}

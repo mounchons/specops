@@ -170,6 +170,10 @@ const ui = Object.entries(reg.index).find(([id, r]) => id.startsWith("UI-") && (
 const login = Object.entries(reg.index).find(([id, r]) => id.startsWith("UI-") && (r.title ?? "").includes("เข้าสู่ระบบ"))?.[0];
 const classB = step("revise Class B", dev("revise.mjs"), [ui, "--state-dir", S, "--field", "note", "--request", "ขอช่องหมายเหตุในหน้ายื่นขอ"]);
 const classA = step("revise Class A", dev("revise.mjs"), [ui, "--state-dir", S, "--action", "submit"]);
+// Class A on a screen no use case produced: before this, revise matched a task by its use case only,
+// so a baseline screen found nothing and reopened nothing — the one path the new NEXT rule sends people down.
+const profileTsk = tasksNow().find((t) => t.group === "profile");
+const classAScreen = step("revise Class A on a screen task", dev("revise.mjs"), [profileTsk?.screens?.[0] ?? "UI-loan-001", "--state-dir", S, "--action", "save"]);
 step("open CR on a screen no task owns", chg("open.mjs"), ["--state-dir", S, "--kind", "screen", "--source", "client", "--title", "แก้หน้า login", "--request", "ขอแก้หน้าเข้าสู่ระบบ", "--app", "backoffice", "--touches", login]);
 const frozenRevise = step("revise a frozen screen refused", dev("revise.mjs"), [login, "--state-dir", S, "--field", "captcha"]);
 // A file that is not source in any language but decides whether the thing runs. Nobody claims it,
@@ -218,6 +222,7 @@ assert("live: the manifest carries acceptance, testids and the golden rows", /gi
 assert("live: Class B writes a GAP and the /change:open line, and no code", /CLASS B/.test(classB.out) && /\/change:open/.test(classB.out) && fs.existsSync(gapFile) && !fs.existsSync(path.join(tmp, "src", "note.mjs")), classB.out.split("\n").find((l) => /change:open/.test(l)) ?? "");
 assert("live: Class B says where it looked", /looked in .*fields\[\]/.test(classB.out), classB.out.split("\n").find((l) => /looked in/.test(l)) ?? "");
 assert("live: Class A reopens the task instead of asking upstream", /CLASS A/.test(classA.out) && /origin "changed"/.test(classA.out), classA.out.trim().split("\n").filter(Boolean).pop());
+assert("live: Class A finds the task of a screen no use case produced", /CLASS A/.test(classAScreen.out) && new RegExp(`${profileTsk?.id} .* reopened`).test(classAScreen.out), classAScreen.out.trim().split("\n").filter(Boolean).pop());
 assert("live: a frozen screen cannot be revised", /frozen by CR-001/.test(frozenRevise.out), frozenRevise.out.trim().split("\n").pop());
 assert("live: the orphan sweep counts the files that decide whether it runs, not only source", /G-dev-005/.test(gates.out) && /src\/package\.json/.test(gates.out), gates.out.split("\n").find((l) => /G-dev-005/.test(l))?.slice(0, 160) ?? "G-dev-005 did not fire");
 assert("live: one file per implementation unit, so a slice of 22 files cannot cross rule 4", fs.readdirSync(path.join(S, "dev", "impl")).every((n) => fs.statSync(path.join(S, "dev", "impl", n)).isDirectory()) && fs.readdirSync(path.join(S, "dev", "impl", "TSK-001")).every((n) => /^IMP-[0-9]{3}\.json$/.test(n)), fs.readdirSync(path.join(S, "dev", "impl")).map((n) => `${n}/${fs.readdirSync(path.join(S, "dev", "impl", n)).join(",")}`).join(" · "));

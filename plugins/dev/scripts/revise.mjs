@@ -72,7 +72,9 @@ export function revise(stateDir, target, { asks, name, request = null, cr = null
 
   const tsks = allTsks(stateDir);
   const ucId = target.startsWith("UC-") ? target : (byId(state, target)?.raw?.derivedFrom ?? []).find((d) => String(d).startsWith("UC-"));
-  const tsk = tsks.find((t) => t.usecase === ucId) ?? null;
+  // A screen no use case produced has no ucId to match on, and its task is found by the screen it
+  // owns instead. Without this, Class A on a baseline screen reopens nothing and says so to nobody.
+  const tsk = (ucId ? tsks.find((t) => t.usecase === ucId) : null) ?? tsks.find((t) => (t.screens ?? []).includes(target)) ?? null;
   const codeRoot = codeRootOf(stateDir);
   const touched = tsk ? allImps(stateDir).filter((i) => (i.implements ?? []).includes(tsk.id)).filter((i) => git.changed(codeRoot, i.path)) : [];
   if (touched.length) return { klass, tsk, touched, found };

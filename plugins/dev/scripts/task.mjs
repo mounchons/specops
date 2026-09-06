@@ -40,6 +40,11 @@ function frozenFor(stateDir, tsk) {
 export function start(stateDir, id, codeRoot, cr = null) {
   const tsk = load(stateDir, id);
   orExit2(!tsk.blocked, `${id} is blocked since ${tsk.blocked?.at}: ${tsk.blocked?.reason} — a fourth attempt at the same thing is not a plan`);
+  // A task that shipped is changed under a change request, not started again. Without this, `--start`
+  // on a verified task silently reopened it and threw away the close: TSK-001 was restarted for a
+  // records migration it did not need, and then could neither close (its commit is behind HEAD) nor
+  // be abandoned (it has proofs and owns 17 files).
+  orExit2(tsk.status !== "verified" || cr, `${id} closed on ${String(tsk.commit ?? "").slice(0, 8)} and is verified — starting it again throws that away · build it under a change: --cr <CR>, or /dev:revise <UI|UC> to ask for one`);
   requireRepo(codeRoot);
   // `/change:apply` prints "/dev:task --cr CR-nnn" as step 7 of a full lane: the task is part of the
   // change, so the freeze the change put on its screens is not a freeze against it. It has to be that
@@ -62,30 +67,36 @@ export function start(stateDir, id, codeRoot, cr = null) {
 }
 
 /**
- * A task that started and produced nothing, put back where it was. It exists because starting is a
- * decision made on what was known at the time: TSK-010 started, its slice turned out to declare no
- * endpoint, dev opened a GAP, the owner opened the CR — and the screen the task had started against
- * became frozen by it. Leaving the task `approved` under that freeze is a standing G-dev-003 error
- * that no other command can clear.
+ * A start undone. Starting is a decision made on what was known at the time, and two things can make
+ * it wrong afterwards: what the task started against changed under it (a CR froze its screens), or it
+ * was started for something that never needed a start at all — TSK-001 was reopened for a records
+ * migration and produced no code, which left it unable to close (its commit is behind HEAD) and
+ * unable to be undone.
  *
- * It refuses the moment there is anything to lose: a proof that ran or a file an IMP claims is real
- * work, and the answer to real work that has to be undone is a change request, not an eraser.
+ * "Produced nothing" means nothing since **this** start: a proof that ran after `startedAt`, or a file
+ * an IMP claimed after it. Proofs and files from an earlier, finished start are history, not work in
+ * progress. It goes back to what it was before — `verified` for a task that had already closed, and
+ * `draft` for one that never had — and the attempt is kept in `abandoned[]`, because a task that
+ * started twice is worth seeing.
  */
 export function abandon(stateDir, id, reason) {
   const tsk = load(stateDir, id);
   orExit2(tsk.startedAt, `${id} has not started — there is nothing to abandon`);
-  orExit2(tsk.status !== "verified", `${id} is verified and closed on ${String(tsk.commit ?? "").slice(0, 8)} — a task that shipped is undone by a change request, not by this`);
-  orExit2((tsk.proof ?? []).length === 0, `${id} has ${(tsk.proof ?? []).length} proof(s) — a command has already run against this task, so this is real work · /dev:revise or a CR`);
-  const mine = allImps(stateDir).filter((i) => (i.implements ?? []).includes(id));
-  orExit2(mine.length === 0, `${id} owns ${mine.length} file(s) (${mine.slice(0, 3).map((i) => i.path).join(", ")}${mine.length > 3 ? ", …" : ""}) — code with a record behind it is not abandoned, it is changed`);
+  const since = (at) => Boolean(at) && String(at) >= String(tsk.startedAt);
+  // What would be lost is a file this start claimed: an IMP with no task is code nobody owns. A proof
+  // is not lost — it stays in `proof[]` as the history of a run that happened — so a verify that ran
+  // and produced nothing does not make a start unabandonable. TSK-001's second start is exactly that.
+  const mine = allImps(stateDir).filter((i) => (i.implements ?? []).includes(id) && since(i.addedAt));
+  orExit2(mine.length === 0, `${id} claimed ${mine.length} file(s) since it started (${mine.slice(0, 3).map((i) => i.path).join(", ")}${mine.length > 3 ? ", …" : ""}) — code with a record behind it is not abandoned, it is changed`);
   const was = { status: tsk.status, startedAt: tsk.startedAt, startCommit: tsk.startCommit };
-  tsk.status = "draft";
+  const back = tsk.commit ? "verified" : "draft";
+  tsk.status = back;
   tsk.startedAt = null;
   tsk.startCommit = null;
   tsk.attempts = 0;
-  tsk.abandoned = [...(tsk.abandoned ?? []), { at: now(), reason: reason ?? null, was }];
+  tsk.abandoned = [...(tsk.abandoned ?? []), { at: now(), reason: reason ?? null, was, back }];
   save(stateDir, tsk);
-  return { tsk, was };
+  return { tsk, was, back };
 }
 
 export function impl(stateDir, id, spec, golden, codeRoot) {
@@ -197,11 +208,13 @@ if (isMain(import.meta.url)) {
   }
 
   if (flags.abandon) {
-    const { tsk, was } = abandon(stateDir, id, typeof flags.reason === "string" ? flags.reason : null);
+    const { tsk, was, back } = abandon(stateDir, id, typeof flags.reason === "string" ? flags.reason : null);
     console.log(`ABANDON ${id}  ${tsk.title}`);
-    console.log(`  ${was.status} → draft · started ${String(was.startedAt).slice(0, 16)} at ${String(was.startCommit).slice(0, 8)} · nothing was proved and no file was claimed`);
+    console.log(`  ${was.status} → ${back} · started ${String(was.startedAt).slice(0, 16)} at ${String(was.startCommit).slice(0, 8)} · this start claimed no file, so there is nothing to lose`);
     console.log(`  reason: ${tsk.abandoned.at(-1).reason ?? "(none given)"} — kept in abandoned[], because a task that started twice is worth seeing`);
-    console.log(`\nnext: /dev:task ${id} --start again once whatever stopped it is answered`);
+    console.log(back === "verified"
+      ? `\nit is back to verified on ${String(tsk.commit).slice(0, 8)} — the close it already had, which never stopped being true`
+      : `\nnext: /dev:task ${id} --start again once whatever stopped it is answered`);
     process.exit(0);
   }
 

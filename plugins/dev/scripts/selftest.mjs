@@ -198,6 +198,9 @@ const loginTsk = tasksNow().find((t) => (t.screens ?? []).includes(login));
 const startFrozenNoCr = cli(dev("task.mjs"), [loginTsk?.id ?? "TSK-003", "--state-dir", S, "--start"]);
 const startWrongCr = cli(dev("task.mjs"), [loginTsk?.id ?? "TSK-003", "--state-dir", S, "--start", "--cr", "CR-002"]);
 const startUnderCr = step(`start ${loginTsk?.id} under its CR`, dev("task.mjs"), [loginTsk?.id ?? "TSK-003", "--state-dir", S, "--start", "--cr", "CR-001"]);
+// …and undone again: a start that claimed no file goes back to what the task was before it, which for
+// a task that had already closed is verified on the commit it closed on — not draft.
+const abandonBack = step(`abandon ${loginTsk?.id} back to what it was`, dev("task.mjs"), [loginTsk?.id ?? "TSK-003", "--state-dir", S, "--abandon", "--reason", "the change turned out to need no code"]);
 // The other half of a GAP: dev asked, design answered, and the record says so. Before this a GAP sat
 // at draft for ever, and a CR that touched one could never close.
 const answerUnknown = cli(dev("revise.mjs"), ["--state-dir", S, "--gap", "GAP-001", "--answer", "API-999"]);
@@ -229,8 +232,8 @@ assert("live: one file per task, so a module's tasks never grow into the one fil
 const screenTsks = tsk1.filter((t) => originOf(t) !== "usecase");
 const ucTsks = tsk1.filter((t) => originOf(t) === "usecase");
 assert("live: plan mints a task for the screens no use case produced", screenTsks.length > 0 && screenTsks.every((t) => t.usecase === null && t.acceptance.length === 0 && t.acls.length > 0), screenTsks.map((t) => `${t.id} ${originOf(t)}/${t.group} ${t.screens.length} UI ${t.acls.length} ACL`).join(" · ") || "no screen task");
-assert("live: a task that started and produced nothing goes back to draft", /ABANDON/.test(abandoned.out) && /approved → draft/.test(abandoned.out) && (tsk1.find((t) => t.id === rest[0]?.id)?.abandoned ?? []).length === 1, abandoned.out.trim().split("\n")[1] ?? abandoned.out.trim().split("\n")[0]);
-assert("live: a task that owns files is not abandoned, it is changed", abandonWithWork.code === 2 && /owns [0-9]+ file/.test(abandonWithWork.out), abandonWithWork.out.trim().split("\n").pop());
+assert("live: a task that started and produced nothing goes back to draft", /ABANDON/.test(abandoned.out) && /approved → draft/.test(abandoned.out) && (tsk1.find((t) => t.id === rest[0]?.id)?.abandoned ?? [])[0]?.back === "draft", abandoned.out.trim().split("\n")[1] ?? abandoned.out.trim().split("\n")[0]);
+assert("live: a task that claimed files in this start is not abandoned, it is changed", abandonWithWork.code === 2 && /claimed [0-9]+ file\(s\) since it started/.test(abandonWithWork.out), abandonWithWork.out.trim().split("\n").pop());
 assert("live: a task that shipped is undone by a change request, not by this", cli(dev("task.mjs"), ["TSK-001", "--state-dir", S, "--abandon"]).code === 2, "TSK-001 is verified and closed");
 assert("live: a task that has not started has nothing to abandon", abandonNotStarted.code === 2 && /has not started/.test(abandonNotStarted.out), abandonNotStarted.out.trim().split("\n").pop());
 assert("live: one task per capability, not per screen", screenTsks.some((t) => t.group === "login") && new Set(screenTsks.map((t) => `${originOf(t)}/${t.group}`)).size === screenTsks.length, screenTsks.map((t) => `${originOf(t)}/${t.group}`).join(" · "));
@@ -255,7 +258,9 @@ assert("live: Class B says where it looked", /looked in .*fields\[\]/.test(class
 assert("live: Class A reopens the task instead of asking upstream", /CLASS A/.test(classA.out) && /origin "changed"/.test(classA.out), classA.out.trim().split("\n").filter(Boolean).pop());
 assert("live: Class A finds the task of a screen no use case produced", /CLASS A/.test(classAScreen.out) && new RegExp(`${profileTsk?.id} .* reopened`).test(classAScreen.out), classAScreen.out.trim().split("\n").filter(Boolean).pop());
 assert("live: a frozen screen cannot be revised", /frozen by CR-001/.test(frozenRevise.out), frozenRevise.out.trim().split("\n").pop());
-assert("live: a task is built under the change that froze it, and under no other", startFrozenNoCr.code === 1 && startWrongCr.code === 2 && /not by CR-002/.test(startWrongCr.out) && /SLICE/.test(startUnderCr.out), `${startFrozenNoCr.code} · ${startWrongCr.out.trim().split("\n").pop()} · ${startUnderCr.out.trim().split("\n")[0]}`);
+assert("live: a task is built under the change that froze it, and under no other", startFrozenNoCr.code === 2 && /verified/.test(startFrozenNoCr.out) && startWrongCr.code === 2 && /not by CR-002/.test(startWrongCr.out) && /SLICE/.test(startUnderCr.out), `${startFrozenNoCr.out.trim().split("\n").pop()} · ${startWrongCr.out.trim().split("\n").pop()}`);
+assert("live: a start that claimed nothing goes back to what the task was, not to draft", /→ verified/.test(abandonBack.out) && tasksNow().find((t) => t.id === loginTsk?.id)?.status === "verified" && (tasksNow().find((t) => t.id === loginTsk?.id)?.abandoned ?? []).at(-1)?.back === "verified", abandonBack.out.trim().split("\n")[1] ?? abandonBack.out.trim().split("\n")[0]);
+assert("live: a task that shipped is not started again without the change that reopens it", startFrozenNoCr.code === 2 && /starting it again throws that away/.test(startFrozenNoCr.out), startFrozenNoCr.out.trim().split("\n").pop());
 assert("live: a gap is answered by the record that declares it, and stops being draft", /ANSWERED GAP-001/.test(answered.out) && /draft → approved/.test(answered.out) && gapsNow().find((g) => g.id === "GAP-001")?.status === "approved", answered.out.trim().split("\n").pop());
 assert("live: an answer that names a record which does not exist is refused", answerUnknown.code === 2 && /API-999 does not exist/.test(answerUnknown.out), answerUnknown.out.trim().split("\n").pop());
 assert("live: a gap is answered once", answerTwice.code === 2 && /already answered/.test(answerTwice.out), answerTwice.out.trim().split("\n").pop());

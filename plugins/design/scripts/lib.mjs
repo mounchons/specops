@@ -198,14 +198,53 @@ export function baselineApplies(entry, app) {
 
 // ---- open changes ----------------------------------------------------------
 
+/** The open change requests, read from disk. design learns no CR format beyond `touches` and `fields`. */
+export function openCrRecords(stateDir) {
+  return walk(path.join(stateDir, "change", "open"), (p) => p.endsWith(".json")).flatMap((f) => readItems(f));
+}
+
 /** Ids frozen by an open CR — phase 3 writes the CRs, design only refuses to touch them. */
 export function frozenIds(stateDir) {
-  const dir = path.join(stateDir, "change", "open");
   const out = new Set();
-  for (const f of walk(dir, (p) => p.endsWith(".json"))) {
-    for (const cr of readItems(f)) for (const id of cr.touches ?? []) out.add(id);
-  }
+  for (const cr of openCrRecords(stateDir)) for (const id of cr.touches ?? []) out.add(id);
   return out;
+}
+
+/** The ids a comma-separated flag names. */
+export const idList = (v) => (typeof v === "string" ? v.split(",").map((s) => s.trim()).filter(Boolean) : []);
+
+/**
+ * A design record reaches `approved` only when a person signs it. No generator writes that status,
+ * and `change:close` refuses while anything a CR touched is below approved — so before this flag
+ * existed no CR touching a screen could ever close, and CR-001/002/003 sat open from phase 3.
+ * The command that owns the prefix carries the flag: one file still has one owner (W1).
+ */
+export function approveRecords(stateDir, ids, sign, prefixes) {
+  orExit2(sign, `--sign STK-nnn is required — an approval with nobody's name on it is not an approval`);
+  const stks = new Set(allReq(stateDir).filter((r) => String(r.id).startsWith("STK-")).map((r) => r.id));
+  orExit2(stks.has(sign), `--sign ${sign} is not a stakeholder in req/stakeholders.json`);
+  const design = allDesign(stateDir);
+  const approved = [];
+  const refused = [];
+  for (const id of ids) {
+    const rec = findById(design, id);
+    if (!rec) refused.push(`${id}: no such design record`);
+    else if (!prefixes.includes(String(id).split("-")[0])) refused.push(`${id}: this command owns ${prefixes.join("/")} — approve it where it is written`);
+    else if (rec.status === "approved") refused.push(`${id}: already approved by ${rec.approval?.by ?? "?"}`);
+    else {
+      upsert(rec.__file, { ...stripInternal(rec), status: "approved", approval: { at: now(), by: sign } });
+      approved.push(id);
+    }
+  }
+  return { approved, refused };
+}
+
+/** Print the result of --approve and leave. Every design command that owns records calls this one. */
+export function approveCli(stateDir, flags, prefixes) {
+  const { approved, refused } = approveRecords(stateDir, idList(flags.approve), typeof flags.sign === "string" ? flags.sign : null, prefixes);
+  console.log(`APPROVE  ${approved.length} record(s) signed by ${flags.sign}: ${approved.join(" ") || "(none)"}`);
+  for (const r of refused) console.log(`  not approved — ${r}`);
+  process.exit(refused.length ? 1 : 0);
 }
 
 export const now = () => new Date().toISOString();

@@ -4,7 +4,9 @@
  *
  * Rules run in order; the first rule that returns actions wins unless it is marked `continue`.
  * Other plugins add rules by exporting `NEXT` (array of (ctx) => actions[]) from
- * <pluginRoot>/scripts/checks.mjs — same file gates.mjs already loads.
+ * <pluginRoot>/scripts/checks.mjs — same file gates.mjs already loads. A rule gets the same
+ * ctx CLAUDE.md promises CHECKS — { stateDir, project, state, registry } — plus `gates`, and a
+ * rule that throws becomes one red row instead of taking the whole callsheet down with it.
  *
  *   node next.mjs [--json] [--all]
  */
@@ -13,6 +15,7 @@ import fs from "node:fs";
 import { pathToFileURL } from "node:url";
 import { parseArgs, resolveStateDir, stateExists, CORE_FILES, readJson, isMain } from "./paths.mjs";
 import { runGates } from "./gates.mjs";
+import { loadState } from "./artifacts.mjs";
 import { buildRegistry } from "./registry.mjs";
 import { PLUGINS, prefixOf } from "./ids.mjs";
 
@@ -49,7 +52,16 @@ async function loadPluginNext(project) {
     if (!fs.existsSync(file)) continue;
     try {
       const mod = await import(pathToFileURL(file).href);
-      rules.push(...(mod.NEXT ?? []));
+      // Wrapped here, not at the call site, so the row can say whose rule it was.
+      rules.push(
+        ...(mod.NEXT ?? []).map((fn) => (ctx) => {
+          try {
+            return fn(ctx) ?? [];
+          } catch (e) {
+            return [{ action: `fix ${name}'s NEXT rule — it threw: ${e.message}`, reason: "a callsheet rule that crashes answers Cold Start 0 with a stack trace; the rule is handed { stateDir, project, state, gates, registry }", stop: true }];
+          }
+        })
+      );
     } catch {
       /* gates.mjs reports the load error */
     }
@@ -60,7 +72,7 @@ async function loadPluginNext(project) {
 export async function computeNext(stateDir, { all = false } = {}) {
   if (!stateExists(stateDir)) return [{ action: `/core:init --name <project> --apps <name:type,...>`, reason: `no state dir at ${stateDir}` }];
   const project = readJson(CORE_FILES.project(stateDir));
-  const ctx = { stateDir, project, gates: await runGates(stateDir), registry: buildRegistry(stateDir) };
+  const ctx = { stateDir, project, state: loadState(stateDir), gates: await runGates(stateDir), registry: buildRegistry(stateDir) };
   const out = [];
   for (const rule of await loadPluginNext(project)) {
     const actions = rule(ctx) ?? [];

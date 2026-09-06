@@ -18,7 +18,7 @@ import fs from "node:fs";
 import { parseArgs, resolveStateDir, readJson, orExit2, isMain } from "../../core/scripts/paths.mjs";
 import { prefixOf } from "../../core/scripts/ids.mjs";
 import { ensureInit } from "./init.mjs";
-import { FILES, allDesign, allReq, byPrefix, findById, minter, readItems, writeItems, upsert, addEdges, project, appsOf, now } from "./lib.mjs";
+import { FILES, allDesign, allReq, byPrefix, findById, minter, readItems, writeItems, upsert, addEdges, project, appsOf, approveCli, now } from "./lib.mjs";
 
 export const SCOPES = ["own", "team", "all"];
 
@@ -109,6 +109,7 @@ if (isMain(import.meta.url)) {
   const { flags } = parseArgs();
   const stateDir = resolveStateDir(flags);
   ensureInit(stateDir);
+  if (typeof flags.approve === "string") approveCli(stateDir, flags, ["ACL", "ROLE"]);
 
   if (typeof flags.records === "string") {
     orExit2(fs.existsSync(flags.records), `no such file: ${flags.records}`);

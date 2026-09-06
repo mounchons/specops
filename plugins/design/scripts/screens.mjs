@@ -16,7 +16,7 @@
  */
 import { parseArgs, resolveStateDir, orExit2, isMain } from "../../core/scripts/paths.mjs";
 import { ensureInit } from "./init.mjs";
-import { FILES, allDesign, allReq, byPrefix, findById, inModule, live, minter, readItems, upsert, addEdges, requireModule, appsOf, appOwning, baselineFor, baselineApplies, nfrScreens, frozenIds, now } from "./lib.mjs";
+import { FILES, allDesign, allReq, byPrefix, findById, inModule, live, minter, readItems, upsert, addEdges, requireModule, appsOf, appOwning, baselineFor, baselineApplies, nfrScreens, frozenIds, openCrRecords, stripInternal, approveCli, now } from "./lib.mjs";
 
 const CRUD_ACTIONS = [
   { name: "view", writes: false },
@@ -185,6 +185,30 @@ export function generate(stateDir, module) {
   return { project, created, kept, skipped, blocked };
 }
 
+/**
+ * A change in lane `ui` is a promise about a screen, and `CR.fields[]` is the promise. `generate`
+ * keeps every screen that already exists — that is what `kept` means — so regenerating can never
+ * land a change; this is where it lands. `--cr` names the open change, and only the screens that
+ * change touches are written. Every other frozen screen stays frozen.
+ */
+export function applyCr(stateDir, crId) {
+  const cr = openCrRecords(stateDir).find((c) => c.id === crId);
+  orExit2(cr, `--cr ${crId} is not an open change request`);
+  const design = allDesign(stateDir);
+  const touched = [];
+  for (const id of cr.touches ?? []) {
+    if (!["UI", "RPT"].includes(String(id).split("-")[0])) continue;
+    const ui = findById(design, id);
+    if (!ui) continue;
+    // "ENT-006.phone" is the customer's phone attribute; the screen carries the field name.
+    const want = (cr.fields ?? []).map((f) => String(f).split(".").pop()).filter((f) => f && !(ui.fields ?? []).includes(f));
+    if (!want.length) continue;
+    upsert(ui.__file, { ...stripInternal(ui), fields: [...(ui.fields ?? []), ...want] });
+    touched.push({ id, fields: want });
+  }
+  return { cr, touched };
+}
+
 /** entity/use case x app — the table the owner reads to see what was quoted. */
 export function matrix(stateDir, module) {
   const project = requireModule(stateDir, module);
@@ -211,10 +235,12 @@ if (isMain(import.meta.url)) {
   const { _, flags } = parseArgs();
   const stateDir = resolveStateDir(flags);
   const module = _[0];
-  orExit2(module, "usage: screens.mjs <module> [--app <name>] [--json]");
+  orExit2(module, "usage: screens.mjs <module> [--app <name>] [--cr CR-nnn] [--approve <ids> --sign STK-nnn] [--json]");
   ensureInit(stateDir);
+  if (typeof flags.approve === "string") approveCli(stateDir, flags, ["UI", "RPT"]);
 
   const { created, kept, skipped, blocked } = generate(stateDir, module);
+  const applied = typeof flags.cr === "string" ? applyCr(stateDir, flags.cr) : null;
   const m = matrix(stateDir, module);
   const apps = typeof flags.app === "string" ? [flags.app] : m.apps;
 
@@ -235,8 +261,14 @@ if (isMain(import.meta.url)) {
     console.log(`\nnot generated, and why:`);
     for (const s of skipped) console.log(`  ${s.origin.padEnd(8)} ${String(s.key).padEnd(12)} ${s.app.padEnd(12)} ${s.why}`);
   }
-  if (blocked.length) {
-    console.log(`\nfrozen by an open CR — regenerate after the change closes: ${blocked.join(", ")}`);
+  if (applied) {
+    console.log(`\n${applied.cr.id} ${applied.cr.title} — ${applied.touched.length} screen(s) changed under the change:`);
+    for (const t of applied.touched) console.log(`  ${t.id}  + field ${t.fields.join(", ")}`);
+    if (!applied.touched.length) console.log(`  nothing to add — ${(applied.cr.fields ?? []).join(", ") || "the change declares no fields"}`);
+  }
+  const stillFrozen = blocked.filter((id) => !(applied?.touched ?? []).some((t) => t.id === id));
+  if (stillFrozen.length) {
+    console.log(`\nfrozen by an open CR — regenerate after the change closes, or name it with --cr: ${stillFrozen.join(", ")}`);
     process.exit(1);
   }
   console.log(`\n  next: /design:api ${module}`);

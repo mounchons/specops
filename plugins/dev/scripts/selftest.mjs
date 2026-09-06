@@ -126,6 +126,8 @@ const closeNoProof = step("close with no proof refused", dev("task.mjs"), ["TSK-
 src("src/limit.mjs", `export const maxLimit = (income) => income * 5;\n`);
 src("src/limit.test.mjs", `import test from "node:test";\nimport assert from "node:assert";\nimport { maxLimit } from "./limit.mjs";\ntest("cap", () => assert.equal(maxLimit(30000), 150000));\n`);
 const implied = step("impl", dev("task.mjs"), ["TSK-001", "--state-dir", S, "--impl", "src/limit.mjs=source,src/limit.test.mjs=test"]);
+// TSK-001 is approved and owns two files at this point: abandoning it would orphan them.
+const abandonWithWork = cli(dev("task.mjs"), ["TSK-001", "--state-dir", S, "--abandon"]);
 const verified = step("verify", dev("task.mjs"), ["TSK-001", "--state-dir", S, "--verify"]);
 const closeDirty = cli(dev("task.mjs"), ["TSK-001", "--state-dir", S, "--close"]);
 git("add", "-A");
@@ -153,6 +155,12 @@ step("close 2", dev("task.mjs"), ["TSK-002", "--state-dir", S, "--close"]);
 const tasksNow = () => fs.readdirSync(path.join(S, "dev", "tasks", "loan")).flatMap((f) => JSON.parse(fs.readFileSync(path.join(S, "dev", "tasks", "loan", f), "utf8")).items);
 const rest = tasksNow().filter((t) => t.status === "draft").sort(byBuildOrder);
 const screenStart = step(`task ${rest[0]?.id} --start`, dev("task.mjs"), [rest[0]?.id ?? "TSK-003", "--state-dir", S, "--start"]);
+// A task that started on what was known at the time and produced nothing goes back to draft; one
+// that produced anything does not. Without this, a task frozen after it started is a standing
+// G-dev-003 error that no command can clear.
+const abandoned = step(`abandon ${rest[0]?.id}`, dev("task.mjs"), [rest[0]?.id ?? "TSK-003", "--state-dir", S, "--abandon", "--reason", "a change froze the screen it started against"]);
+const abandonNotStarted = cli(dev("task.mjs"), [rest[0]?.id ?? "TSK-003", "--state-dir", S, "--abandon"]);
+step(`restart ${rest[0]?.id}`, dev("task.mjs"), [rest[0]?.id ?? "TSK-003", "--state-dir", S, "--start"]);
 for (const t of rest) {
   if (t.id !== rest[0].id) step(`start ${t.id}`, dev("task.mjs"), [t.id, "--state-dir", S, "--start"]);
   src(`src/${t.id}.mjs`, `export const ok = () => true;\n`);
@@ -202,6 +210,10 @@ assert("live: one file per task, so a module's tasks never grow into the one fil
 const screenTsks = tsk1.filter((t) => originOf(t) !== "usecase");
 const ucTsks = tsk1.filter((t) => originOf(t) === "usecase");
 assert("live: plan mints a task for the screens no use case produced", screenTsks.length > 0 && screenTsks.every((t) => t.usecase === null && t.acceptance.length === 0 && t.acls.length > 0), screenTsks.map((t) => `${t.id} ${originOf(t)}/${t.group} ${t.screens.length} UI ${t.acls.length} ACL`).join(" · ") || "no screen task");
+assert("live: a task that started and produced nothing goes back to draft", /ABANDON/.test(abandoned.out) && /approved → draft/.test(abandoned.out) && (tsk1.find((t) => t.id === rest[0]?.id)?.abandoned ?? []).length === 1, abandoned.out.trim().split("\n")[1] ?? abandoned.out.trim().split("\n")[0]);
+assert("live: a task that owns files is not abandoned, it is changed", abandonWithWork.code === 2 && /owns [0-9]+ file/.test(abandonWithWork.out), abandonWithWork.out.trim().split("\n").pop());
+assert("live: a task that shipped is undone by a change request, not by this", cli(dev("task.mjs"), ["TSK-001", "--state-dir", S, "--abandon"]).code === 2, "TSK-001 is verified and closed");
+assert("live: a task that has not started has nothing to abandon", abandonNotStarted.code === 2 && /has not started/.test(abandonNotStarted.out), abandonNotStarted.out.trim().split("\n").pop());
 assert("live: one task per capability, not per screen", screenTsks.some((t) => t.group === "login") && new Set(screenTsks.map((t) => `${originOf(t)}/${t.group}`)).size === screenTsks.length, screenTsks.map((t) => `${originOf(t)}/${t.group}`).join(" · "));
 const ranked = [...tsk1].sort(byBuildOrder);
 const rank = (t) => ["baseline", "master", "usecase", "nfr"].indexOf(originOf(t));

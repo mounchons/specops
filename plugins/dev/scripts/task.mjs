@@ -6,6 +6,7 @@
  *                       --impl "<path>=<kind>[,<path>=<kind>]" [--golden GD-x,GD-y]
  *                       --verify
  *                       --close
+ *                       --abandon [--reason "…"]   started, produced nothing, put back
  *
  * The four conditions on --close are the whole plugin: a proof that exited 0, a HEAD that moved, a
  * commit message naming the task, and a working tree with nothing uncommitted in it. A status field
@@ -48,6 +49,33 @@ export function start(stateDir, id, codeRoot) {
   save(stateDir, tsk);
   const state = loadState(stateDir);
   return { tsk, frozen: [], slice: sliceOf(state, tsk, allCmps(stateDir), project(stateDir).apps ?? []) };
+}
+
+/**
+ * A task that started and produced nothing, put back where it was. It exists because starting is a
+ * decision made on what was known at the time: TSK-010 started, its slice turned out to declare no
+ * endpoint, dev opened a GAP, the owner opened the CR — and the screen the task had started against
+ * became frozen by it. Leaving the task `approved` under that freeze is a standing G-dev-003 error
+ * that no other command can clear.
+ *
+ * It refuses the moment there is anything to lose: a proof that ran or a file an IMP claims is real
+ * work, and the answer to real work that has to be undone is a change request, not an eraser.
+ */
+export function abandon(stateDir, id, reason) {
+  const tsk = load(stateDir, id);
+  orExit2(tsk.startedAt, `${id} has not started — there is nothing to abandon`);
+  orExit2(tsk.status !== "verified", `${id} is verified and closed on ${String(tsk.commit ?? "").slice(0, 8)} — a task that shipped is undone by a change request, not by this`);
+  orExit2((tsk.proof ?? []).length === 0, `${id} has ${(tsk.proof ?? []).length} proof(s) — a command has already run against this task, so this is real work · /dev:revise or a CR`);
+  const mine = allImps(stateDir).filter((i) => (i.implements ?? []).includes(id));
+  orExit2(mine.length === 0, `${id} owns ${mine.length} file(s) (${mine.slice(0, 3).map((i) => i.path).join(", ")}${mine.length > 3 ? ", …" : ""}) — code with a record behind it is not abandoned, it is changed`);
+  const was = { status: tsk.status, startedAt: tsk.startedAt, startCommit: tsk.startCommit };
+  tsk.status = "draft";
+  tsk.startedAt = null;
+  tsk.startCommit = null;
+  tsk.attempts = 0;
+  tsk.abandoned = [...(tsk.abandoned ?? []), { at: now(), reason: reason ?? null, was }];
+  save(stateDir, tsk);
+  return { tsk, was };
 }
 
 export function impl(stateDir, id, spec, golden, codeRoot) {
@@ -138,7 +166,7 @@ if (isMain(import.meta.url)) {
   const { _, flags } = parseArgs();
   const stateDir = resolveStateDir(flags);
   orExit2(stateExists(stateDir), `no state dir at ${stateDir}`);
-  orExit2(_[0], "usage: task.mjs <TSK> --start | --impl <path>=<kind> | --verify | --close");
+  orExit2(_[0], "usage: task.mjs <TSK> --start | --impl <path>=<kind> | --verify | --close | --abandon");
   const codeRoot = codeRootOf(stateDir, typeof flags["code-root"] === "string" ? flags["code-root"] : null);
   const id = _[0];
 
@@ -151,6 +179,15 @@ if (isMain(import.meta.url)) {
       process.exit(1);
     }
     printSlice(tsk, slice);
+    process.exit(0);
+  }
+
+  if (flags.abandon) {
+    const { tsk, was } = abandon(stateDir, id, typeof flags.reason === "string" ? flags.reason : null);
+    console.log(`ABANDON ${id}  ${tsk.title}`);
+    console.log(`  ${was.status} → draft · started ${String(was.startedAt).slice(0, 16)} at ${String(was.startCommit).slice(0, 8)} · nothing was proved and no file was claimed`);
+    console.log(`  reason: ${tsk.abandoned.at(-1).reason ?? "(none given)"} — kept in abandoned[], because a task that started twice is worth seeing`);
+    console.log(`\nnext: /dev:task ${id} --start again once whatever stopped it is answered`);
     process.exit(0);
   }
 
@@ -189,6 +226,6 @@ if (isMain(import.meta.url)) {
     process.exit(0);
   }
 
-  console.log(`usage: task.mjs <TSK> --start | --impl "<path>=<kind>" | --verify | --close`);
+  console.log(`usage: task.mjs <TSK> --start | --impl "<path>=<kind>" | --verify | --close | --abandon`);
   process.exit(2);
 }

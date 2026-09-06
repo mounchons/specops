@@ -34,7 +34,7 @@ export const REFERENCES = path.resolve(here, "..", "references");
 export const FILES = {
   components: (s) => path.join(s, "dev", "components.json"),
   tasks: (s, m, tsk) => path.join(s, "dev", "tasks", m, `${tsk}.json`),
-  impl: (s, tsk) => path.join(s, "dev", "impl", `${tsk}.json`),
+  impl: (s, tsk, imp) => path.join(s, "dev", "impl", tsk, `${imp}.json`),
   gaps: (s) => path.join(s, "dev", "gaps.json"),
   trace: (s) => path.join(s, "trace.dev.json"),
   handoffDoc: (s, m) => path.join(s, "export", `handoff-${m}.md`),
@@ -179,4 +179,18 @@ export function statesOf(uc, stateNames) {
   }
   if (consumes.size === 0) for (const s of stateNames) if (new RegExp(`(^|[^A-Za-z])${s}([^A-Za-z]|$)`).test(uc.precondition ?? "")) consumes.add(s);
   return { produces: [...produces], consumes: [...consumes] };
+}
+
+/**
+ * One file per implementation unit. Seventeen IMPs in `dev/impl/TSK-001.json` were 232 lines and a
+ * slice of 22 files would have crossed rule 4 — the same lesson the tasks file taught in phase 5.
+ * A state dir written by the old layout is split on the next write rather than left to collide.
+ */
+export function migrateImpl(stateDir, tsk) {
+  const legacy = path.join(stateDir, "dev", "impl", `${tsk}.json`);
+  if (!fs.existsSync(legacy)) return [];
+  const moved = readItems(legacy);
+  for (const rec of moved) upsert(FILES.impl(stateDir, tsk, rec.id), rec);
+  fs.rmSync(legacy, { force: true });
+  return moved.map((r) => r.id);
 }

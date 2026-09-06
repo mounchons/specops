@@ -153,6 +153,9 @@ const classB = step("revise Class B", dev("revise.mjs"), [ui, "--state-dir", S, 
 const classA = step("revise Class A", dev("revise.mjs"), [ui, "--state-dir", S, "--action", "submit"]);
 step("open CR on a screen no task owns", chg("open.mjs"), ["--state-dir", S, "--kind", "screen", "--source", "client", "--title", "แก้หน้า login", "--request", "ขอแก้หน้าเข้าสู่ระบบ", "--app", "backoffice", "--touches", login]);
 const frozenRevise = step("revise a frozen screen refused", dev("revise.mjs"), [login, "--state-dir", S, "--field", "captcha"]);
+// A file that is not source in any language but decides whether the thing runs. Nobody claims it,
+// so the sweep has to say so — before this it only looked at .mjs and a Dockerfile was invisible.
+src("src/package.json", `{ "name": "loan", "type": "module" }\n`);
 const gates = step("gates", core("gates.mjs"), ["--state-dir", S]);
 
 const REFUSALS = new Set(["stack without every app refused", "close with no proof refused", "revise a frozen screen refused"]);
@@ -185,6 +188,8 @@ assert("live: Class B writes a GAP and the /change:open line, and no code", /CLA
 assert("live: Class B says where it looked", /looked in .*fields\[\]/.test(classB.out), classB.out.split("\n").find((l) => /looked in/.test(l)) ?? "");
 assert("live: Class A reopens the task instead of asking upstream", /CLASS A/.test(classA.out) && /origin "changed"/.test(classA.out), classA.out.trim().split("\n").filter(Boolean).pop());
 assert("live: a frozen screen cannot be revised", /frozen by CR-001/.test(frozenRevise.out), frozenRevise.out.trim().split("\n").pop());
+assert("live: the orphan sweep counts the files that decide whether it runs, not only source", /G-dev-005/.test(gates.out) && /src\/package\.json/.test(gates.out), gates.out.split("\n").find((l) => /G-dev-005/.test(l))?.slice(0, 160) ?? "G-dev-005 did not fire");
+assert("live: one file per implementation unit, so a slice of 22 files cannot cross rule 4", fs.readdirSync(path.join(S, "dev", "impl")).every((n) => fs.statSync(path.join(S, "dev", "impl", n)).isDirectory()) && fs.readdirSync(path.join(S, "dev", "impl", "TSK-001")).every((n) => /^IMP-[0-9]{3}\.json$/.test(n)), fs.readdirSync(path.join(S, "dev", "impl")).map((n) => `${n}/${fs.readdirSync(path.join(S, "dev", "impl", n)).join(",")}`).join(" · "));
 assert("live: gates.mjs loads dev's checks through project.json — 10 core + 10 req + 16 design + 6 change + 8 dev", /gates=50/.test(gates.out), gates.out.trim().split("\n").pop());
 assert("live: the skill gate is a LIMIT that prints every run and never blocks", /limit=1/.test(gates.out) && /LIMIT.*G-dev-008/.test(gates.out) && gates.code === 0, gates.out.split("\n").find((l) => /G-dev-008/.test(l)) ?? gates.out.trim().split("\n").pop());
 

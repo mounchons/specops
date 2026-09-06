@@ -16,7 +16,7 @@ import path from "node:path";
 import { parseArgs, resolveStateDir, stateExists, orExit2, isMain } from "../../core/scripts/paths.mjs";
 import { loadState } from "../../core/scripts/artifacts.mjs";
 import { ensureInit } from "./init.mjs";
-import { FILES, KINDS, MAX_ATTEMPTS, allCmps, allImps, findTsk, upsert, strip, mintId, addEdges, componentOf, codeRootOf, requireRepo, git, run, list, of, isFrozen, moduleOf, now } from "./lib.mjs";
+import { FILES, KINDS, MAX_ATTEMPTS, allCmps, allImps, findTsk, upsert, strip, mintId, addEdges, componentOf, codeRootOf, requireRepo, git, run, list, of, isFrozen, moduleOf, now, migrateImpl } from "./lib.mjs";
 import { sliceOf, printSlice } from "./slice.mjs";
 import { goldenMisses } from "./checks.mjs";
 
@@ -53,6 +53,7 @@ export function impl(stateDir, id, spec, golden, codeRoot) {
   const tsk = load(stateDir, id);
   orExit2(tsk.startedAt, `${id} has not started — /dev:task ${id} --start prints the slice first`);
   const cmps = allCmps(stateDir);
+  migrateImpl(stateDir, id);
   const existing = allImps(stateDir);
   const ids = existing.map((i) => i.id);
   const mine = existing.filter((i) => (i.implements ?? []).includes(id));
@@ -78,7 +79,7 @@ export function impl(stateDir, id, spec, golden, codeRoot) {
       golden: kind === "test" ? [...new Set([...(was?.golden ?? []), ...list(golden), ...(golden ? [] : tsk.golden ?? [])])] : [],
       addedAt: was?.addedAt ?? now(),
     };
-    upsert(FILES.impl(stateDir, id), rec);
+    upsert(FILES.impl(stateDir, id, impId), rec);
     addEdges(stateDir, [{ from: impId, rel: "implements", to: id }]);
     added.push(rec);
   }

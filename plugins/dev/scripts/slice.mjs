@@ -11,9 +11,26 @@ import { byId, of } from "./lib.mjs";
 
 const raw = (a) => a?.raw ?? {};
 
+/**
+ * The entities a slice touches. Two keys, not one: the aggregate whose state machine the use case's
+ * steps name — a create enters the initial state and moves nothing, so transitions alone never find
+ * it — and every entity whose invariant is one of the rules those steps enforce. Picking by invariant
+ * alone left ENT-001 Booking out of UC-rental-001's slice, the record the use case exists to write.
+ */
+function entitiesFor(state, uc, brs) {
+  const ent = of(state, "ENT").map((a) => a.raw);
+  const text = [uc.precondition ?? "", ...(uc.flows ?? []).flatMap((f) => (f.steps ?? []).map((s) => s.step ?? ""))].join(" \n ");
+  const named = of(state, "STM")
+    .map((a) => a.raw)
+    .filter((m) => (m.states ?? []).some((x) => new RegExp(`(^|[^A-Za-z])${x.name}([^A-Za-z]|$)`).test(text)))
+    .map((m) => m.entity);
+  const keep = new Set(named);
+  for (const e of ent) if (brs.size === 0 || (e.invariants ?? []).some((i) => brs.has(i))) keep.add(e.id);
+  return ent.filter((e) => keep.has(e.id));
+}
+
 export function sliceOf(state, tsk, cmps) {
   const uc = byId(state, tsk.usecase);
-  const ent = of(state, "ENT").map((a) => a.raw);
   const brs = new Set((raw(uc).flows ?? []).flatMap((f) => (f.steps ?? []).flatMap((s) => s.enforces ?? [])));
   return {
     uc: raw(uc),
@@ -22,7 +39,7 @@ export function sliceOf(state, tsk, cmps) {
     screens: (tsk.screens ?? []).map((id) => raw(byId(state, id))),
     mocks: (tsk.mocks ?? []).map((id) => raw(byId(state, id))),
     rules: [...brs].map((id) => raw(byId(state, id))).filter((r) => r.id),
-    entities: ent.filter((e) => brs.size === 0 || (e.invariants ?? []).some((i) => brs.has(i))),
+    entities: entitiesFor(state, raw(uc), brs),
     states: of(state, "STM").map((a) => a.raw),
     apis: of(state, "API").map((a) => a.raw).filter((api) => (tsk.screens ?? []).some((ui) => (api.derivedFrom ?? []).includes(ui) || api.ui === ui)),
     acls: of(state, "ACL").map((a) => a.raw).filter((acl) => (tsk.screens ?? []).includes(acl.ui)),

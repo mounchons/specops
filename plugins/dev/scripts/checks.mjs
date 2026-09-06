@@ -18,6 +18,12 @@ const raw = (a) => a.raw ?? {};
 const STARTED = new Set(["approved", "implemented"]);
 const SKIP = new Set(["bin", "obj", "node_modules", ".git", ".sdlc", "dist", "build", "out", "packages", "TestResults"]);
 
+// Files that are not source in any language but decide whether the thing runs: the sweep counts them
+// under every component root, because a Dockerfile no IMP owns is a file nobody can trace to a slice
+// and the component's own run.up depends on it. Names first, then extensions.
+const CONFIG_NAMES = new Set(["Dockerfile", "docker-compose.yml", "docker-compose.yaml", "Makefile", ".dockerignore", "package.json", "tsconfig.json", "pyproject.toml", "go.mod", "Gemfile", "Cargo.toml"]);
+const CONFIG_EXTENSIONS = [".csproj", ".fsproj", ".sln", ".props", ".targets"];
+
 const EXTENSIONS = {
   csharp: [".cs"], "c#": [".cs"], typescript: [".ts", ".tsx"], javascript: [".js", ".mjs", ".jsx"],
   python: [".py"], java: [".java"], go: [".go"], ruby: [".rb"], php: [".php"], rust: [".rs"], kotlin: [".kt"],
@@ -121,7 +127,8 @@ export const CHECKS = {
         continue;
       }
       const root = path.join(codeRootFor(stateDir, cmp), cmp.root);
-      for (const f of walk(root, (p) => exts.includes(path.extname(p)))) {
+      const counts = (p) => exts.includes(path.extname(p)) || CONFIG_EXTENSIONS.includes(path.extname(p)) || CONFIG_NAMES.has(path.basename(p));
+      for (const f of walk(root, counts)) {
         const rel = path.relative(codeRootFor(stateDir, cmp), f).split(path.sep).join("/");
         if (rel.split("/").some((seg) => SKIP.has(seg))) continue;
         if (!owned.has(rel)) orphans.push(rel);
